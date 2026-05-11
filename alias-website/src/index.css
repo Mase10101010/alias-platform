@@ -1,0 +1,144 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =========================================================================
+   Alias — Global stylesheet
+   Premium dark luxury-tech aesthetic. Cyan accent. Editorial typography.
+   ========================================================================= */
+
+:root {
+  --ink: #06080a;
+  --ink-50: #0a0d0e;
+  --ink-100: #0e1114;
+  --cyan: #7fe3e6;
+  --cyan-deep: #5bc8cc;
+  --border-soft: rgba(255, 255, 255, 0.06);
+  --border-medium: rgba(255, 255, 255, 0.1);
+  --text-muted: rgba(255, 255, 255, 0.55);
+}
+
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html {
+  scroll-behavior: smooth;
+  background: var(--ink);
+}
+
+body {
+  background: var(--ink);
+  color: white;
+  font-family: "Inter Tight", system-ui, sans-serif;
+  font-weight: 300;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: rgba(127, 227, 230, 0.25);
+  color: white;
+}
+
+/* Subtle global grain overlay (referenced via .grain-overlay element) */
+.grain-overlay {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Custom thin scrollbar (premium feel) */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--ink);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  border: 2px solid var(--ink);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* Reusable utility classes -------------------------------------------------- */
+.font-display {
+  font-family: "Fraunces", "Cormorant Garamond", serif;
+}
+
+.font-sans-tight {
+  font-family: "Inter Tight", system-ui, sans-serif;
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+/* Headline scale used across sections */
+.headline-hero {
+  font-family: "Fraunces", "Cormorant Garamond", serif;
+  font-weight: 300;
+  font-size: clamp(2.6rem, 6.4vw, 5.4rem);
+  line-height: 1.02;
+  letter-spacing: -0.025em;
+}
+
+.headline-section {
+  font-family: "Fraunces", "Cormorant Garamond", serif;
+  font-weight: 300;
+  font-size: clamp(2rem, 4.4vw, 3.6rem);
+  line-height: 1.08;
+  letter-spacing: -0.022em;
+}
+
+/* Tracked uppercase labels */
+.eyebrow {
+  font-family: "Inter Tight", system-ui, sans-serif;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.32em;
+  color: var(--cyan);
+}
+
+/* Premium card surface */
+.surface-card {
+  background: linear-gradient(
+    180deg,
+    rgba(18, 21, 24, 0.9) 0%,
+    rgba(10, 12, 14, 0.9) 100%
+  );
+  border: 1px solid var(--border-soft);
+}
+
+/* Cyan button glow */
+.btn-cyan {
+  background: var(--cyan);
+  color: var(--ink-50);
+  transition: box-shadow 0.4s ease, transform 0.4s ease;
+}
+.btn-cyan:hover {
+  box-shadow: 0 0 40px rgba(127, 227, 230, 0.3);
+}
+
+/* Hide scrollbar in horizontal areas if needed */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Reduce motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
