@@ -7,6 +7,8 @@ import {
 } from 'lucide-react';
 
 import { cyan } from '@/lib/data';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+
 
 type Restaurant = {
   id: string;
@@ -32,8 +34,8 @@ export function Overview() {
     async function loadDashboard() {
       try {
         const [restaurantRes, reservationsRes] = await Promise.all([
-          fetch('/api/v1/restaurants'),
-          fetch('/api/v1/reservations'),
+          fetch(`${API_BASE_URL}/api/v1/restaurants`),
+          fetch(`${API_BASE_URL}/api/v1/reservations`),
         ]);
 
         const restaurantData = await restaurantRes.json();

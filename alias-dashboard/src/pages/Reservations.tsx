@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Search } from 'lucide-react';
 import { cyan } from '@/lib/data';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 type Reservation = {
   id: string;
@@ -19,7 +20,7 @@ export function Reservations() {
     async function loadReservations() {
       try {
         const response = await fetch(
-          '/api/v1/reservations',
+          `${API_BASE_URL}/api/v1/reservations`,
         );
 
         const data = await response.json();
