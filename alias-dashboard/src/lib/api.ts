@@ -1,3 +1,5 @@
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+
 export type RestaurantCreate = {
   name: string;
   slug: string;
@@ -21,7 +23,7 @@ export type RestaurantResponse = RestaurantCreate & {
 export async function createRestaurant(
   payload: RestaurantCreate,
 ): Promise<RestaurantResponse> {
-  const response = await fetch('/api/v1/restaurants', {
+  const response = await fetch(`${API_BASE_URL}/api/v1/restaurants`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
