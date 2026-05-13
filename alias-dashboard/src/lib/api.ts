@@ -42,7 +42,11 @@ export async function createRestaurant(
   if (!response.ok) {
     const error = await response.json().catch(() => null);
 
-    throw new Error(error?.detail ?? 'Unable to create restaurant');
+    throw new Error(
+      typeof error?.detail === 'string'
+        ? error.detail
+        : JSON.stringify(error?.detail ?? 'Unable to create restaurant')
+    );
   }
 
   return response.json();
