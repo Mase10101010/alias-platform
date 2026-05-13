@@ -7,8 +7,8 @@ import {
 } from 'lucide-react';
 
 import { cyan } from '@/lib/data';
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 type Restaurant = {
   id: string;
@@ -33,16 +33,27 @@ export function Overview() {
   useEffect(() => {
     async function loadDashboard() {
       try {
-        const [restaurantRes, reservationsRes] = await Promise.all([
-          fetch(`${API_BASE_URL}/api/v1/restaurants`),
-          fetch(`${API_BASE_URL}/api/v1/reservations`),
-        ]);
+        const token = localStorage.getItem('alias_access_token');
+
+        const restaurantRes = await fetch(
+          `${API_BASE_URL}/api/v1/restaurants`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        );
+
+        if (!restaurantRes.ok) {
+          throw new Error('Unable to load restaurants');
+        }
 
         const restaurantData = await restaurantRes.json();
-        const reservationsData = await reservationsRes.json();
 
         setRestaurant(restaurantData[0] || null);
-        setReservations(reservationsData || []);
+
+        // reservations placeholder for now
+        setReservations([]);
       } catch (error) {
         console.error('Failed to load dashboard', error);
       } finally {
