@@ -19,9 +19,17 @@ export function Reservations() {
   useEffect(() => {
     async function loadReservations() {
       try {
-        const response = await fetch(
-          `${API_BASE_URL}/api/v1/reservations`,
-        );
+        const token = localStorage.getItem('alias_access_token');
+
+        const response = await fetch(`${API_BASE_URL}/api/v1/reservations`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error('Unable to load reservations');
+        }
 
         const data = await response.json();
 
