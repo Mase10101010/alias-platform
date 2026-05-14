@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Send, Sparkles } from 'lucide-react';
 
 import { cyan } from '@/lib/data';
+import { sendChatMessage } from '@/lib/api';
 
 type Message = {
   role: 'guest' | 'concierge';
@@ -18,23 +19,51 @@ export function Concierge() {
   ]);
 
   const [input, setInput] = useState('');
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  function handleSend() {
-    if (!input.trim()) return;
+  async function handleSend() {
+    if (!input.trim() || loading) return;
 
-    const guestMessage: Message = {
-      role: 'guest',
-      content: input.trim(),
-    };
+    const userMessage = input.trim();
 
-    const conciergeReply: Message = {
-      role: 'concierge',
-      content:
-        'I received the request. Soon I will be connected to the live AI booking system.',
-    };
+    setMessages((current) => [
+      ...current,
+      {
+        role: 'guest',
+        content: userMessage,
+      },
+    ]);
 
-    setMessages((current) => [...current, guestMessage, conciergeReply]);
     setInput('');
+    setLoading(true);
+
+    try {
+      const response = await sendChatMessage(userMessage, sessionId);
+
+      setSessionId(response.session_id);
+
+      setMessages((current) => [
+        ...current,
+        {
+          role: 'concierge',
+          content: response.reply,
+        },
+      ]);
+    } catch (error) {
+      setMessages((current) => [
+        ...current,
+        {
+          role: 'concierge',
+          content:
+            'Sorry, something went wrong while contacting the AI service.',
+        },
+      ]);
+
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -66,7 +95,7 @@ export function Concierge() {
           }}
         >
           <Sparkles size={16} />
-          AI preview mode
+          AI live connection
         </div>
       </div>
 
@@ -92,6 +121,14 @@ export function Concierge() {
               </div>
             );
           })}
+
+          {loading && (
+            <div className="flex justify-start">
+              <div className="rounded-3xl bg-white/[.045] px-5 py-4 text-sm text-white/50">
+                Alias is thinking…
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="mt-6 flex gap-3 rounded-2xl border border-white/10 bg-white/[.03] p-3">
@@ -109,10 +146,11 @@ export function Concierge() {
 
           <button
             onClick={handleSend}
-            className="flex h-11 w-11 items-center justify-center rounded-full text-black"
+            disabled={loading}
+            className="flex h-11 w-11 items-center justify-center rounded-full text-black disabled:opacity-60"
             style={{ background: cyan }}
           >
-            <Send size={17} />
+            {loading ? '...' : <Send size={17} />}
           </button>
         </div>
       </div>

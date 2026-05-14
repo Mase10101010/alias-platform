@@ -128,3 +128,34 @@ export async function createReservation(
 
   return response.json();
 }
+
+export type ChatResponse = {
+  session_id: string;
+  reply: string;
+  reservation_id?: string | null;
+};
+
+export async function sendChatMessage(
+  message: string,
+  sessionId?: string | null,
+): Promise<ChatResponse> {
+  const token = getAuthToken();
+
+  const response = await fetch(`${API_BASE_URL}/api/v1/chat`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      session_id: sessionId ?? null,
+      message,
+    }),
+  });
+
+  if (!response.ok) {
+    throw await parseApiError(response, 'Unable to send chat message');
+  }
+
+  return response.json();
+}
