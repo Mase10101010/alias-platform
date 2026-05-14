@@ -53,7 +53,20 @@ export function Overview() {
         setRestaurant(restaurantData[0] || null);
 
         // reservations placeholder for now
-        setReservations([]);
+        const reservationsRes = await fetch(`${API_BASE_URL}/api/v1/reservations`, {
+          headers: {
+            Authorization: `Bearer${token}`,
+          }
+        });
+
+        if (!reservationsRes.ok) {
+          throw new Error('Unable to load reservations');
+        }
+
+        const reservationsData = await reservationsRes.json();
+
+        setReservations(reservationsData);
+
       } catch (error) {
         console.error('Failed to load dashboard', error);
       } finally {
