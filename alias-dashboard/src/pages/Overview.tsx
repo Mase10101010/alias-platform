@@ -49,15 +49,23 @@ export function Overview() {
         }
 
         const restaurantData = await restaurantRes.json();
+        const firstRestaurant = restaurantData[0] || null;
 
-        setRestaurant(restaurantData[0] || null);
+        setRestaurant(firstRestaurant);
 
-        // reservations placeholder for now
-        const reservationsRes = await fetch(`${API_BASE_URL}/api/v1/reservations`, {
-          headers: {
-            Authorization: `Bearer${token}`,
-          }
-        });
+        if (!firstRestaurant) {
+          setReservations([]);
+          return;
+        }
+
+        const reservationsRes = await fetch(
+          `${API_BASE_URL}/api/v1/reservations`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        );
 
         if (!reservationsRes.ok) {
           throw new Error('Unable to load reservations');
@@ -66,7 +74,6 @@ export function Overview() {
         const reservationsData = await reservationsRes.json();
 
         setReservations(reservationsData);
-
       } catch (error) {
         console.error('Failed to load dashboard', error);
       } finally {
