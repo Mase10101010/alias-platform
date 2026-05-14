@@ -138,6 +138,7 @@ export type ChatResponse = {
 export async function sendChatMessage(
   message: string,
   sessionId?: string | null,
+  restaurantId?: string | null,
 ): Promise<ChatResponse> {
   const token = getAuthToken();
 
@@ -148,6 +149,7 @@ export async function sendChatMessage(
       Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({
+      restaurant_id: restaurantId ?? null,
       session_id: sessionId ?? null,
       message,
     }),

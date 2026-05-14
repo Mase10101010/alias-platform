@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Send, Sparkles } from 'lucide-react';
 
 import { cyan } from '@/lib/data';
-import { sendChatMessage } from '@/lib/api';
+import { getRestaurants, sendChatMessage } from '@/lib/api';
 
 type Message = {
   role: 'guest' | 'concierge';
@@ -21,6 +21,20 @@ export function Concierge() {
   const [input, setInput] = useState('');
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const[restaurantId, setRestaurantId] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function loadRestaurant() {
+      try {
+        const restaurants = await getRestaurants();
+        setRestaurantId(restaurants[0]?.id ?? null);
+      } catch (error) {
+        console.error('Failed to load restaurant for concierge', error);
+      }
+    }
+
+    loadRestaurant();
+  }, []);
 
   async function handleSend() {
     if (!input.trim() || loading) return;
@@ -39,7 +53,11 @@ export function Concierge() {
     setLoading(true);
 
     try {
-      const response = await sendChatMessage(userMessage, sessionId);
+      const response = await sendChatMessage(
+        userMessage,
+        sessionId,
+        restaurantId,
+      );
 
       setSessionId(response.session_id);
 
