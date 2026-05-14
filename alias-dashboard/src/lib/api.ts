@@ -21,8 +21,38 @@ export type RestaurantResponse = RestaurantCreate & {
   updated_at: string;
 };
 
+export type ReservationCreate = {
+  restaurant_id?: string;
+  customer_name: string;
+  customer_phone: string;
+  customer_email?: string;
+  party_size: number;
+  reservation_time: string;
+  special_requests?: string;
+  duration_minutes?: number;
+};
+
+export type ReservationResponse = ReservationCreate & {
+  id: string;
+  duration_minutes: number;
+  status: string;
+  session_id?: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
 function getAuthToken() {
   return localStorage.getItem('alias_access_token');
+}
+
+async function parseApiError(response: Response, fallback: string) {
+  const error = await response.json().catch(() => null);
+
+  return new Error(
+    typeof error?.detail === 'string'
+      ? error.detail
+      : JSON.stringify(error?.detail ?? fallback),
+  );
 }
 
 export async function createRestaurant(
@@ -40,13 +70,7 @@ export async function createRestaurant(
   });
 
   if (!response.ok) {
-    const error = await response.json().catch(() => null);
-
-    throw new Error(
-      typeof error?.detail === 'string'
-        ? error.detail
-        : JSON.stringify(error?.detail ?? 'Unable to create restaurant')
-    );
+    throw await parseApiError(response, 'Unable to create restaurant');
   }
 
   return response.json();
@@ -62,9 +86,44 @@ export async function getRestaurants(): Promise<RestaurantResponse[]> {
   });
 
   if (!response.ok) {
-    const error = await response.json().catch(() => null);
+    throw await parseApiError(response, 'Unable to load restaurants');
+  }
 
-    throw new Error(error?.detail ?? 'Unable to load restaurants');
+  return response.json();
+}
+
+export async function getReservations(): Promise<ReservationResponse[]> {
+  const token = getAuthToken();
+
+  const response = await fetch(`${API_BASE_URL}/api/v1/reservations`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw await parseApiError(response, 'Unable to load reservations');
+  }
+
+  return response.json();
+}
+
+export async function createReservation(
+  payload: ReservationCreate,
+): Promise<ReservationResponse> {
+  const token = getAuthToken();
+
+  const response = await fetch(`${API_BASE_URL}/api/v1/reservations`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    throw await parseApiError(response, 'Unable to create reservation');
   }
 
   return response.json();
