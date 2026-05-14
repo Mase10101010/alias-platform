@@ -4,6 +4,8 @@ import { Copy, ExternalLink } from 'lucide-react';
 import { cyan } from '@/lib/data';
 import { getRestaurants, type RestaurantResponse } from '@/lib/api';
 
+import { QRCodeSVG } from 'qrcode.react';
+
 function getPublicConciergeUrl(slug: string) {
   return `https://alias-platform.vercel.app/concierge?restaurant=${slug}`;
 }
@@ -143,6 +145,40 @@ export function Settings() {
             multiline
           />
         </div>
+
+<div className="mt-10 border-t border-white/10 pt-8">
+  <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
+    <div>
+      <p
+        className="text-[11px] uppercase tracking-[0.28em]"
+        style={{ color: cyan }}
+      >
+        QR Access
+      </p>
+
+      <h3 className="mt-3 font-display text-3xl font-light tracking-[-.04em]">
+        Instant guest access.
+      </h3>
+
+      <p className="mt-3 max-w-xl text-sm leading-7 text-white/45">
+        Guests can scan this QR code to instantly open your AI concierge and
+        make reservations without downloading any app.
+      </p>
+    </div>
+
+    {conciergeUrl && (
+      <div className="rounded-3xl border border-white/10 bg-white p-5">
+        <QRCodeSVG
+          value={conciergeUrl}
+          size={180}
+          bgColor="#ffffff"
+          fgColor="#000000"
+          includeMargin
+        />
+      </div>
+    )}
+  </div>
+</div>
       </div>
     </div>
   );
