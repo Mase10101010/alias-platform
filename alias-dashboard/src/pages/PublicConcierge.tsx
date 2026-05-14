@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Send, Sparkles } from 'lucide-react';
+import { Send, Sparkles, ShieldCheck } from 'lucide-react';
 
 import { cyan } from '@/lib/data';
 import { sendPublicChatMessage } from '@/lib/api';
@@ -11,11 +11,24 @@ type Message = {
 
 function getRestaurantSlug() {
   const params = new URLSearchParams(window.location.search);
-  return params.get('restaurant') || 'alias-test';
+  return params.get('restaurant') || 'alias-demo';
+}
+
+function formatRestaurantName(slug: string) {
+  return slug
+    .split('-')
+    .filter(Boolean)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
 }
 
 export function PublicConcierge() {
   const restaurantSlug = useMemo(() => getRestaurantSlug(), []);
+  const restaurantName = useMemo(
+    () => formatRestaurantName(restaurantSlug),
+    [restaurantSlug],
+  );
+
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -23,8 +36,7 @@ export function PublicConcierge() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'concierge',
-      content:
-        'Good evening. I am Alias Concierge. How can I help you with your reservation?',
+      content: `Good evening. I am the AI Concierge for ${restaurantName}. I can help you reserve a table, check availability, or share special requests with the team.`,
     },
   ]);
 
@@ -68,7 +80,7 @@ export function PublicConcierge() {
         {
           role: 'concierge',
           content:
-            'Sorry, I am having trouble connecting right now. Please try again shortly.',
+            'Sorry, I am having trouble connecting right now. Please try again shortly or contact the restaurant directly.',
         },
       ]);
     } finally {
@@ -77,8 +89,13 @@ export function PublicConcierge() {
   }
 
   return (
-    <main className="grain flex min-h-screen items-center justify-center bg-ink px-4 py-8 text-white">
-      <div className="w-full max-w-xl">
+    <main className="grain relative flex min-h-screen items-center justify-center overflow-hidden bg-ink px-4 py-8 text-white">
+      <div
+        className="absolute left-1/2 top-0 h-[420px] w-[680px] -translate-x-1/2 rounded-full blur-3xl"
+        style={{ background: `${cyan}12` }}
+      />
+
+      <div className="relative z-10 w-full max-w-xl">
         <div className="mb-5 flex items-center justify-between">
           <div>
             <p
@@ -89,8 +106,12 @@ export function PublicConcierge() {
             </p>
 
             <h1 className="mt-2 font-display text-3xl font-light tracking-[-.04em]">
-              Reserve your table.
+              {restaurantName}
             </h1>
+
+            <p className="mt-2 text-sm text-white/45">
+              Reserve your table with the restaurant’s AI concierge.
+            </p>
           </div>
 
           <div
@@ -105,7 +126,12 @@ export function PublicConcierge() {
           </div>
         </div>
 
-        <div className="glass flex h-[640px] flex-col rounded-3xl p-5">
+        <div className="glass flex h-[640px] flex-col rounded-3xl p-5 shadow-2xl">
+          <div className="mb-4 flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[.025] px-4 py-3 text-xs text-white/42">
+            <ShieldCheck size={15} style={{ color: cyan }} />
+            Your booking details are sent securely to the restaurant team.
+          </div>
+
           <div className="flex-1 space-y-4 overflow-y-auto pr-2">
             {messages.map((message, index) => {
               const isGuest = message.role === 'guest';
@@ -133,7 +159,7 @@ export function PublicConcierge() {
             {loading && (
               <div className="flex justify-start">
                 <div className="rounded-3xl bg-white/[.055] px-5 py-4 text-sm text-white/50">
-                  Alias is thinking…
+                  Alias is checking availability…
                 </div>
               </div>
             )}
