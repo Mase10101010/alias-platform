@@ -4,6 +4,7 @@ import { cyan } from '@/lib/data';
 
 const items = [
   { id: 'home', label: 'Overview', icon: Home },
+  { id: 'concierge', label: 'Concierge AI', icon: Sparkles },
   { id: 'onboarding', label: 'Onboarding', icon: Sparkles },
   { id: 'reservations', label: 'Reservations', icon: CalendarDays },
   { id: 'analytics', label: 'Analytics', icon: ChartNoAxesCombined },

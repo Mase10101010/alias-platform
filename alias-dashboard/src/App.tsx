@@ -10,10 +10,12 @@ import { Onboarding } from '@/pages/Onboarding';
 import { Reservations } from '@/pages/Reservations';
 import { Analytics } from '@/pages/Analytics';
 import { Settings } from '@/pages/Settings';
+import { Concierge } from '@/pages/Concierge';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 function Page({ active }: { active: string }) {
+  if (active === 'concierge') return <Concierge />;
   if (active === 'onboarding') return <Onboarding />;
   if (active === 'reservations') return <Reservations />;
   if (active === 'analytics') return <Analytics />;
