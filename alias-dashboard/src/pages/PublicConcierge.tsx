@@ -1,12 +1,13 @@
 import { useMemo, useState } from 'react';
-import { Send, Sparkles, ShieldCheck } from 'lucide-react';
+import { CheckCircle2, Send, Sparkles, ShieldCheck } from 'lucide-react';
 
 import { cyan } from '@/lib/data';
 import { sendPublicChatMessage } from '@/lib/api';
 
 type Message = {
-  role: 'guest' | 'concierge';
+  role: 'guest' | 'concierge' | 'confirmation';
   content: string;
+  reservationId?: string;
 };
 
 function getRestaurantSlug() {
@@ -71,6 +72,15 @@ export function PublicConcierge() {
           role: 'concierge',
           content: response.reply,
         },
+        ...(response.reservation_id
+          ? [
+              {
+                role: 'confirmation' as const,
+                content: 'Your reservation has been recorded successfully.',
+                reservationId: response.reservation_id,
+              },
+            ]
+          : []),
       ]);
     } catch (error) {
       console.error(error);
@@ -134,6 +144,41 @@ export function PublicConcierge() {
 
           <div className="flex-1 space-y-4 overflow-y-auto pr-2">
             {messages.map((message, index) => {
+              if (message.role === 'confirmation') {
+                return (
+                  <div key={index} className="flex justify-start">
+                    <div
+                      className="w-full rounded-3xl border px-5 py-5"
+                      style={{
+                        borderColor: `${cyan}30`,
+                        background: `${cyan}10`,
+                      }}
+                    >
+                      <div className="flex items-center gap-3">
+                        <CheckCircle2 size={22} style={{ color: cyan }} />
+                        <div>
+                          <p className="font-display text-2xl font-light text-white">
+                            Reservation confirmed
+                          </p>
+                          <p className="mt-1 text-sm text-white/50">
+                            Your booking is now registered with {restaurantName}.
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="mt-5 rounded-2xl border border-white/10 bg-black/20 px-4 py-3">
+                        <p className="text-[10px] uppercase tracking-[.22em] text-white/35">
+                          Reservation ID
+                        </p>
+                        <p className="mt-2 break-all font-mono text-xs text-white/70">
+                          {message.reservationId}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              }
+
               const isGuest = message.role === 'guest';
 
               return (
