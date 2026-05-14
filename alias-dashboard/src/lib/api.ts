@@ -161,3 +161,28 @@ export async function sendChatMessage(
 
   return response.json();
 }
+export async function sendPublicChatMessage(
+  restaurantSlug: string,
+  message: string,
+  sessionId?: string | null,
+): Promise<ChatResponse> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/chat/public/${restaurantSlug}`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        session_id: sessionId ?? null,
+        message,
+      }),
+    },
+  );
+
+  if (!response.ok) {
+    throw await parseApiError(response, 'Unable to send public chat message');
+  }
+
+  return response.json();
+}

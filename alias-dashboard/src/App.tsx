@@ -11,6 +11,7 @@ import { Reservations } from '@/pages/Reservations';
 import { Analytics } from '@/pages/Analytics';
 import { Settings } from '@/pages/Settings';
 import { Concierge } from '@/pages/Concierge';
+import { PublicConcierge } from '@/pages/PublicConcierge';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
@@ -27,6 +28,11 @@ export default function App() {
   const [authed, setAuthed] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [active, setActive] = useState('home');
+  const isPublicConcierge = window.location.pathname === '/concierge';
+
+  if (isPublicConcierge) {
+    return <PublicConcierge />
+  }
 
   useEffect(() => {
     async function verifySession() {
