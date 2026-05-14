@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Copy, ExternalLink } from 'lucide-react';
-import { QRCodeSVG } from 'qrcode.react';
 
 import { cyan } from '@/lib/data';
 import { getRestaurants, type RestaurantResponse } from '@/lib/api';
@@ -169,12 +168,12 @@ export function Settings() {
 
             {conciergeUrl && (
               <div className="rounded-3xl border border-white/10 bg-white p-5">
-                <QRCodeSVG
-                  value={conciergeUrl}
-                  size={180}
-                  bgColor="#ffffff"
-                  fgColor="#000000"
-                  includeMargin
+                <img
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(
+                    conciergeUrl,  
+                  )}`}
+                  alt="Alias Concierge QR code"
+                  className="h-[180px] w-[180px]"
                 />
               </div>
             )}
