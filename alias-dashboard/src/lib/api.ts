@@ -186,3 +186,37 @@ export async function sendPublicChatMessage(
 
   return response.json();
 }
+
+export type ConversationMessage = {
+  id: string;
+  role: 'system' | 'user' | 'assistant' | 'tool';
+  content: string;
+  created_at: string;
+};
+
+export type ConversationHistoryResponse = {
+  session_id: string;
+  customer_name?: string | null;
+  messages: ConversationMessage[];
+};
+
+export async function getConversationHistory(
+  sessionId: string,
+): Promise<ConversationHistoryResponse> {
+  const token = getAuthToken();
+
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/chat/${sessionId}/history`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+
+  if (!response.ok) {
+    throw await parseApiError(response, 'Unable to load conversation history');
+  }
+
+  return response.json();
+}

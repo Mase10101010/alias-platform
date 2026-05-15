@@ -4,7 +4,9 @@ import { Plus, Search, X } from 'lucide-react';
 import { cyan } from '@/lib/data';
 import {
   createReservation,
+  getConversationHistory,
   getReservations,
+  type ConversationHistoryResponse,
   type ReservationResponse,
 } from '@/lib/api';
 
@@ -36,6 +38,15 @@ export function Reservations() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [selectedReservation, setSelectedReservation] =
+    useState<ReservationResponse | null>(null);
+  const [conversation, setConversation] =
+    useState<ConversationHistoryResponse | null>(null);
+  const [conversationLoading, setConversationLoading] = useState(false);
+  const [conversationError, setConversationError] = useState<string | null>(
+    null,
+  );
+
   async function loadReservations() {
     try {
       setLoading(true);
@@ -63,6 +74,38 @@ export function Reservations() {
       hour: '2-digit',
       minute: '2-digit',
     });
+  }
+
+  async function openConversation(reservation: ReservationResponse) {
+    setSelectedReservation(reservation);
+    setConversation(null);
+    setConversationError(null);
+
+    if (!reservation.session_id) {
+      setConversationError(
+        'No AI conversation is linked to this reservation.',
+      );
+      return;
+    }
+
+    setConversationLoading(true);
+
+    try {
+      const history = await getConversationHistory(reservation.session_id);
+      setConversation(history);
+    } catch (err) {
+      console.error('Failed to load conversation history', err);
+      setConversationError('Unable to load conversation history.');
+    } finally {
+      setConversationLoading(false);
+    }
+  }
+
+  function closeConversation() {
+    setSelectedReservation(null);
+    setConversation(null);
+    setConversationError(null);
+    setConversationLoading(false);
   }
 
   async function handleCreateReservation() {
@@ -292,7 +335,10 @@ export function Reservations() {
               </span>
 
               <div>
-                <button className="rounded-full border border-white/10 px-4 py-2 text-xs uppercase tracking-[.18em] text-white/60 transition hover:border-white/20 hover:text-white">
+                <button
+                  onClick={() => openConversation(reservation)}
+                  className="rounded-full border border-white/10 px-4 py-2 text-xs uppercase tracking-[.18em] text-white/60 transition hover:border-white/20 hover:text-white"
+                >
                   View conversation
                 </button>
               </div>
@@ -300,6 +346,84 @@ export function Reservations() {
           ))
         )}
       </div>
+
+      {selectedReservation && (
+        <div className="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-sm">
+          <div className="h-full w-full max-w-xl border-l border-white/10 bg-ink p-6 shadow-2xl">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p
+                  className="text-[11px] uppercase tracking-[0.28em]"
+                  style={{ color: cyan }}
+                >
+                  AI Conversation
+                </p>
+
+                <h2 className="mt-3 font-display text-4xl font-light tracking-[-.04em]">
+                  {selectedReservation.customer_name}
+                </h2>
+
+                <p className="mt-2 text-sm text-white/45">
+                  Party of {selectedReservation.party_size} ·{' '}
+                  {formatTime(selectedReservation.reservation_time)}
+                </p>
+              </div>
+
+              <button
+                onClick={closeConversation}
+                className="rounded-full border border-white/10 p-2 text-white/50 transition hover:text-white"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="mt-8 h-[calc(100vh-180px)] space-y-4 overflow-y-auto pr-2">
+              {conversationLoading ? (
+                <div className="text-sm text-white/45">
+                  Loading conversation...
+                </div>
+              ) : conversationError ? (
+                <div className="rounded-2xl border border-red-400/20 bg-red-400/10 px-4 py-3 text-sm text-red-200">
+                  {conversationError}
+                </div>
+              ) : conversation?.messages.length ? (
+                conversation.messages
+                  .filter((message) => message.role !== 'tool')
+                  .map((message) => {
+                    const isUser = message.role === 'user';
+
+                    return (
+                      <div
+                        key={message.id}
+                        className={`flex ${
+                          isUser ? 'justify-end' : 'justify-start'
+                        }`}
+                      >
+                        <div
+                          className="max-w-[82%] rounded-3xl px-5 py-4 text-sm leading-6"
+                          style={{
+                            background: isUser
+                              ? cyan
+                              : 'rgba(255,255,255,.055)',
+                            color: isUser
+                              ? '#050707'
+                              : 'rgba(255,255,255,.84)',
+                          }}
+                        >
+                          {message.content}
+                        </div>
+                      </div>
+                    );
+                  })
+              ) : (
+                <div className="text-sm text-white/45">
+                  No conversation messages found.
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
