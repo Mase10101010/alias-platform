@@ -314,13 +314,14 @@ export function Reservations() {
                 {reservation.party_size}
               </span>
 
-              <span
+              <div className="flex items-center gap-2">
+                <span
                 className="justify-self-start rounded-full px-2.5 py-1 text-[11px] uppercase tracking-[.12em]"
                 style={{
                   color:
                     reservation.status === 'confirmed'
-                      ? cyan
-                      : 'rgba(255,255,255,.62)',
+                    ? cyan
+                    : 'rgba(255,255,255,.62)',
                   background:
                     reservation.status === 'confirmed'
                       ? `${cyan}12`
@@ -329,6 +330,19 @@ export function Reservations() {
               >
                 {reservation.status}
               </span>
+
+              {reservation.session_id && (
+                <span
+                  className="rounded-full px-2 py-1 text-[10px] uppercase tracking-[.18em]"
+                  style={{
+                    background: `${cyan}18`,
+                    color: cyan,
+                  }}
+                >
+                  AI
+                </span>
+              )}
+            </div>
 
               <span className="text-white/45">
                 {reservation.special_requests || '—'}
