@@ -37,7 +37,7 @@ export function PublicConcierge() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'concierge',
-      content: `Good evening. I am the AI Concierge for ${restaurantName}. I can help you reserve a table, check availability, or share special requests with the team.`,
+      content: `Welcome. I am the AI Concierge for ${restaurantName}. I can help you reserve a table, check availability or share special requests with the team.`,
     },
   ]);
 
