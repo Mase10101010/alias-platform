@@ -279,7 +279,7 @@ export function Reservations() {
       )}
 
       <div className="glass mt-10 overflow-hidden rounded-3xl">
-        <div className="grid grid-cols-[90px_1fr_80px_230px_1fr_160px] border-b border-white/[.06] px-5 py-4 text-[10px] uppercase tracking-[.2em] text-white/35">
+        <div className="grid grid-cols-[90px_1fr_80px_150px_1fr_190px] border-b border-white/[.06] px-5 py-4 text-[10px] uppercase tracking-[.2em] text-white/35">
           <span>Time</span>
           <span>Guest</span>
           <span>Party</span>
@@ -300,7 +300,7 @@ export function Reservations() {
           reservations.map((reservation) => (
             <div
               key={reservation.id}
-              className="grid grid-cols-[90px_1fr_80px_230px_1fr_160px] items-center border-b border-white/[.04] px-5 py-4 text-sm last:border-none"
+              className="grid grid-cols-[90px_1fr_80px_150px_1fr_190px] items-center border-b border-white/[.04] px-5 py-4 text-sm last:border-none"
             >
               <span className="text-white/50">
                 {formatTime(reservation.reservation_time)}
@@ -334,7 +334,7 @@ export function Reservations() {
                 {reservation.special_requests || '—'}
               </span>
 
-              <div className="flex flex-col items-start gap-2">
+              <div className="flex flex-col items-center justify-center gap-2">
                 {reservation.session_id && (
                   <span
                     className="rounded-full px-2 py-1 text-[10px] uppercase tracking-[.18em]"
@@ -349,7 +349,7 @@ export function Reservations() {
 
                 <button
                   onClick={() => openConversation(reservation)}
-                  className="rounded-full border border-white/10 px-4 py-2 text-xs uppercase tracking-[.18em] text-white/60 transition hover:border-white/20 hover:text-white"
+                  className="rounded-full border border-white/10 px-4 py-2 text-center text-xs uppercase tracking-[.18em] text-white/60 transition hover:border-white/20 hover:text-white"
                 >
                   View conversation
                 </button>
