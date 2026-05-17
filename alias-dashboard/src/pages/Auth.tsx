@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 
 import { AliasMark } from '@/components/Brand';
 import { cyan } from '@/lib/data';
+import { forgotPassword } from '@/lib/api';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
@@ -24,6 +25,33 @@ export function Auth({ onEnter }: { onEnter: () => void }) {
   const [fullName, setFullName] = useState('Alessandro Live');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState<string |null>(null);
+  const [isResettingPassword, setIsResettingPassword] = useState(false);
+
+  async function handleForgotPassword() {
+  if (!email) {
+    setError('Enter your email first.');
+    return;
+  }
+
+  try {
+    setError(null);
+    setMessage(null);
+    setIsResettingPassword(true);
+
+    const response = await forgotPassword(email);
+
+    setMessage(response.message);
+  } catch (err) {
+    setError(
+      err instanceof Error
+        ? err.message
+        : 'Unable to request password reset.',
+    );
+  } finally {
+    setIsResettingPassword(false);
+  }
+}
 
   async function handleSubmit() {
     setError(null);
@@ -181,9 +209,26 @@ export function Auth({ onEnter }: { onEnter: () => void }) {
                 onChange={(event) => setPassword(event.target.value)}
               />
 
+              {mode === 'login' && (
+                <button
+                  type="button"
+                  onClick={handleForgotPassword}
+                  disabled={isResettingPassword}
+                  className="text-left text-xs uppercase tracking-[.18em] text-white/40 transition hover:text-white disabled:opacity-50"
+                >
+                  {isResettingPassword ? 'Sending reset link...' : 'Forgot password?'}
+                </button>
+              )}
+
               {error && (
                 <div className="rounded-xl border border-red-400/20 bg-red-400/10 px-4 py-3 text-sm text-red-200">
                   {error}
+                </div>
+              )}
+
+              {message && (
+                <div className="rounded-x1 border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-200">
+                  {message}
                 </div>
               )}
 
