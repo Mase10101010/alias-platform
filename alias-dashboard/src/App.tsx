@@ -12,6 +12,8 @@ import { Analytics } from '@/pages/Analytics';
 import { Settings } from '@/pages/Settings';
 import { Concierge } from '@/pages/Concierge';
 import { PublicConcierge } from '@/pages/PublicConcierge';
+import { ForgotPassword } from '@/pages/ForgotPassword';
+import { ResetPassword } from '@/pages/ResetPassword';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
@@ -29,9 +31,19 @@ export default function App() {
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [active, setActive] = useState('home');
   const isPublicConcierge = window.location.pathname === '/concierge';
+  const isForgotPassword = window.location.pathname === '/forgot-password';
+  const isResetPassword = window.location.pathname === '/reset-password';
 
   if (isPublicConcierge) {
     return <PublicConcierge />
+  }
+
+  if (isForgotPassword) {
+    return <ForgotPassword />;
+  }
+
+  if (isResetPassword) {
+    return <ResetPassword />;
   }
 
   useEffect(() => {

@@ -212,7 +212,9 @@ export function Auth({ onEnter }: { onEnter: () => void }) {
               {mode === 'login' && (
                 <button
                   type="button"
-                  onClick={handleForgotPassword}
+                  onClick={() => {
+                    window.location.href = '/forgot-password';
+                  }}
                   disabled={isResettingPassword}
                   className="text-left text-xs uppercase tracking-[.18em] text-white/40 transition hover:text-white disabled:opacity-50"
                 >
