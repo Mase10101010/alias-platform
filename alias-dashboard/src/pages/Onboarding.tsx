@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 
 import { cyan } from '@/lib/data';
 import { createRestaurant } from '@/lib/api';
+import { button } from 'framer-motion/client';
 
 const steps = ['Business', 'Service', 'Concierge', 'Launch'];
 
@@ -416,8 +417,33 @@ function ServiceStep({
                 onChange={(value) => updateField('closing_hour', value)}
               />
             </label>
-          </div>
         </div>
+      </div>
+
+      <div className="mt-6 rounded-3x1 border border-white/10 bg-white/[.02] p-5">
+        <p className="text-xs uppercase tracking-[.22em] text-white/35">
+          Availability
+        </p>
+
+        <h3 className="mt-2 font-display text-2x1 font-light">
+          Opening days
+        </h3>
+
+        <p className="mt-2 text-sm text-white/45">
+          Select the days when the restaurant is open.
+        </p>
+
+        <div className="mt-5 flex flex-wrap gap-3">
+          {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day) => (
+            <button
+              key={day}
+              className="rounded-full border border-white/10 bg-white/[.03] px-4 py-2 text-sm text-white/70 transition hover:border-white/25"
+            >
+              {day}
+            </button>
+          ))}
+        </div>
+      </div>
 
       <div className="mt-8 rounded-3xl border border-white/10 bg-white/[.02] p-6">
         <div className="flex items-center justify-between">
