@@ -19,6 +19,14 @@ type FormState = {
   six_seat_tables: string;
   eight_seat_tables: string;
   concierge_tone: string;
+
+  table_count_input: string;
+  seats_per_table_input: string;
+
+  table_setup: {
+    count: number;
+    seats: number;
+  }[];
 };
 
 const initialForm: FormState = {
@@ -34,6 +42,12 @@ const initialForm: FormState = {
   six_seat_tables: '0',
   eight_seat_tables: '0',
   concierge_tone: 'Elegant',
+
+
+  table_count_input: '',
+  seats_per_table_input: '',
+
+  table_setup: [],
 };
 
 function makeSlug(value: string) {
@@ -59,55 +73,61 @@ export function Onboarding() {
   const [error, setError] = useState<string | null>(null);
 
   const totalTables = useMemo(() => {
-    return (
-      toNumber(form.two_seat_tables) +
-      toNumber(form.four_seat_tables) +
-      toNumber(form.six_seat_tables) +
-      toNumber(form.eight_seat_tables)
-    );
-  }, [
-    form.two_seat_tables,
-    form.four_seat_tables,
-    form.six_seat_tables,
-    form.eight_seat_tables,
-  ]);
+  return form.table_setup.reduce(
+    (total, table) => total + table.count,
+    0,
+  );
+}, [form.table_setup]);
 
   const estimatedSeats = useMemo(() => {
-    return (
-      toNumber(form.two_seat_tables) * 2 +
-      toNumber(form.four_seat_tables) * 4 +
-      toNumber(form.six_seat_tables) * 6 +
-      toNumber(form.eight_seat_tables) * 8
-    );
-  }, [
-    form.two_seat_tables,
-    form.four_seat_tables,
-    form.six_seat_tables,
-    form.eight_seat_tables,
-  ]);
+  return form.table_setup.reduce(
+    (total, table) => total + table.count * table.seats,
+    0,
+  );
+}, [form.table_setup]);
 
   function updateField(field: keyof FormState, value: string) {
     setForm((current) => {
       const next = { ...current, [field]: value };
-
-      if (
-        field === 'two_seat_tables' ||
-        field === 'four_seat_tables' ||
-        field === 'six_seat_tables' ||
-        field === 'eight_seat_tables'
-      ) {
-        const total =
-          toNumber(field === 'two_seat_tables' ? value : next.two_seat_tables) +
-          toNumber(field === 'four_seat_tables' ? value : next.four_seat_tables) +
-          toNumber(field === 'six_seat_tables' ? value : next.six_seat_tables) +
-          toNumber(field === 'eight_seat_tables' ? value : next.eight_seat_tables);
-
-        next.number_of_tables = String(total);
-      }
-
       return next;
     });
   }
+
+function addTableSetup() {
+  const count = toNumber(form.table_count_input);
+  const seats = toNumber(form.seats_per_table_input);
+
+  if (count <= 0 || seats <= 0) {
+    setError('Please enter both the number of tables and seats per table.');
+    return;
+  }
+
+  setError(null);
+
+  setForm((current) => ({
+    ...current,
+    table_setup: [
+      ...current.table_setup,
+      {
+        count,
+        seats,
+      },
+    ],
+    table_count_input: '',
+    seats_per_table_input: '',
+    number_of_tables: String(
+      current.table_setup.reduce((total, table) => total + table.count, 0) +
+        count,
+    ),
+  }));
+}
+
+function removeTableSetup(index: number) {
+  setForm((current) => ({
+    ...current,
+    table_setup: current.table_setup.filter((_, itemIndex) => itemIndex !== index),
+  }));
+}
 
   function validateCurrentStep() {
     if (step === 0) {
@@ -237,6 +257,8 @@ export function Onboarding() {
                 updateField={updateField}
                 totalTables={totalTables}
                 estimatedSeats={estimatedSeats}
+                addTableSetup={addTableSetup}
+                removeTableSetup={removeTableSetup}
               />
             )}
             {step === 2 && <TonePicker form={form} updateField={updateField} />}
@@ -338,11 +360,17 @@ function ServiceStep({
   updateField,
   totalTables,
   estimatedSeats,
+  addTableSetup,
+  removeTableSetup,
 }: {
   form: FormState;
   updateField: (field: keyof FormState, value: string) => void;
   totalTables: number;
   estimatedSeats: number;
+
+  addTableSetup: () => void;
+
+  removeTableSetup: (index: number) => void;
 }) {
   return (
     <>
@@ -392,41 +420,62 @@ function ServiceStep({
           </div>
         </div>
 
-        <div className="mt-8 grid gap-4 md:grid-cols-2">
-          <Input
-            placeholder="2-seat tables"
-            value={form.two_seat_tables}
-            onChange={(value) => updateField('two_seat_tables', value)}
-          />
+        <div className="mt-8 rounded-2xl border border-white/10 bg-black/20 p-5">
+          <div className="grid gap-4 md:grid-cols-[1fr_1fr_auto]">
+            <Input
+              placeholder="Number of tables"
+              value={form.table_count_input}
+              onChange={(value) => updateField('table_count_input', value)}
+            />
 
-          <Input
-            placeholder="4-seat tables"
-            value={form.four_seat_tables}
-            onChange={(value) => updateField('four_seat_tables', value)}
-          />
+            <Input
+              placeholder="Seats per table"
+              value={form.seats_per_table_input}
+              onChange={(value) => updateField('seats_per_table_input', value)}
+            />
 
-          <Input
-            placeholder="6-seat tables"
-            value={form.six_seat_tables}
-            onChange={(value) => updateField('six_seat_tables', value)}
-          />
+            <button
+              onClick={addTableSetup}
+              className="rounded-xl px-5 py-3 text-sm font-medium text-black"
+              style={{ background: cyan }}
+            >
+              Add
+            </button>
+          </div>
 
-          <Input
-            placeholder="8-seat tables"
-            value={form.eight_seat_tables}
-            onChange={(value) => updateField('eight_seat_tables', value)}
-          />
+          <div className="mt-6 space-y-3">
+            {form.table_setup.length === 0 ? (
+              <p className="text-sm text-white/35">
+                No table configurations added yet.
+              </p>
+            ) : (
+              form.table_setup.map((table, index) => (
+                <div
+                  key={`${table.count}-${table.seats}-${index}`}
+                  className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[.03] px-4 py-4"
+                >
+                  <div>
+                    <p className="font-medium text-white">
+                      {table.count} tables · {table.seats} seats each
+                    </p>
+
+                    <p className="mt-1 text-sm text-white/40">
+                      Total seats: {table.count * table.seats}
+                    </p>
+                  </div>
+
+                  <button
+                    onClick={() => removeTableSetup(index)}
+                    className="text-sm text-red-300 transition hover:text-red-200"
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))
+            )}
+          </div>
         </div>
 
-        <div className="mt-8 rounded-2xl border border-cyanAlias/10 bg-cyanAlias/5 p-5">
-          <p className="text-xs uppercase tracking-[.22em] text-cyanAlias">
-            Estimated seating capacity
-          </p>
-
-          <p className="mt-3 font-display text-4xl font-light text-white">
-            {estimatedSeats} seats
-          </p>
-        </div>
       </div>
     </>
   );
