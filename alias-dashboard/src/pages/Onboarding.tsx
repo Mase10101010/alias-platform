@@ -1,9 +1,9 @@
 import { useMemo, useState } from 'react';
-import { motion } from 'framer-motion';
+
 
 import { cyan } from '@/lib/data';
 import { createRestaurant } from '@/lib/api';
-import { button } from 'framer-motion/client';
+import { motion } from 'framer-motion';
 
 const steps = ['Business', 'Service', 'Concierge', 'Launch'];
 
@@ -29,6 +29,13 @@ type FormState = {
     count: number;
     seats: number;
   }[];
+
+  weekly_schedule: {
+    day: string;
+    is_open: boolean;
+    opening_hour: string;
+    closing_hour: string;
+  }[];
 };
 
 const initialForm: FormState = {
@@ -52,6 +59,16 @@ const initialForm: FormState = {
   seats_per_table_input: '',
 
   table_setup: [],
+
+  weekly_schedule: [
+    {day: 'Mon', is_open: true, opening_hour: '11', closing_hour: '22'},
+    {day: 'Tue', is_open: true, opening_hour: '11', closing_hour: '22'},
+    {day: 'Wed', is_open: true, opening_hour: '11', closing_hour: '22'},
+    {day: 'Thu', is_open: true, opening_hour: '11', closing_hour: '22'},
+    {day: 'Fri', is_open: true, opening_hour: '11', closing_hour: '22'},
+    {day: 'Sat', is_open: true, opening_hour: '11', closing_hour: '22'},
+    {day: 'Sun', is_open: false, opening_hour: '11', closing_hour: '22'},
+  ],
 };
 
 function makeSlug(value: string) {
@@ -144,6 +161,24 @@ function toggleOpeningDay(day: string) {
         : [...current.opening_days, day],
     };
   });
+}
+
+function updateWeeklySchedule(
+  day: string,
+  field: 'is_open' | 'opening_hour' | 'closing_hour',
+  value: boolean | string,
+) {
+  setForm((current) => ({
+    ...current,
+    weekly_schedule: current.weekly_schedule.map((item) =>
+      item.day === day
+        ? {
+            ...item,
+            [field]: value,
+          }
+        : item,
+    ),
+  }));
 }
 
   function validateCurrentStep() {
@@ -277,6 +312,7 @@ function toggleOpeningDay(day: string) {
                 addTableSetup={addTableSetup}
                 removeTableSetup={removeTableSetup}
                 toggleOpeningDay={toggleOpeningDay}
+                updateWeeklySchedule={updateWeeklySchedule}
               />
             )}
             {step === 2 && <TonePicker form={form} updateField={updateField} />}
@@ -381,6 +417,7 @@ function ServiceStep({
   addTableSetup,
   removeTableSetup,
   toggleOpeningDay,
+  updateWeeklySchedule,
 }: {
   form: FormState;
   updateField: (field: keyof FormState, value: string) => void;
@@ -388,9 +425,16 @@ function ServiceStep({
   estimatedSeats: number;
   toggleOpeningDay: (day: string) => void;
 
+  updateWeeklySchedule: (
+    day: string,
+    field: 'is_open' | 'opening_hour' | 'closing_hour',
+    value: boolean | string,
+  ) => void;
+
   addTableSetup: () => void;
 
   removeTableSetup: (index: number) => void;
+
 }) {
   return (
     <>
@@ -403,12 +447,12 @@ function ServiceStep({
         can better manage reservations and availability.
       </p>
 
-      <div className="mt-7 rounded-3x1 border border-white/10 bg-white/[.02] p-5">
+      <div className="mt-7 rounded-3xl border border-white/10 bg-white/[.02] p-5">
         <p className="text-xs uppercase tracking-[.22em] text-white/35">
           Opening hours
         </p>
 
-        <h3 className="mt-2 font-display text-2x1 font-light">
+        <h3 className="mt-2 font-display text-2xl font-light">
           Restaurant schedule
         </h3>
 
@@ -439,12 +483,12 @@ function ServiceStep({
         </div>
       </div>
 
-      <div className="mt-6 rounded-3x1 border border-white/10 bg-white/[.02] p-5">
+      <div className="mt-6 rounded-3xl border border-white/10 bg-white/[.02] p-5">
         <p className="text-xs uppercase tracking-[.22em] text-white/35">
           Availability
         </p>
 
-        <h3 className="mt-2 font-display text-2x1 font-light">
+        <h3 className="mt-2 font-display text-2xl font-light">
           Opening days
         </h3>
 
@@ -452,27 +496,71 @@ function ServiceStep({
           Select the days when the restaurant is open.
         </p>
 
-        <div className="mt-5 flex flex-wrap gap-3">
-          {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day) => {
-            const active = form.opening_days.includes(day);
-
-            return (
-              <button
-              key={day}
-              onClick={() => toggleOpeningDay(day)}
-              className="rounded-full border px-4 py-2 text-sm transition"
-              style={{
-                borderColor: active ? cyan : 'rgba(255,255,255,.1)',
-                background: active ? `${cyan}15` : 'rgba(255,255,255,.03)',
-                color: active ? cyan : 'rgba(255,255,255,.7)',
-              }}
+        <div className="mt-5 space-y-3">
+          {form.weekly_schedule.map((schedule) => (
+            <div
+              key={schedule.day}
+              className="flex flex-col gap-4 rounded-2xl border border-white/10 bg-white/[.03] p-4 md:flex-row md:items-center md:justify-between"
             >
-              {day}
-            </button>
-          );
-        })}
-            
-          
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() =>
+                    updateWeeklySchedule(
+                      schedule.day,
+                      'is_open',
+                      !schedule.is_open,
+                    )
+                  }
+                  className="rounded-full border px-4 py-2 text-sm transition"
+                  style={{
+                    borderColor: schedule.is_open
+                      ? cyan
+                      : 'rgba(255,255,255,.1)',
+
+                    background: schedule.is_open
+                      ? `${cyan}15`
+                      : 'rgba(255,255,255,.03)',
+
+                    color: schedule.is_open
+                      ? cyan
+                      : 'rgba(255,255,255,.7)',
+                  }}
+                >
+                  {schedule.day}
+                </button>
+
+                <span className="text-sm text-white/45">
+                  {schedule.is_open ? 'Open' : 'Closed'}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 md:w-[320px]">
+                <Input
+                  placeholder="Open"
+                  value={schedule.opening_hour}
+                  onChange={(value) =>
+                    updateWeeklySchedule(
+                      schedule.day,
+                      'opening_hour',
+                      value,
+                    )
+                  }
+                />
+
+                <Input
+                  placeholder="Close"
+                  value={schedule.closing_hour}
+                  onChange={(value) =>
+                    updateWeeklySchedule(
+                      schedule.day,
+                      'closing_hour',
+                      value,
+                    )
+                  }
+                />
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
