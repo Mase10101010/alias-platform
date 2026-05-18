@@ -383,19 +383,41 @@ function ServiceStep({
         can better manage reservations and availability.
       </p>
 
-      <div className="mt-7 grid gap-4 md:grid-cols-2">
-        <Input
-          placeholder="Opening hour (e.g. 11)"
-          value={form.opening_hour}
-          onChange={(value) => updateField('opening_hour', value)}
-        />
+      <div className="mt-7 rounded-3x1 border border-white/10 bg-white/[.02] p-5">
+        <p className="text-xs uppercase tracking-[.22em] text-white/35">
+          Opening hours
+        </p>
 
-        <Input
-          placeholder="Closing hour (e.g. 22)"
-          value={form.closing_hour}
-          onChange={(value) => updateField('closing_hour', value)}
-        />
-      </div>
+        <h3 className="mt-2 font-display text-2x1 font-light">
+          Restaurant schedule
+        </h3>
+
+        <div className="mt-5 grid gap-4 md:grid-cols-2">
+          <label className="space-y-2">
+            <span className="block text-xs uppercase tracking-[.18em] text-white/40">
+              Opening time
+            </span>
+
+            <Input
+              placeholder="Opening hour (e.g. 11)"
+              value={form.opening_hour}
+              onChange={(value) => updateField('opening_hour', value)}
+              />
+            </label>
+
+            <label className="space-y-2">
+              <span className="block text-xs uppercase tracking-[.18em] text-white/40">
+                Closing time
+              </span>
+
+              <Input
+                placeholder="Closing hour (e.g. 22)"
+                value={form.closing_hour}
+                onChange={(value) => updateField('closing_hour', value)}
+              />
+            </label>
+          </div>
+        </div>
 
       <div className="mt-8 rounded-3xl border border-white/10 bg-white/[.02] p-6">
         <div className="flex items-center justify-between">
