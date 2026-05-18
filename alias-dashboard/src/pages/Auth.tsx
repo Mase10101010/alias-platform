@@ -184,15 +184,14 @@ export function Auth({ onEnter }: { onEnter: () => void }) {
               </button>
             </div>
 
-            <div className="mt-8 space-y-4">
-              {mode === 'register' && (
-                <input
-                  className="w-full rounded-xl border border-white/10 bg-white/[.03] px-4 py-3 text-white outline-none focus:border-white/25"
-                  placeholder="Enter your full name"
-                  value={fullName}
-                  onChange={(event) => setFullName(event.target.value)}
-                />
-              )}
+            <form
+              className="mt-8 space-y-4"
+              onSubmit={(event) => {
+                event.preventDefault();
+                handleSubmit();
+              }}
+            >
+              
 
               <input
                 className="w-full rounded-xl border border-white/10 bg-white/[.03] px-4 py-3 text-white outline-none focus:border-white/25"
@@ -235,7 +234,6 @@ export function Auth({ onEnter }: { onEnter: () => void }) {
               )}
 
               <button
-                onClick={handleSubmit}
                 disabled={isSubmitting}
                 className="w-full rounded-full px-5 py-3 text-sm font-medium text-black transition hover:opacity-90 disabled:opacity-60"
                 style={{ background: cyan }}
@@ -246,7 +244,7 @@ export function Auth({ onEnter }: { onEnter: () => void }) {
                     ? 'Start 14-day trial'
                     : 'Login'}
               </button>
-            </div>
+            </form>
 
             <p className="mt-5 text-center text-sm text-white/38">
               No installation required. Cancel anytime.
