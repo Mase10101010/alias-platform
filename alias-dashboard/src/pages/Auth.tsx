@@ -20,9 +20,9 @@ type AuthResponse = {
 
 export function Auth({ onEnter }: { onEnter: () => void }) {
   const [mode, setMode] = useState<'register' | 'login'>('register');
-  const [email, setEmail] = useState('live@alias.com');
-  const [password, setPassword] = useState('password123');
-  const [fullName, setFullName] = useState('Alessandro Live');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [fullName, setFullName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string |null>(null);
@@ -188,7 +188,7 @@ export function Auth({ onEnter }: { onEnter: () => void }) {
               {mode === 'register' && (
                 <input
                   className="w-full rounded-xl border border-white/10 bg-white/[.03] px-4 py-3 text-white outline-none focus:border-white/25"
-                  placeholder="Full name"
+                  placeholder="Enter your full name"
                   value={fullName}
                   onChange={(event) => setFullName(event.target.value)}
                 />
@@ -196,14 +196,14 @@ export function Auth({ onEnter }: { onEnter: () => void }) {
 
               <input
                 className="w-full rounded-xl border border-white/10 bg-white/[.03] px-4 py-3 text-white outline-none focus:border-white/25"
-                placeholder="Work email"
+                placeholder="Enter your email"
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
               />
 
               <input
                 className="w-full rounded-xl border border-white/10 bg-white/[.03] px-4 py-3 text-white outline-none focus:border-white/25"
-                placeholder="Password"
+                placeholder="Enter your password"
                 type="password"
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
