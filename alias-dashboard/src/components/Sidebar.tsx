@@ -14,8 +14,10 @@ const items = [
   { id: 'concierge', label: 'Concierge AI', icon: Sparkles },
   { id: 'onboarding', label: 'Onboarding', icon: Rocket },
   { id: 'reservations', label: 'Reservations', icon: CalendarDays },
+  { id: 'availability', label: 'Availability', icon: CalendarDays },
   { id: 'analytics', label: 'Analytics', icon: ChartNoAxesCombined },
   { id: 'settings', label: 'Settings', icon: Settings },
+  
 ];
 
 export function Sidebar({ active, setActive }: { active: string; setActive: (id: string) => void }) {
