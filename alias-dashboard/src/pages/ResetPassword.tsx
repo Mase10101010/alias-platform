@@ -98,14 +98,27 @@ export function ResetPassword() {
               </div>
             )}
 
-            <button
-              onClick={handleSubmit}
-              disabled={loading}
-              className="w-full rounded-full px-5 py-3 text-sm font-medium text-black transition hover:opacity-90 disabled:opacity-60"
-              style={{ background: cyan }}
-            >
-              {loading ? 'Updating password...' : 'Reset password'}
-            </button>
+            {message ? (
+              <button
+                onClick={() => {
+                  window.location.href = '/';
+                }}
+                className="w-full rounded-full px-5 py-3 text-sm font-medium text-black transition hover:opacity-90"
+                style={{ background: cyan }}
+              >
+                Back to login
+              </button>
+            ) : (
+              <button
+                onClick={handleSubmit}
+                disabled={loading}
+                className="w-full rounded-full px-5 py-3 text-sm font-medium text-black transition hover:opacity-90 disabled:opacity-60"
+                style={{ background: cyan }}
+              >
+                {loading ? 'Updating password...' : 'Reset password'}
+              </button>
+            )}
+              
           </div>
         </div>
       </div>
