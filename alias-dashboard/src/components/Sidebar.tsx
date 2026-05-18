@@ -1,11 +1,18 @@
-import { CalendarDays, ChartNoAxesCombined, Home, Settings, Sparkles, Users } from 'lucide-react';
+import { 
+  CalendarDays, 
+  ChartNoAxesCombined, 
+  Home, 
+  Rocket,
+  Settings, 
+  Sparkles, 
+  Users } from 'lucide-react';
 import { AliasMark } from './Brand';
 import { cyan } from '@/lib/data';
 
 const items = [
   { id: 'home', label: 'Overview', icon: Home },
   { id: 'concierge', label: 'Concierge AI', icon: Sparkles },
-  { id: 'onboarding', label: 'Onboarding', icon: Sparkles },
+  { id: 'onboarding', label: 'Onboarding', icon: Rocket },
   { id: 'reservations', label: 'Reservations', icon: CalendarDays },
   { id: 'analytics', label: 'Analytics', icon: ChartNoAxesCombined },
   { id: 'settings', label: 'Settings', icon: Settings },
