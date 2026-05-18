@@ -20,6 +20,7 @@ type FormState = {
   six_seat_tables: string;
   eight_seat_tables: string;
   concierge_tone: string;
+  opening_days: string[];
 
   table_count_input: string;
   seats_per_table_input: string;
@@ -37,12 +38,14 @@ const initialForm: FormState = {
   phone: '',
   opening_hour: '11',
   closing_hour: '22',
+  opening_days: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
   number_of_tables: '0',
   two_seat_tables: '0',
   four_seat_tables: '0',
   six_seat_tables: '0',
   eight_seat_tables: '0',
   concierge_tone: 'Elegant',
+  
 
 
   table_count_input: '',
@@ -128,6 +131,19 @@ function removeTableSetup(index: number) {
     ...current,
     table_setup: current.table_setup.filter((_, itemIndex) => itemIndex !== index),
   }));
+}
+
+function toggleOpeningDay(day: string) {
+  setForm((current) => {
+    const exists = current.opening_days.includes(day);
+
+    return {
+      ...current,
+      opening_days: exists
+        ? current.opening_days.filter((d) => d !== day)
+        : [...current.opening_days, day],
+    };
+  });
 }
 
   function validateCurrentStep() {
@@ -260,6 +276,7 @@ function removeTableSetup(index: number) {
                 estimatedSeats={estimatedSeats}
                 addTableSetup={addTableSetup}
                 removeTableSetup={removeTableSetup}
+                toggleOpeningDay={toggleOpeningDay}
               />
             )}
             {step === 2 && <TonePicker form={form} updateField={updateField} />}
@@ -363,11 +380,13 @@ function ServiceStep({
   estimatedSeats,
   addTableSetup,
   removeTableSetup,
+  toggleOpeningDay,
 }: {
   form: FormState;
   updateField: (field: keyof FormState, value: string) => void;
   totalTables: number;
   estimatedSeats: number;
+  toggleOpeningDay: (day: string) => void;
 
   addTableSetup: () => void;
 
@@ -434,14 +453,26 @@ function ServiceStep({
         </p>
 
         <div className="mt-5 flex flex-wrap gap-3">
-          {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day) => (
-            <button
+          {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day) => {
+            const active = form.opening_days.includes(day);
+
+            return (
+              <button
               key={day}
-              className="rounded-full border border-white/10 bg-white/[.03] px-4 py-2 text-sm text-white/70 transition hover:border-white/25"
+              onClick={() => toggleOpeningDay(day)}
+              className="rounded-full border px-4 py-2 text-sm transition"
+              style={{
+                borderColor: active ? cyan : 'rgba(255,255,255,.1)',
+                background: active ? `${cyan}15` : 'rgba(255,255,255,.03)',
+                color: active ? cyan : 'rgba(255,255,255,.7)',
+              }}
             >
               {day}
             </button>
-          ))}
+          );
+        })}
+            
+          
         </div>
       </div>
 
