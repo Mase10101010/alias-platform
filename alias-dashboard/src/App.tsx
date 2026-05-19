@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LogOut, Menu } from 'lucide-react';
 
+
 import { Sidebar } from '@/components/Sidebar';
 import { AliasMark } from '@/components/Brand';
 import { Auth } from '@/pages/Auth';
@@ -11,6 +12,7 @@ import { Reservations } from '@/pages/Reservations';
 import { Analytics } from '@/pages/Analytics';
 import { Settings } from '@/pages/Settings';
 import { Concierge } from '@/pages/Concierge';
+import { Availability } from '@/pages/Availability';
 import { PublicConcierge } from '@/pages/PublicConcierge';
 import { ForgotPassword } from '@/pages/ForgotPassword';
 import { ResetPassword } from '@/pages/ResetPassword';
@@ -21,6 +23,7 @@ function Page({ active }: { active: string }) {
   if (active === 'concierge') return <Concierge />;
   if (active === 'onboarding') return <Onboarding />;
   if (active === 'reservations') return <Reservations />;
+  if (active === 'availability') return <Availability />;
   if (active === 'analytics') return <Analytics />;
   if (active === 'settings') return <Settings />;
   return <Overview />;
