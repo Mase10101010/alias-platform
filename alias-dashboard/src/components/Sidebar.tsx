@@ -1,6 +1,7 @@
 import { 
   CalendarDays, 
   ChartNoAxesCombined, 
+  Clock3,
   Home, 
   Rocket,
   Settings, 
@@ -14,7 +15,7 @@ const items = [
   { id: 'concierge', label: 'Concierge AI', icon: Sparkles },
   { id: 'onboarding', label: 'Onboarding', icon: Rocket },
   { id: 'reservations', label: 'Reservations', icon: CalendarDays },
-  { id: 'availability', label: 'Availability', icon: CalendarDays },
+  { id: 'availability', label: 'Availability', icon: Clock3 },
   { id: 'analytics', label: 'Analytics', icon: ChartNoAxesCombined },
   { id: 'settings', label: 'Settings', icon: Settings },
   
