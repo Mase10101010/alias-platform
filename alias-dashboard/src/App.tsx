@@ -133,7 +133,11 @@ export default function App() {
       <div className="fixed left-1/2 top-0 -z-10 h-[520px] w-[800px] -translate-x-1/2 rounded-full bg-cyanAlias/10 blur-3xl" />
 
       <div className="flex">
-        <Sidebar active={active} setActive={setActive} />
+        <Sidebar 
+          active={active} 
+          setActive={setActive} 
+          language={language}
+        />
 
         <main className="min-h-screen flex-1 px-5 py-5 md:px-8 lg:px-10">
           <header className="mb-8 flex items-center justify-between rounded-2xl border border-white/[.06] bg-white/[.025] px-4 py-3">
