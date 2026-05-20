@@ -1,6 +1,12 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LogOut, Menu } from 'lucide-react';
+import { Languages, LogOut, Menu } from 'lucide-react';
+import {
+  detectDefaultLanguage,
+  languages,
+  saveLanguage,
+  type LanguageCode
+} from '@/lib/i18n' ;
 
 
 import { Sidebar } from '@/components/Sidebar';
@@ -16,6 +22,7 @@ import { Availability } from '@/pages/Availability';
 import { PublicConcierge } from '@/pages/PublicConcierge';
 import { ForgotPassword } from '@/pages/ForgotPassword';
 import { ResetPassword } from '@/pages/ResetPassword';
+import { option } from 'framer-motion/client';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
@@ -33,6 +40,9 @@ export default function App() {
   const [authed, setAuthed] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [active, setActive] = useState('home');
+  const [language, setLanguage] = useState<LanguageCode>(
+    detectDefaultLanguage(),
+  );
   const isPublicConcierge = window.location.pathname === '/concierge';
   const isForgotPassword = window.location.pathname === '/forgot-password';
   const isResetPassword = window.location.pathname === '/reset-password';
@@ -138,6 +148,26 @@ export default function App() {
             </div>
 
             <div className="flex items-center gap-3">
+              <select
+                value={language}
+                onChange={(event) => {
+                  const nextLanguage = event.target.value as LanguageCode;
+
+                  setLanguage(nextLanguage);
+                  saveLanguage(nextLanguage);
+                }}
+                className="rounded-full border border-white/10 bg-white/[.03] px-4 py-2 text-xs uppercase tracking-[.18em] text-white/70 outline-none"
+              >
+                {languages.map((item) => (
+                  <option
+                    key={item.code}
+                    value={item.code}
+                    className="bg-[#050816]"
+                  >
+                    {item.shortLabel}
+                  </option>
+                ))}
+              </select>
               <button
                 onClick={handleLogout}
                 className="flex items-center gap-2 rounded-full border border-white/10 bg-white/[.03] px-4 py-2 text-xs uppercase tracking-[.18em] text-white/50 transition hover:border-white/20 hover:text-white"
