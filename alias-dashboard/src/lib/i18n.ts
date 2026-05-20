@@ -71,6 +71,17 @@ export const translations = {
     loadingActivity: 'Loading activity...',
     noActivity: 'No activity yet.',
     partyOf: 'Party of',
+    conciergeTitle: 'Concierge AI',
+    conciergeHeading: 'Guest conversation layer.',
+    conciergeSubtitle:
+      'This is the future customer-facing concierge that will take bookings and service requests automatically.',
+    conciergeLiveConnection: 'AI live connection',
+    conciergeWelcome:
+      'Good evening. I am Alias Concierge. I can help guests with reservations, availability, and service requests.',
+    conciergeThinking: 'Alias is thinking…',
+    conciergePlaceholder: 'Ask Alias Concierge for a table...',
+    conciergeError:
+      'Sorry, something went wrong while contacting the AI service.',
   },
 
   it: {
@@ -110,6 +121,17 @@ export const translations = {
     loadingActivity: 'Caricamento attività...',
     noActivity: 'Nessuna attività ancora.',
     partyOf: 'Tavolo per',
+    conciergeTitle: 'Concierge AI',
+    conciergeHeading: 'Conversazioni con gli ospiti.',
+    conciergeSubtitle:
+      'Questo è il concierge rivolto ai clienti che gestirà prenotazioni e richieste di servizio automaticamente.',
+    conciergeLiveConnection: 'Connessione AI live',
+    conciergeWelcome:
+      'Buonasera. Sono Alias Concierge. Posso aiutare gli ospiti con prenotazioni, disponibilità e richieste di servizio.',
+    conciergeThinking: 'Alias sta pensando…',
+    conciergePlaceholder: 'Chiedi ad Alias Concierge un tavolo...',
+    conciergeError:
+      'Spiacente, si è verificato un errore nel contattare il servizio AI.',
   },
 
   es: {
@@ -149,6 +171,17 @@ export const translations = {
     loadingActivity: 'Cargando actividad...',
     noActivity: 'Sin actividad todavía.',
     partyOf: 'Mesa para',
+    conciergeTitle: 'Concierge AI',
+    conciergeHeading: 'Capa de conversación con huéspedes.',
+    conciergeSubtitle:
+      'Este es el concierge orientado al cliente que gestionará reservas y solicitudes automáticamente.',
+    conciergeLiveConnection: 'Conexión AI en vivo',
+    conciergeWelcome:
+      'Buenas tardes. Soy Alias Concierge. Puedo ayudar a los huéspedes con reservas, disponibilidad y solicitudes de servicio.',
+    conciergeThinking: 'Alias está pensando…',
+    conciergePlaceholder: 'Pide una mesa a Alias Concierge...',
+    conciergeError:
+      'Lo sentimos, ocurrió un error al contactar el servicio AI.',
   },
 
   fr: {
@@ -188,6 +221,17 @@ export const translations = {
     loadingActivity: "Chargement de l'activité...",
     noActivity: 'Aucune activité pour le moment.',
     partyOf: 'Table pour',
+    conciergeTitle: 'Concierge AI',
+    conciergeHeading: 'Couche de conversation client.',
+    conciergeSubtitle:
+      'Voici le concierge destiné aux clients qui gérera automatiquement les réservations et demandes de service.',
+    conciergeLiveConnection: 'Connexion AI en direct',
+    conciergeWelcome:
+      'Bonsoir. Je suis Alias Concierge. Je peux aider les clients avec les réservations, disponibilités et demandes de service.',
+    conciergeThinking: 'Alias réfléchit…',
+    conciergePlaceholder: 'Demandez une table à Alias Concierge...',
+    conciergeError:
+      'Désolé, une erreur est survenue lors du contact avec le service AI.',
   },
 
   de: {
@@ -227,5 +271,16 @@ export const translations = {
     loadingActivity: 'Aktivität wird geladen...',
     noActivity: 'Noch keine Aktivität.',
     partyOf: 'Tisch für',
+    conciergeTitle: 'Concierge AI',
+    conciergeHeading: 'Gesprächsebene für Gäste.',
+    conciergeSubtitle:
+      'Dies ist der kundenorientierte Concierge, der Reservierungen und Serviceanfragen automatisch verwaltet.',
+    conciergeLiveConnection: 'Live AI-Verbindung',
+    conciergeWelcome:
+      'Guten Abend. Ich bin Alias Concierge. Ich kann Gästen bei Reservierungen, Verfügbarkeiten und Serviceanfragen helfen.',
+    conciergeThinking: 'Alias denkt nach…',
+    conciergePlaceholder: 'Fragen Sie Alias Concierge nach einem Tisch...',
+    conciergeError:
+      'Entschuldigung, beim Kontaktieren des AI-Dienstes ist ein Fehler aufgetreten.',
   },
 } as const;

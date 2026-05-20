@@ -1,7 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useRef,  useState } from 'react';
 import { Send, Sparkles } from 'lucide-react';
 
 import { cyan } from '@/lib/data';
+import {
+  detectDefaultLanguage,
+  translations,
+} from '@/lib/i18n';
+
 import { getRestaurants, sendChatMessage } from '@/lib/api';
 
 type Message = {
@@ -10,17 +15,21 @@ type Message = {
 };
 
 export function Concierge() {
+  const language = detectDefaultLanguage();
+  const t = translations[language];
+
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'concierge',
-      content:
-        'Good evening. I am Alias Concierge. I can help guests with reservations, availability, and service requests.',
+      content: t.conciergeWelcome,
     },
   ]);
 
   const [input, setInput] = useState('');
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const[restaurantId, setRestaurantId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -35,6 +44,13 @@ export function Concierge() {
 
     loadRestaurant();
   }, []);
+
+  useEffect(() => {
+  messagesEndRef.current?.scrollIntoView({
+    behavior: 'smooth',
+    block: 'end',
+  });
+  }, [messages, loading]);
 
   async function handleSend() {
     if (!input.trim() || loading) return;
@@ -74,7 +90,7 @@ export function Concierge() {
         {
           role: 'concierge',
           content:
-            'Sorry, something went wrong while contacting the AI service.',
+            t.conciergeError
         },
       ]);
 
@@ -92,16 +108,15 @@ export function Concierge() {
             className="text-[11px] uppercase tracking-[0.28em]"
             style={{ color: cyan }}
           >
-            Concierge AI
+            {t.conciergeTitle}
           </p>
 
           <h1 className="mt-4 font-display text-5xl font-light tracking-[-.04em]">
-            Guest conversation layer.
+            {t.conciergeHeading}
           </h1>
 
           <p className="mt-4 max-w-2xl text-sm leading-7 text-white/45">
-            This is the future customer-facing concierge that will take bookings
-            and service requests automatically.
+            {t.conciergeSubtitle}
           </p>
         </div>
 
@@ -113,7 +128,7 @@ export function Concierge() {
           }}
         >
           <Sparkles size={16} />
-          AI live connection
+          {t.conciergeLiveConnection}
         </div>
       </div>
 
@@ -143,10 +158,12 @@ export function Concierge() {
           {loading && (
             <div className="flex justify-start">
               <div className="rounded-3xl bg-white/[.045] px-5 py-4 text-sm text-white/50">
-                Alias is thinking…
+                {t.conciergeThinking}
               </div>
             </div>
           )}
+
+          <div ref={messagesEndRef} />
         </div>
 
         <div className="mt-6 flex gap-3 rounded-2xl border border-white/10 bg-white/[.03] p-3">
@@ -158,7 +175,7 @@ export function Concierge() {
                 handleSend();
               }
             }}
-            placeholder="Ask Alias Concierge for a table..."
+            placeholder={t.conciergePlaceholder}
             className="flex-1 bg-transparent px-3 text-sm text-white outline-none placeholder:text-white/30"
           />
 
@@ -169,6 +186,8 @@ export function Concierge() {
             style={{ background: cyan }}
           >
             {loading ? '...' : <Send size={17} />}
+
+            
           </button>
         </div>
       </div>
