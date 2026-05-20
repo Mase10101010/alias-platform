@@ -116,6 +116,31 @@ export async function getRestaurants(): Promise<RestaurantResponse[]> {
   return response.json();
 }
 
+export async function updateRestaurant(
+  restaurantId: string,
+  payload: Partial<RestaurantCreate>,
+): Promise<RestaurantResponse> {
+  const token = getAuthToken();
+
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/restaurants/${restaurantId}`,
+    {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    },
+  );
+
+  if (!response.ok) {
+    throw await parseApiError(response, 'Unable to update restaurant');
+  }
+
+  return response.json();
+}
+
 export async function getReservations(): Promise<ReservationResponse[]> {
   const token = getAuthToken();
 

@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { cyan } from '@/lib/data';
+import { getRestaurants, updateRestaurant } from '@/lib/api';
 
 const initialSchedule = [
   { day: 'Monday', isOpen: true, openingHour: '11', closingHour: '22' },
@@ -21,10 +22,61 @@ type SpecialClosure = {
 export function Availability() {
   const [schedule, setSchedule] = useState(initialSchedule);
   const [message, setMessage] = useState<string | null>(null);
+  const [restaurantId, setRestaurantId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
   const [closures, setClosures] = useState<SpecialClosure[]>([]);
   
   const [closureDate, setClosureDate] = useState('');
   const [closureReason, setClosureReason] = useState('');
+
+  useEffect(() => {
+    async function loadAvailability() {
+      try {
+        setLoading(true);
+
+        const restaurants = await getRestaurants();
+        const restaurant = restaurants[0];
+
+        if (!restaurant) {
+          setMessage('No restaurant found. ');
+          return;
+        }
+
+        setRestaurantId(restaurant.id);
+
+        if(restaurant.weekly_schedule?.length) {
+          setSchedule(
+            restaurant.weekly_schedule.map((item) => ({
+              day: item.day,
+              isOpen: item.isOpen ?? item.is_open ?? true,
+              openingHour: item.openingHour ?? item.opening_hour ?? '11',
+              closingHour: item.closingHour ?? item.closing_hour ?? '22',
+            })),
+          );
+        }
+
+        if (restaurant.special_closures?.length) {
+          setClosures(
+            restaurant.special_closures.map((closure) => ({
+              id: Number(closure.id ?? Date.now()),
+              date: closure.date,
+              reason: closure.reason,
+            })),
+          );
+        }
+      } catch (err) {
+        setMessage(
+          err instanceof Error
+            ? err.message
+            : 'Unable to load availability. ',
+        );
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadAvailability();
+  }, []);
 
   function updateDay(
     day: string,
@@ -45,9 +97,34 @@ export function Availability() {
     );
   }
 
-  function handleSave() {
-    setMessage('Weekly availability saved.');
+  async function handleSave() {
+  if (!restaurantId) {
+    setMessage('No restaurant selected.');
+    return;
   }
+
+  try {
+    setMessage(null);
+
+    await updateRestaurant(restaurantId, {
+      weekly_schedule: schedule.map((item) => ({
+        day: item.day,
+        is_open: item.isOpen,
+        opening_hour: item.openingHour,
+        closing_hour: item.closingHour,
+      })),
+      special_closures: closures,
+    });
+
+    setMessage('Availability saved successfully.');
+  } catch (err) {
+    setMessage(
+      err instanceof Error
+        ? err.message
+        : 'Unable to save availability.',
+    );
+  }
+}
 
   function addClosure() {
   if (!closureDate.trim()) {
