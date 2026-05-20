@@ -6,7 +6,14 @@ import {
   Activity,
 } from 'lucide-react';
 
+
+
 import { cyan } from '@/lib/data';
+
+import {
+  detectDefaultLanguage,
+  translations,
+} from '@/lib/i18n';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
@@ -29,6 +36,8 @@ export function Overview() {
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [loading, setLoading] = useState(true);
+  const language = detectDefaultLanguage();
+  const t = translations[language];
 
   useEffect(() => {
     async function loadDashboard() {
@@ -98,46 +107,46 @@ export function Overview() {
             className="text-[11px] uppercase tracking-[0.28em]"
             style={{ color: cyan }}
           >
-            Overview
+            {t.overviewTitle}
           </p>
 
           <h1 className="mt-4 font-display text-5xl font-light tracking-[-.04em]">
-            Good evening
+            {t.goodEvening}
             {restaurant ? `, ${restaurant.name}` : ''}.
           </h1>
 
           <p className="mt-4 max-w-2xl text-sm leading-7 text-white/45">
-            Live operational overview powered by Alias Concierge AI.
+            {t.overviewSubtitle}
           </p>
         </div>
 
         <div className="hidden rounded-full border border-white/10 bg-white/[.03] px-5 py-3 text-xs uppercase tracking-[.24em] text-white/40 lg:block">
-          Trial Mode Active
+          {t.trialModeActive}
         </div>
       </div>
 
       <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
         <StatCard
           icon={<CalendarDays size={18} />}
-          label="Reservations"
+          label={t.statReservations}
           value={todayReservations}
         />
 
         <StatCard
           icon={<Users size={18} />}
-          label="Confirmed"
+          label={t.statConfirmed}
           value={confirmedReservations}
         />
 
         <StatCard
           icon={<Sparkles size={18} />}
-          label="Concierge"
+          label={t.statConcierge}
           value={restaurant?.concierge_tone || '—'}
         />
 
         <StatCard
           icon={<Activity size={18} />}
-          label="Subscription"
+          label={t.statSubscription}
           value={restaurant?.subscription_status || 'trialing'}
         />
       </div>
@@ -146,11 +155,11 @@ export function Overview() {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-xs uppercase tracking-[.22em] text-white/35">
-              Live Activity
+              {t.liveActivity}
             </p>
 
             <h2 className="mt-3 font-display text-3xl font-light tracking-[-.04em]">
-              Recent reservations.
+              {t.recentReservations}
             </h2>
           </div>
 
@@ -161,18 +170,18 @@ export function Overview() {
               background: `${cyan}12`,
             }}
           >
-            Live
+            {t.live}
           </div>
         </div>
 
         <div className="mt-8 space-y-4">
           {loading ? (
             <div className="text-sm text-white/45">
-              Loading activity...
+              {t.loadingActivity}
             </div>
           ) : reservations.length === 0 ? (
             <div className="text-sm text-white/45">
-              No activity yet.
+              {t.noActivity}
             </div>
           ) : (
             reservations.slice(0, 5).map((reservation) => (
@@ -186,7 +195,7 @@ export function Overview() {
                   </p>
 
                   <p className="mt-1 text-xs text-white/40">
-                    Party of {reservation.party_size}
+                    {t.partyOf} {reservation.party_size}
                   </p>
                 </div>
 
