@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef,  useState } from 'react';
 import { CheckCircle2, Send, Sparkles, ShieldCheck } from 'lucide-react';
 
 import { cyan } from '@/lib/data';
@@ -33,6 +33,7 @@ export function PublicConcierge() {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -40,6 +41,13 @@ export function PublicConcierge() {
       content: `Welcome. I am the AI Concierge for ${restaurantName}. I can help you reserve a table, check availability or share special requests with the team.`,
     },
   ]);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'end',
+    });
+  }, [messages, loading]);
 
   async function handleSend() {
     if (!input.trim() || loading) return;
@@ -208,6 +216,7 @@ export function PublicConcierge() {
                 </div>
               </div>
             )}
+            <div ref={messagesEndRef} />
           </div>
 
           <div className="mt-5 flex gap-3 rounded-2xl border border-white/10 bg-white/[.03] p-3">
