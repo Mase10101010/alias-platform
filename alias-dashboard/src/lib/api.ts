@@ -1,5 +1,26 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
+export type TableSetup = {
+  count: number;
+  seats: number;
+};
+
+export type WeeklyScheduleItem = {
+  day: string;
+  is_open?: boolean;
+  isOpen?: boolean;
+  opening_hour?: string;
+  openingHour?: string;
+  closing_hour?: string;
+  closingHour?: string;
+};
+
+export type SpecialClosure = {
+  id?: number | string;
+  date: string;
+  reason: string;
+};
+
 export type RestaurantCreate = {
   name: string;
   slug: string;
@@ -10,6 +31,9 @@ export type RestaurantCreate = {
   opening_hour: number;
   closing_hour: number;
   number_of_tables: number;
+  table_setup?: TableSetup[];
+  weekly_schedule?: WeeklyScheduleItem[];
+  special_closures?: SpecialClosure[];
   concierge_tone: string;
 };
 

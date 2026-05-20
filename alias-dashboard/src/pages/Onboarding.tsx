@@ -252,6 +252,9 @@ function updateWeeklySchedule(
         opening_hour: Number(form.opening_hour),
         closing_hour: Number(form.closing_hour),
         number_of_tables: totalTables,
+        table_setup: form.table_setup,
+        weekly_schedule: form.weekly_schedule,
+        special_closures: [],
         concierge_tone: form.concierge_tone,
       });
 
