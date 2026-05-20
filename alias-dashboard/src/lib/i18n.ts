@@ -45,6 +45,8 @@ export const translations = {
     trialDay: 'Trial day 3',
     liveConcierge:
       'Your AI concierge is live and handling guest requests.',
+    dashboard: 'Alias Dashboard',
+    logout: 'Logout',
   },
 
   it: {
@@ -58,6 +60,8 @@ export const translations = {
     trialDay: 'Giorno di prova 3',
     liveConcierge:
       'Il tuo concierge AI è attivo e gestisce le richieste dei clienti.',
+    dashboard: 'Dashboard Alias',
+    logout: 'Esci',
   },
 
   es: {
@@ -71,6 +75,8 @@ export const translations = {
     trialDay: 'Día de prueba 3',
     liveConcierge:
       'Tu concierge AI está activo y gestionando solicitudes.',
+    dashboard: 'Panel Alias',
+    logout: 'Salir',
   },
 
   fr: {
@@ -84,6 +90,8 @@ export const translations = {
     trialDay: 'Jour d’essai 3',
     liveConcierge:
       'Votre concierge AI est actif et gère les demandes clients.',
+    dashboard: 'Tableau de bord Alias',
+    logout: 'Déconnexion',
   },
 
   de: {
@@ -97,5 +105,7 @@ export const translations = {
     trialDay: 'Testtag 3',
     liveConcierge:
       'Ihr AI-Concierge ist aktiv und bearbeitet Gästeanfragen.',
+    dashboard: 'Alias Dashboard',
+    logout: 'Abmelden',
   },
 } as const;

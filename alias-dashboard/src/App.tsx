@@ -7,6 +7,7 @@ import {
   saveLanguage,
   type LanguageCode
 } from '@/lib/i18n' ;
+import { translations } from '@/lib/i18n';
 
 
 import { Sidebar } from '@/components/Sidebar';
@@ -43,6 +44,7 @@ export default function App() {
   const [language, setLanguage] = useState<LanguageCode>(
     detectDefaultLanguage(),
   );
+  const t = translations[language];
   const isPublicConcierge = window.location.pathname === '/concierge';
   const isForgotPassword = window.location.pathname === '/forgot-password';
   const isResetPassword = window.location.pathname === '/reset-password';
@@ -147,7 +149,7 @@ export default function App() {
 
             <div className="hidden lg:block">
               <p className="text-xs uppercase tracking-[.24em] text-white/30">
-                Alias Dashboard
+                {t.dashboard}
               </p>
             </div>
 
@@ -177,7 +179,7 @@ export default function App() {
                 className="flex items-center gap-2 rounded-full border border-white/10 bg-white/[.03] px-4 py-2 text-xs uppercase tracking-[.18em] text-white/50 transition hover:border-white/20 hover:text-white"
               >
                 <LogOut size={14} />
-                Logout
+                {t.logout}
               </button>
 
               <Menu className="text-white/60 lg:hidden" />
