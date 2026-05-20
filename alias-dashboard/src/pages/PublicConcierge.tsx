@@ -1,5 +1,9 @@
 import { useEffect, useMemo, useRef,  useState } from 'react';
 import { CheckCircle2, Send, Sparkles, ShieldCheck } from 'lucide-react';
+import {
+  detectDefaultLanguage,
+  translations,
+} from '@/lib/i18n';
 
 import { cyan } from '@/lib/data';
 import { sendPublicChatMessage } from '@/lib/api';
@@ -29,7 +33,8 @@ export function PublicConcierge() {
     () => formatRestaurantName(restaurantSlug),
     [restaurantSlug],
   );
-
+  const language = detectDefaultLanguage();
+  const t = translations[language];
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -38,7 +43,10 @@ export function PublicConcierge() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'concierge',
-      content: `Welcome. I am the AI Concierge for ${restaurantName}. I can help you reserve a table, check availability or share special requests with the team.`,
+      content: t.publicWelcome.replace(
+        '{restaurantName}',
+        restaurantName,
+      ),
     },
   ]);
 
@@ -128,7 +136,7 @@ export function PublicConcierge() {
             </h1>
 
             <p className="mt-2 text-sm text-white/45">
-              Reserve your table with the restaurant’s AI concierge.
+              {t.publicReserveTitle}
             </p>
           </div>
 
@@ -140,14 +148,14 @@ export function PublicConcierge() {
             }}
           >
             <Sparkles size={14} />
-            Live AI
+            {t.publicLiveAI}
           </div>
         </div>
 
         <div className="glass flex h-[640px] flex-col rounded-3xl p-5 shadow-2xl">
           <div className="mb-4 flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[.025] px-4 py-3 text-xs text-white/42">
             <ShieldCheck size={15} style={{ color: cyan }} />
-            Your booking details are sent securely to the restaurant team.
+            {t.publicSecure}
           </div>
 
           <div className="flex-1 space-y-4 overflow-y-auto pr-2">
@@ -166,17 +174,20 @@ export function PublicConcierge() {
                         <CheckCircle2 size={22} style={{ color: cyan }} />
                         <div>
                           <p className="font-display text-2xl font-light text-white">
-                            Reservation confirmed
+                            {t.publicReservationConfirmed}
                           </p>
                           <p className="mt-1 text-sm text-white/50">
-                            Your booking is now registered with {restaurantName}.
+                            {t.publicBookingRegistered.replace(
+                              '{restaurantName}',
+                              restaurantName,
+                            )}
                           </p>
                         </div>
                       </div>
 
                       <div className="mt-5 rounded-2xl border border-white/10 bg-black/20 px-4 py-3">
                         <p className="text-[10px] uppercase tracking-[.22em] text-white/35">
-                          Reservation ID
+                          {t.publicReservationId}
                         </p>
                         <p className="mt-2 break-all font-mono text-xs text-white/70">
                           {message.reservationId}
@@ -212,7 +223,7 @@ export function PublicConcierge() {
             {loading && (
               <div className="flex justify-start">
                 <div className="rounded-3xl bg-white/[.055] px-5 py-4 text-sm text-white/50">
-                  Alias is checking availability…
+                  {t.publicChecking}
                 </div>
               </div>
             )}
@@ -228,7 +239,7 @@ export function PublicConcierge() {
                   handleSend();
                 }
               }}
-              placeholder="Example: table for 2 tomorrow at 8pm"
+              placeholder={t.publicPlaceholder}
               className="flex-1 bg-transparent px-3 text-sm text-white outline-none placeholder:text-white/30"
             />
 
@@ -244,7 +255,7 @@ export function PublicConcierge() {
         </div>
 
         <p className="mt-4 text-center text-xs text-white/35">
-          Powered by Alias Concierge AI
+          {t.publicPoweredBy}
         </p>
       </div>
     </main>
