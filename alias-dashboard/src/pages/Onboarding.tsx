@@ -368,6 +368,16 @@ function updateWeeklySchedule(
                 tonePickerTitle: t.tonePickerTitle,
                 tonePickerDescription: t.tonePickerDescription,
                 toneCardDescription: t.toneCardDescription,
+
+                toneLuxury: t.toneLuxury,
+                toneElegant: t.toneElegant,
+                toneCasual: t.toneCasual,
+                toneModern: t.toneModern,
+
+                toneLuxuryDescription: t.toneLuxuryDescription,
+                toneElegantDescription: t.toneElegantDescription,
+                toneCasualDescription: t.toneCasualDescription,
+                toneModernDescription: t.toneModernDescription,
               }}
             />
           )}
