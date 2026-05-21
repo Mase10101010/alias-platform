@@ -3,6 +3,11 @@ import { Plus, Search, X } from 'lucide-react';
 
 import { cyan } from '@/lib/data';
 import {
+  detectDefaultLanguage,
+  translations,
+} from '@/lib/i18n';
+
+import {
   createReservation,
   getConversationHistory,
   getReservations,
@@ -37,6 +42,8 @@ export function Reservations() {
   const [form, setForm] = useState<FormState>(initialForm);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const language = detectDefaultLanguage();
+  const t = translations[language];
 
   const [selectedReservation, setSelectedReservation] =
     useState<ReservationResponse | null>(null);
@@ -162,18 +169,18 @@ export function Reservations() {
             className="text-[11px] uppercase tracking-[0.28em]"
             style={{ color: cyan }}
           >
-            Reservations
+            {t.reservationsTitle}
           </p>
 
           <h1 className="mt-4 font-display text-5xl font-light tracking-[-.04em]">
-            Dinner service overview.
+            {t.reservationsHeading}
           </h1>
         </div>
 
         <div className="flex items-center gap-3">
           <div className="hidden items-center gap-3 rounded-full border border-white/10 bg-white/[.03] px-4 py-3 text-white/45 md:flex">
             <Search size={16} />
-            <span className="text-sm">Live reservation feed</span>
+            <span className="text-sm">{t.liveReservationFeed}</span>
           </div>
 
           <button
@@ -182,7 +189,7 @@ export function Reservations() {
             style={{ background: cyan }}
           >
             <Plus size={16} />
-            New Reservation
+            {t.newReservation}
           </button>
         </div>
       </div>
@@ -192,11 +199,11 @@ export function Reservations() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs uppercase tracking-[.22em] text-white/35">
-                Manual booking
+                {t.manualBooking}
               </p>
 
               <h2 className="mt-2 font-display text-3xl font-light">
-                Create reservation.
+                {t.createReservationTitle}
               </h2>
             </div>
 
@@ -213,31 +220,31 @@ export function Reservations() {
 
           <div className="mt-7 grid gap-4 md:grid-cols-2">
             <Input
-              placeholder="Guest name"
+              placeholder={t.guestName}
               value={form.customer_name}
               onChange={(value) => updateField('customer_name', value)}
             />
 
             <Input
-              placeholder="Phone number"
+              placeholder={t.phoneNumber}
               value={form.customer_phone}
               onChange={(value) => updateField('customer_phone', value)}
             />
 
             <Input
-              placeholder="Email optional"
+              placeholder={t.emailOptional}
               value={form.customer_email}
               onChange={(value) => updateField('customer_email', value)}
             />
 
             <Input
-              placeholder="Party size"
+              placeholder={t.partySize}
               value={form.party_size}
               onChange={(value) => updateField('party_size', value)}
             />
 
             <Input
-              type="date"
+              type={t.date}
               placeholder="Date"
               value={form.reservation_date}
               onChange={(value) => updateField('reservation_date', value)}
@@ -245,14 +252,14 @@ export function Reservations() {
 
             <Input
               type="time"
-              placeholder="Time"
+              placeholder={t.time}
               value={form.reservation_time}
               onChange={(value) => updateField('reservation_time', value)}
             />
 
             <div className="md:col-span-2">
               <Input
-                placeholder="Special requests optional"
+                placeholder={t.specialRequestsOptional}
                 value={form.special_requests}
                 onChange={(value) => updateField('special_requests', value)}
               />
@@ -272,7 +279,9 @@ export function Reservations() {
               className="rounded-full px-5 py-3 text-sm font-medium text-black transition hover:opacity-90 disabled:opacity-60"
               style={{ background: cyan }}
             >
-              {submitting ? 'Creating…' : 'Create reservation'}
+              {submitting 
+                ? t.creating 
+                : t.createReservationButton}
             </button>
           </div>
         </div>
@@ -280,21 +289,21 @@ export function Reservations() {
 
       <div className="glass mt-10 overflow-hidden rounded-3xl">
         <div className="grid grid-cols-[90px_1fr_80px_150px_1fr_190px] border-b border-white/[.06] px-5 py-4 text-[10px] uppercase tracking-[.2em] text-white/35">
-          <span>Time</span>
-          <span>Guest</span>
-          <span>Party</span>
-          <span>Status</span>
-          <span>Notes</span>
-          <span>Actions</span>
+          <span>{t.timeColumn}</span>
+          <span>{t.guestColumn}</span>
+          <span>{t.partyColumn}</span>
+          <span>{t.statusColumn}</span>
+          <span>{t.notesColumn}</span>
+          <span>{t.actionsColumn}</span>
         </div>
 
         {loading ? (
           <div className="px-5 py-10 text-sm text-white/45">
-            Loading reservations...
+            {t.loadingReservations}
           </div>
         ) : reservations.length === 0 ? (
           <div className="px-5 py-10 text-sm text-white/45">
-            No reservations found.
+            {t.noReservations}
           </div>
         ) : (
           reservations.map((reservation) => (
@@ -351,7 +360,7 @@ export function Reservations() {
                   onClick={() => openConversation(reservation)}
                   className="rounded-full border border-white/10 px-4 py-2 text-center text-xs uppercase tracking-[.18em] text-white/60 transition hover:border-white/20 hover:text-white"
                 >
-                  View conversation
+                  {t.viewConversation}
                 </button>
               </div>
             </div>
@@ -368,7 +377,7 @@ export function Reservations() {
                   className="text-[11px] uppercase tracking-[0.28em]"
                   style={{ color: cyan }}
                 >
-                  AI Conversation
+                  {t.aiConversation}
                 </p>
 
                 <h2 className="mt-3 font-display text-4xl font-light tracking-[-.04em]">
@@ -376,7 +385,7 @@ export function Reservations() {
                 </h2>
 
                 <p className="mt-2 text-sm text-white/45">
-                  Party of {selectedReservation.party_size} ·{' '}
+                  {t.partyOfLabel} {selectedReservation.party_size} ·{' '}
                   {formatTime(selectedReservation.reservation_time)}
                 </p>
               </div>
@@ -392,7 +401,7 @@ export function Reservations() {
             <div className="mt-8 h-[calc(100vh-180px)] space-y-4 overflow-y-auto pr-2">
               {conversationLoading ? (
                 <div className="text-sm text-white/45">
-                  Loading conversation...
+                  {t.loadingConversation}
                 </div>
               ) : conversationError ? (
                 <div className="rounded-2xl border border-red-400/20 bg-red-400/10 px-4 py-3 text-sm text-red-200">
@@ -429,7 +438,7 @@ export function Reservations() {
                   })
               ) : (
                 <div className="text-sm text-white/45">
-                  No conversation messages found.
+                  {t.noConversationMessages}
                 </div>
               )}
             </div>
