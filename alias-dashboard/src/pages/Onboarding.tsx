@@ -480,6 +480,16 @@ function ServiceStep({
   labels: Record<string, string>;
 
 }) {
+
+  const dayLabels: Record<string, string> = {
+    Mon: labels.monday,
+    Tue: labels.tuesday,
+    Wed: labels.wednesday,
+    Thu: labels.thursday,
+    Fri: labels.friday,
+    Sat: labels.saturday,
+    Sun: labels.sunday,
+  }
   return (
     <>
       <h2 className="font-display text-3xl font-light">
@@ -569,7 +579,7 @@ function ServiceStep({
                       : 'rgba(255,255,255,.7)',
                   }}
                 >
-                  {schedule.day}
+                  {dayLabels[schedule.day]}
                 </button>
 
                 <span className="text-sm text-white/45">
