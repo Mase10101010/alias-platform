@@ -123,6 +123,14 @@ export const translations = {
     tonePickerTitle: 'Choose a concierge tone',
     tonePickerDescription: 'Select how the AI concierge should communicate with your guests.',
     toneCardDescription: 'Premium communication profile for guest interactions.',
+    toneLuxury: 'Luxury',
+    toneElegant: 'Elegant',
+    toneCasual: 'Casual',
+    toneModern: 'Modern',
+    toneLuxuryDescription: 'Refined, exclusive and high-end language for premium dining.',
+    toneElegantDescription: 'Polished, warm and graceful communication for refined service.',
+    toneCasualDescription: 'Friendly, relaxed and approachable tone for informal hospitality.',
+    toneModernDescription: 'Clean, confident and contemporary language for modern venues.',
   },
 
   it: {
@@ -214,6 +222,14 @@ export const translations = {
     tonePickerTitle: 'Scegli il tono del concierge',
     tonePickerDescription: 'Seleziona come il concierge AI dovrebbe comunicare con i tuoi ospiti.',
     toneCardDescription: 'Profilo di comunicazione premium per le interazioni con gli ospiti.',
+    toneLuxury: 'Lusso',
+    toneElegant: 'Elegante',
+    toneCasual: 'Casual',
+    toneModern: 'Moderno',
+    toneLuxuryDescription: 'Linguaggio raffinato, esclusivo e premium per ristoranti di alto livello.',
+    toneElegantDescription: 'Comunicazione curata, calda ed elegante per un servizio raffinato.',
+    toneCasualDescription: 'Tono amichevole, rilassato e accessibile per locali informali.',
+    toneModernDescription: 'Linguaggio pulito, sicuro e contemporaneo per locali moderni.',
   },
   es: {
     overview: 'Resumen',
@@ -304,6 +320,18 @@ export const translations = {
     tonePickerTitle: 'Elige el tono del concierge',
     tonePickerDescription: 'Selecciona cómo el concierge AI debe comunicarse con tus clientes.',
     toneCardDescription: 'Perfil de comunicación premium para interacciones con clientes.',
+    toneLuxury: 'Lujo',
+    toneElegant: 'Elegante',
+    toneCasual: 'Casual',
+    toneModern: 'Moderno',
+    toneLuxuryDescription:
+      'Lenguaje refinado, exclusivo y premium para restaurantes de alto nivel.',
+    toneElegantDescription:
+      'Comunicación cuidada, cálida y elegante para un servicio refinado.',
+    toneCasualDescription:
+      'Tono amigable, relajado y accesible para locales informales.',
+    toneModernDescription:
+      'Lenguaje limpio, seguro y contemporáneo para espacios modernos.',
   },
 
   fr: {
@@ -395,6 +423,18 @@ export const translations = {
     tonePickerTitle: 'Choisissez le ton du concierge',
     tonePickerDescription: 'Sélectionnez comment le concierge AI doit communiquer avec vos clients.',
     toneCardDescription: 'Profil de communication premium pour les interactions clients.',
+    toneLuxury: 'Luxe',
+    toneElegant: 'Élégant',
+    toneCasual: 'Décontracté',
+    toneModern: 'Moderne',
+    toneLuxuryDescription:
+      'Langage raffiné, exclusif et premium pour la restauration haut de gamme.',
+    toneElegantDescription:
+      'Communication soignée, chaleureuse et élégante pour un service raffiné.',
+    toneCasualDescription:
+      'Ton amical, détendu et accessible pour les établissements informels.',
+    toneModernDescription:
+      'Langage propre, confiant et contemporain pour les lieux modernes.',
   },
   de: {
     overview: 'Übersicht',
@@ -485,5 +525,17 @@ export const translations = {
     tonePickerTitle: 'Wählen Sie den Concierge-Ton',
     tonePickerDescription: 'Wählen Sie, wie der AI-Concierge mit Ihren Gästen kommunizieren soll.',
     toneCardDescription: 'Premium-Kommunikationsprofil für Gästeinteraktionen.',
+    toneLuxury: 'Luxus',
+    toneElegant: 'Elegant',
+    toneCasual: 'Locker',
+    toneModern: 'Modern',
+    toneLuxuryDescription:
+      'Raffinierte, exklusive und hochwertige Sprache für Premium-Restaurants.',
+    toneElegantDescription:
+      'Stilvolle, warme und elegante Kommunikation für gehobenen Service.',
+    toneCasualDescription:
+      'Freundlicher, entspannter und zugänglicher Ton für informelle Lokale.',
+    toneModernDescription:
+      'Klare, moderne und selbstbewusste Sprache für moderne Locations.',
   },
 } as const;

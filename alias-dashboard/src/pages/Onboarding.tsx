@@ -727,7 +727,28 @@ function TonePicker({
   updateField: (field: keyof FormState, value: string) => void;
   labels: Record<string, string>;
 }) {
-  const tones = ['Luxury', 'Elegant', 'Casual', 'Modern'];
+  const tones = [
+    {
+      value: 'Luxury',
+      label: labels.toneLuxury,
+      description: labels.toneLuxuryDescription,
+    },
+    {
+      value: 'Elegant',
+      label: labels.toneElegant,
+      description: labels.toneElegantDescription,
+    },
+    {
+      value:  'Casual',
+      label: labels.toneCasual,
+      description: labels.toneCasualDescription,
+    },
+    {
+      value: 'Modern',
+      label: labels.toneModern,
+      description: labels.toneModernDescription,
+    },
+  ];
 
   return (
     <>
@@ -741,22 +762,24 @@ function TonePicker({
 
       <div className="mt-7 grid gap-4 md:grid-cols-4">
         {tones.map((tone) => {
-          const active = form.concierge_tone === tone;
+          const active = form.concierge_tone === tone.value;
 
           return (
             <button
-              key={tone}
-              onClick={() => updateField('concierge_tone', tone)}
+              key={tone.value}
+              onClick={() => updateField('concierge_tone', tone.value)}
               className="rounded-2xl border bg-white/[.025] p-5 text-left transition hover:border-white/20"
               style={{
                 borderColor: active ? cyan : 'rgba(255,255,255,.1)',
                 boxShadow: active ? `0 0 32px ${cyan}18` : undefined,
               }}
             >
-              <p className="font-display text-2xl">{tone}</p>
+              <p className="font-display text-2xl">
+                {tone.label}
+              </p>
 
               <p className="mt-3 text-sm text-white/45">
-                {labels.toneCardDescription}
+                {tone.description}
               </p>
             </button>
           );
