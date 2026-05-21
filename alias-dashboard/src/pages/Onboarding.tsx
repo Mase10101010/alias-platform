@@ -329,6 +329,28 @@ function updateWeeklySchedule(
                 removeTableSetup={removeTableSetup}
                 toggleOpeningDay={toggleOpeningDay}
                 updateWeeklySchedule={updateWeeklySchedule}
+                labels={{
+                  serviceStepTitle: t.serviceStepTitle,
+                  serviceStepDescription: t.serviceStepDescription,
+                  openingHours: t.openingHours,
+                  restaurantSchedule: t.restaurantSchedule,
+                  openingTime: t.openingTime,
+                  closingTime: t.closingTime,
+                  availabilityTitle: t.availabilityTitle,
+                  openingDays: t.openingDays,
+                  openingDaysDescription: t.openingDaysDescription,
+                  open: t.open,
+                  closed: t.closed,
+                  seatingConfiguration: t.seatingConfiguration,
+                  tableDistribution: t.tableDistribution,
+                  totalTables: t.totalTables,
+                  numberOfTables: t.numberOfTables,
+                  seatsPerTable: t.seatsPerTable,
+                  add: t.add,
+                  noTableConfigurations: t.noTableConfigurations,
+                  totalSeats: t.totalSeats,
+                  remove: t.remove,
+                }}
               />
             )}
             {step === 2 && <TonePicker form={form} updateField={updateField} />}
@@ -437,6 +459,7 @@ function ServiceStep({
   removeTableSetup,
   toggleOpeningDay,
   updateWeeklySchedule,
+  labels,
 }: {
   form: FormState;
   updateField: (field: keyof FormState, value: string) => void;
@@ -454,31 +477,32 @@ function ServiceStep({
 
   removeTableSetup: (index: number) => void;
 
+  labels: Record<string, string>;
+
 }) {
   return (
     <>
       <h2 className="font-display text-3xl font-light">
-        Restaurant capacity setup
+        {labels.serviceStepTitle}
       </h2>
 
       <p className="mt-3 max-w-2xl text-sm leading-7 text-white/45">
-        Configure the seating structure of your restaurant so the AI concierge
-        can better manage reservations and availability.
+        {labels.serviceStepDescription}
       </p>
 
       <div className="mt-7 rounded-3xl border border-white/10 bg-white/[.02] p-5">
         <p className="text-xs uppercase tracking-[.22em] text-white/35">
-          Opening hours
+          {labels.openingHours}
         </p>
 
         <h3 className="mt-2 font-display text-2xl font-light">
-          Restaurant schedule
+          {labels.restaurantSchedule}
         </h3>
 
         <div className="mt-5 grid gap-4 md:grid-cols-2">
           <label className="space-y-2">
             <span className="block text-xs uppercase tracking-[.18em] text-white/40">
-              Opening time
+              {labels.openingTime}
             </span>
 
             <Input
@@ -490,7 +514,7 @@ function ServiceStep({
 
             <label className="space-y-2">
               <span className="block text-xs uppercase tracking-[.18em] text-white/40">
-                Closing time
+                {labels.closingTime}
               </span>
 
               <Input
@@ -504,15 +528,15 @@ function ServiceStep({
 
       <div className="mt-6 rounded-3xl border border-white/10 bg-white/[.02] p-5">
         <p className="text-xs uppercase tracking-[.22em] text-white/35">
-          Availability
+          {labels.availabilityTitle}
         </p>
 
         <h3 className="mt-2 font-display text-2xl font-light">
-          Opening days
+          {labels.openingDays}
         </h3>
 
         <p className="mt-2 text-sm text-white/45">
-          Select the days when the restaurant is open.
+          {labels.openingDaysDescription}
         </p>
 
         <div className="mt-5 space-y-3">
@@ -549,7 +573,7 @@ function ServiceStep({
                 </button>
 
                 <span className="text-sm text-white/45">
-                  {schedule.is_open ? 'Open' : 'Closed'}
+                  {schedule.is_open ? labels.open : labels.closed}
                 </span>
               </div>
 
@@ -587,17 +611,17 @@ function ServiceStep({
         <div className="flex items-center justify-between">
           <div>
             <p className="text-xs uppercase tracking-[.22em] text-white/35">
-              Seating configuration
+              {labels.seatingConfiguration}
             </p>
 
             <h3 className="mt-2 font-display text-2xl font-light">
-              Table distribution
+              {labels.tableDistribution}
             </h3>
           </div>
 
           <div className="text-right">
             <p className="text-xs uppercase tracking-[.22em] text-white/35">
-              Total tables
+              {labels.totalTables}
             </p>
 
             <p className="mt-2 font-display text-4xl font-light text-white">
@@ -609,13 +633,13 @@ function ServiceStep({
         <div className="mt-8 rounded-2xl border border-white/10 bg-black/20 p-5">
           <div className="grid gap-4 md:grid-cols-[1fr_1fr_auto]">
             <Input
-              placeholder="Number of tables"
+              placeholder={labels.numberOfTables}
               value={form.table_count_input}
               onChange={(value) => updateField('table_count_input', value)}
             />
 
             <Input
-              placeholder="Seats per table"
+              placeholder={labels.seatsPerTable}
               value={form.seats_per_table_input}
               onChange={(value) => updateField('seats_per_table_input', value)}
             />
@@ -625,14 +649,14 @@ function ServiceStep({
               className="rounded-xl px-5 py-3 text-sm font-medium text-black"
               style={{ background: cyan }}
             >
-              Add
+              {labels.add}
             </button>
           </div>
 
           <div className="mt-6 space-y-3">
             {form.table_setup.length === 0 ? (
               <p className="text-sm text-white/35">
-                No table configurations added yet.
+                {labels.noTableConfigurations}
               </p>
             ) : (
               form.table_setup.map((table, index) => (
@@ -646,7 +670,7 @@ function ServiceStep({
                     </p>
 
                     <p className="mt-1 text-sm text-white/40">
-                      Total seats: {table.count * table.seats}
+                      {labels.totalSeats}: {table.count * table.seats}
                     </p>
                   </div>
 
@@ -654,7 +678,7 @@ function ServiceStep({
                     onClick={() => removeTableSetup(index)}
                     className="text-sm text-red-300 transition hover:text-red-200"
                   >
-                    Remove
+                    {labels.remove}
                   </button>
                 </div>
               ))
