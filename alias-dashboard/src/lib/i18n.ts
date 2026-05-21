@@ -98,7 +98,7 @@ export const translations = {
     restaurantSchedule: 'Restaurant schedule',
     openingTime: 'Opening time',
     closingTime: 'Closing time',
-    availabilityTitle: 'Availability',
+    availabilityPageTitle: 'Availability',
     openingDays: 'Opening days',
     openingDaysDescription:
       'Select the days when the restaurant is open.',
@@ -168,6 +168,36 @@ export const translations = {
     partyOfLabel: 'Party of',
     loadingConversation: 'Loading conversation...',
     noConversationMessages: 'No conversation messages found.',
+    availabilityHeading: 'Manage your opening schedule.',
+    availabilityDescription:
+      'Manage your weekly opening schedule and special closures for holidays, private events, or unexpected shutdowns.',
+
+    weeklySchedule: 'Weekly schedule',
+    regularOpeningHours: 'Regular opening hours',
+    weeklyScheduleDescription:
+      'Set the default opening days and hours used by the AI concierge.',
+
+    saveChanges: 'Save changes',
+    opening: 'Opening',
+    closing: 'Closing',
+    specialClosures: 'Special closures',
+    holidaysExceptions: 'Holidays and exceptions',
+    specialClosuresDescription:
+      'Add holidays, private events, or unexpected closures so the AI concierge never confirms reservations when the restaurant is closed.',
+    closureReasonPlaceholder: 'Reason (e.g. Christmas Day)',
+    addClosure: 'Add closure',
+    noSpecialClosures: 'No special closures added yet.',
+    availabilitySaved: 'Availability saved successfully.',
+    availabilityLoadError: 'Unable to load availability.',
+    availabilitySaveError: 'Unable to save availability.',
+
+    closureDateRequired: 'Please select a closure date.',
+    specialClosureAdded: 'Special closure added.',
+    specialClosureRemoved: 'Special closure removed.',
+
+    noRestaurantFound: 'No restaurant found.',
+    noRestaurantSelected: 'No restaurant selected.',
+    availabilityTitle: 'Availability',
   },
 
   it: {
@@ -176,6 +206,7 @@ export const translations = {
     onboarding: 'Onboarding',
     reservations: 'Prenotazioni',
     availability: 'Disponibilità',
+    availabilityTitle: 'Disponibilità',
     analytics: 'Analytics',
     settings: 'Impostazioni',
     trialDay: 'Giorno di prova 3',
@@ -234,7 +265,7 @@ export const translations = {
     restaurantSchedule: 'Programma del ristorante',
     openingTime: 'Orario apertura',
     closingTime: 'Orario chiusura',
-    availabilityTitle: 'Disponibilità',
+    availabilityPageTitle: 'Disponibilità',
     openingDays: 'Giorni di apertura',
     openingDaysDescription:
       'Seleziona i giorni in cui il ristorante è aperto.',
@@ -304,6 +335,35 @@ export const translations = {
     partyOfLabel: 'Tavolo per',
     loadingConversation: 'Caricamento conversazione...',
     noConversationMessages: 'Nessun messaggio trovato.',
+    availabilityHeading: 'Gestisci gli orari di apertura.',
+    availabilityDescription:
+      'Gestisci il programma settimanale e le chiusure speciali per festività, eventi privati o chiusure impreviste.',
+
+    weeklySchedule: 'Programmazione settimanale',
+    regularOpeningHours: 'Orari di apertura regolari',
+    weeklyScheduleDescription:
+      'Imposta i giorni e gli orari di apertura utilizzati dal concierge AI.',
+
+    saveChanges: 'Salva modifiche',
+    opening: 'Apertura',
+    closing: 'Chiusura',
+    specialClosures: 'Chiusure speciali',
+    holidaysExceptions: 'Festività ed eccezioni',
+    specialClosuresDescription:
+      'Aggiungi festività, eventi privati o chiusure impreviste così il concierge AI non confermerà prenotazioni quando il ristorante è chiuso.',
+    closureReasonPlaceholder: 'Motivo (es. Natale)',
+    addClosure: 'Aggiungi chiusura',
+    noSpecialClosures: 'Nessuna chiusura speciale aggiunta.',
+    availabilitySaved: 'Disponibilità salvata con successo.',
+    availabilityLoadError: 'Impossibile caricare la disponibilità.',
+    availabilitySaveError: 'Impossibile salvare la disponibilità.',
+
+    closureDateRequired: 'Seleziona una data di chiusura.',
+    specialClosureAdded: 'Chiusura speciale aggiunta.',
+    specialClosureRemoved: 'Chiusura speciale rimossa.',
+
+    noRestaurantFound: 'Nessun ristorante trovato.',
+    noRestaurantSelected: 'Nessun ristorante selezionato.',
   },
   es: {
     overview: 'Resumen',
@@ -311,6 +371,7 @@ export const translations = {
     onboarding: 'Onboarding',
     reservations: 'Reservas',
     availability: 'Disponibilidad',
+    availabilityTitle: 'Disponibilidad',
     analytics: 'Analíticas',
     settings: 'Configuración',
     trialDay: 'Día de prueba 3',
@@ -369,7 +430,7 @@ export const translations = {
     restaurantSchedule: 'Horario del restaurante',
     openingTime: 'Hora de apertura',
     closingTime: 'Hora de cierre',
-    availabilityTitle: 'Disponibilidad',
+    availabilityPageTitle: 'Disponibilidad',
     openingDays: 'Días de apertura',
     openingDaysDescription:
       'Selecciona los días en los que el restaurante está abierto.',
@@ -443,6 +504,35 @@ export const translations = {
     partyOfLabel: 'Mesa para',
     loadingConversation: 'Cargando conversación...',
     noConversationMessages: 'No se encontraron mensajes.',
+    availabilityHeading: 'Gestiona los horarios de apertura.',
+    availabilityDescription:
+      'Gestiona el horario semanal y los cierres especiales por festivos, eventos privados o cierres inesperados.',
+
+    weeklySchedule: 'Horario semanal',
+    regularOpeningHours: 'Horario regular de apertura',
+    weeklyScheduleDescription:
+      'Configura los días y horarios de apertura utilizados por el concierge AI.',
+
+    saveChanges: 'Guardar cambios',
+    opening: 'Apertura',
+    closing: 'Cierre',
+    specialClosures: 'Cierres especiales',
+    holidaysExceptions: 'Festivos y excepciones',
+    specialClosuresDescription:
+      'Añade festivos, eventos privados o cierres inesperados para que el concierge AI nunca confirme reservas cuando el restaurante esté cerrado.',
+    closureReasonPlaceholder: 'Motivo (ej. Navidad)',
+    addClosure: 'Añadir cierre',
+    noSpecialClosures: 'Aún no hay cierres especiales.',
+    availabilitySaved: 'Disponibilidad guardada correctamente.',
+    availabilityLoadError: 'No se pudo cargar la disponibilidad.',
+    availabilitySaveError: 'No se pudo guardar la disponibilidad.',
+
+    closureDateRequired: 'Selecciona una fecha de cierre.',
+    specialClosureAdded: 'Cierre especial añadido.',
+    specialClosureRemoved: 'Cierre especial eliminado.',
+
+    noRestaurantFound: 'No se encontró ningún restaurante.',
+    noRestaurantSelected: 'Ningún restaurante seleccionado.',
   },
 
   fr: {
@@ -451,6 +541,7 @@ export const translations = {
     onboarding: 'Onboarding',
     reservations: 'Réservations',
     availability: 'Disponibilité',
+    availabilityTitle: 'Disponibilité',
     analytics: 'Analytiques',
     settings: 'Paramètres',
     trialDay: "Jour d'essai 3",
@@ -509,7 +600,7 @@ export const translations = {
     restaurantSchedule: 'Programme du restaurant',
     openingTime: 'Heure d’ouverture',
     closingTime: 'Heure de fermeture',
-    availabilityTitle: 'Disponibilité',
+    availabilityPageTitle: 'Disponibilité',
     openingDays: 'Jours d’ouverture',
     openingDaysDescription:
       'Sélectionnez les jours où le restaurant est ouvert.',
@@ -583,6 +674,35 @@ export const translations = {
     partyOfLabel: 'Table pour',
     loadingConversation: 'Chargement de la conversation...',
     noConversationMessages: 'Aucun message trouvé.',
+    availabilityHeading: 'Gérez vos horaires d’ouverture.',
+    availabilityDescription:
+      'Gérez le planning hebdomadaire et les fermetures spéciales pour les jours fériés, événements privés ou fermetures imprévues.',
+
+    weeklySchedule: 'Planning hebdomadaire',
+    regularOpeningHours: 'Horaires d’ouverture réguliers',
+    weeklyScheduleDescription:
+      'Définissez les jours et horaires d’ouverture utilisés par le concierge AI.',
+
+    saveChanges: 'Enregistrer les modifications',
+    opening: 'Ouverture',
+    closing: 'Fermeture',
+    specialClosures: 'Fermetures spéciales',
+    holidaysExceptions: 'Jours fériés et exceptions',
+    specialClosuresDescription:
+      'Ajoutez des jours fériés, événements privés ou fermetures imprévues afin que le concierge AI ne confirme jamais de réservations lorsque le restaurant est fermé.',
+    closureReasonPlaceholder: 'Raison (ex. Noël)',
+    addClosure: 'Ajouter une fermeture',
+    noSpecialClosures: 'Aucune fermeture spéciale ajoutée.',
+    availabilitySaved: 'Disponibilité enregistrée avec succès.',
+    availabilityLoadError: 'Impossible de charger la disponibilité.',
+    availabilitySaveError: 'Impossible d’enregistrer la disponibilité.',
+
+    closureDateRequired: 'Sélectionnez une date de fermeture.',
+    specialClosureAdded: 'Fermeture spéciale ajoutée.',
+    specialClosureRemoved: 'Fermeture spéciale supprimée.',
+
+    noRestaurantFound: 'Aucun restaurant trouvé.',
+    noRestaurantSelected: 'Aucun restaurant sélectionné.',
       },
   de: {
     overview: 'Übersicht',
@@ -590,6 +710,7 @@ export const translations = {
     onboarding: 'Onboarding',
     reservations: 'Reservierungen',
     availability: 'Verfügbarkeit',
+    availabilityTitle: 'Verfügbarkeit',
     analytics: 'Analysen',
     settings: 'Einstellungen',
     trialDay: 'Testtag 3',
@@ -648,7 +769,7 @@ export const translations = {
     restaurantSchedule: 'Restaurantplan',
     openingTime: 'Öffnungszeit',
     closingTime: 'Schließzeit',
-    availabilityTitle: 'Verfügbarkeit',
+    availabilityPageTitle: 'Verfügbarkeit',
     openingDays: 'Öffnungstage',
     openingDaysDescription:
       'Wählen Sie die Tage aus, an denen das Restaurant geöffnet ist.',
@@ -722,5 +843,34 @@ export const translations = {
     partyOfLabel: 'Tisch für',
     loadingConversation: 'Konversation wird geladen...',
     noConversationMessages: 'Keine Nachrichten gefunden.',
+    availabilityHeading: 'Öffnungszeiten verwalten.',
+    availabilityDescription:
+      'Verwalten Sie den Wochenplan und besondere Schließungen für Feiertage, private Veranstaltungen oder unerwartete Schließungen.',
+
+    weeklySchedule: 'Wochenplan',
+    regularOpeningHours: 'Reguläre Öffnungszeiten',
+    weeklyScheduleDescription:
+      'Legen Sie die Standard-Öffnungstage und -zeiten fest, die der AI-Concierge verwendet.',
+
+    saveChanges: 'Änderungen speichern',
+    opening: 'Öffnung',
+    closing: 'Schließung',
+    specialClosures: 'Besondere Schließungen',
+    holidaysExceptions: 'Feiertage und Ausnahmen',
+    specialClosuresDescription:
+      'Fügen Sie Feiertage, private Veranstaltungen oder unerwartete Schließungen hinzu, damit der AI-Concierge niemals Reservierungen bestätigt, wenn das Restaurant geschlossen ist.',
+    closureReasonPlaceholder: 'Grund (z. B. Weihnachten)',
+    addClosure: 'Schließung hinzufügen',
+    noSpecialClosures: 'Noch keine besonderen Schließungen hinzugefügt.',
+    availabilitySaved: 'Verfügbarkeit erfolgreich gespeichert.',
+    availabilityLoadError: 'Verfügbarkeit konnte nicht geladen werden.',
+    availabilitySaveError: 'Verfügbarkeit konnte nicht gespeichert werden.',
+
+    closureDateRequired: 'Bitte wählen Sie ein Schließdatum aus.',
+    specialClosureAdded: 'Besondere Schließung hinzugefügt.',
+    specialClosureRemoved: 'Besondere Schließung entfernt.',
+
+    noRestaurantFound: 'Kein Restaurant gefunden.',
+    noRestaurantSelected: 'Kein Restaurant ausgewählt.',
   },
 } as const;

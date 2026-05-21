@@ -1,6 +1,10 @@
 import { useEffect, useState } from 'react';
 
 import { cyan } from '@/lib/data';
+import{
+  detectDefaultLanguage,
+  translations,
+} from '@/lib/i18n';
 import { getRestaurants, updateRestaurant } from '@/lib/api';
 
 const initialSchedule = [
@@ -25,6 +29,8 @@ export function Availability() {
   const [restaurantId, setRestaurantId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [closures, setClosures] = useState<SpecialClosure[]>([]);
+  const language = detectDefaultLanguage();
+  const t = translations[language];
   
   const [closureDate, setClosureDate] = useState('');
   const [closureReason, setClosureReason] = useState('');
@@ -38,7 +44,7 @@ export function Availability() {
         const restaurant = restaurants[0];
 
         if (!restaurant) {
-          setMessage('No restaurant found. ');
+          setMessage(t.noRestaurantFound);;
           return;
         }
 
@@ -68,7 +74,7 @@ export function Availability() {
         setMessage(
           err instanceof Error
             ? err.message
-            : 'Unable to load availability. ',
+            : t.availabilityLoadError,
         );
       } finally {
         setLoading(false);
@@ -99,7 +105,7 @@ export function Availability() {
 
   async function handleSave() {
   if (!restaurantId) {
-    setMessage('No restaurant selected.');
+    setMessage(t.noRestaurantSelected);
     return;
   }
 
@@ -116,19 +122,19 @@ export function Availability() {
       special_closures: closures,
     });
 
-    setMessage('Availability saved successfully.');
+    setMessage(t.availabilitySaved);
   } catch (err) {
     setMessage(
       err instanceof Error
         ? err.message
-        : 'Unable to save availability.',
+        : t.availabilitySaveError,
     );
   }
 }
 
   function addClosure() {
   if (!closureDate.trim()) {
-    setMessage('Please select a closure date.');
+    setMessage(t.closureDateRequired);
     return;
   }
 
@@ -137,13 +143,13 @@ export function Availability() {
     {
       id: Date.now(),
       date: closureDate,
-      reason: closureReason || 'Closed',
+      reason: closureReason || t.closed,
     },
   ]);
 
   setClosureDate('');
   setClosureReason('');
-  setMessage('Special closure added.');
+  setMessage(t.specialClosureAdded);
 }
 
 function removeClosure(id: number) {
@@ -151,23 +157,31 @@ function removeClosure(id: number) {
     current.filter((closure) => closure.id !== id),
   );
 
-  setMessage('Special closure removed.');
+  setMessage(t.specialClosureRemoved);
 }
+const dayLabels: Record<string, string> = {
+  Monday: t.monday,
+  Tuesday: t.tuesday,
+  Wednesday: t.wednesday,
+  Thursday: t.thursday,
+  Friday: t.friday,
+  Saturday: t.saturday,
+  Sunday: t.sunday,
+};
 
   return (
     <div className="space-y-8">
       <div>
         <p className="text-[11px] uppercase tracking-[0.28em] text-white/35">
-          Restaurant settings
+          {t.settings}
         </p>
 
         <h1 className="mt-4 font-display text-5xl font-light tracking-[-.04em]">
-          Availability
+          {t.availabilityTitle}
         </h1>
 
         <p className="mt-4 max-w-2xl text-sm leading-7 text-white/45">
-          Manage your weekly opening schedule and special closures for holidays,
-          private events, or unexpected shutdowns.
+          {t.availabilityDescription}
         </p>
       </div>
 
@@ -175,15 +189,15 @@ function removeClosure(id: number) {
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="text-xs uppercase tracking-[.22em] text-white/35">
-              Weekly schedule
+              {t.weeklySchedule}
             </p>
 
             <h2 className="mt-2 font-display text-3xl font-light">
-              Regular opening hours
+              {t.regularOpeningHours}
             </h2>
 
             <p className="mt-3 text-sm text-white/45">
-              Set the default opening days and hours used by the AI concierge.
+              {t.weeklyScheduleDescription}
             </p>
           </div>
 
@@ -192,7 +206,7 @@ function removeClosure(id: number) {
             className="rounded-full px-5 py-3 text-sm font-medium text-black transition hover:opacity-90"
             style={{ background: cyan }}
           >
-            Save changes
+            {t.saveChanges}
           </button>
         </div>
 
@@ -203,16 +217,18 @@ function removeClosure(id: number) {
               className="grid gap-4 rounded-2xl border border-white/10 bg-white/[.03] p-4 md:grid-cols-[160px_1fr_1fr_120px] md:items-center"
             >
               <div>
-                <p className="font-medium text-white">{item.day}</p>
+                <p className="font-medium text-white">
+                  {dayLabels[item.day]}
+                </p>
 
                 <p className="mt-1 text-xs uppercase tracking-[.18em] text-white/35">
-                  {item.isOpen ? 'Open' : 'Closed'}
+                  {item.isOpen ? t.open : t.closed}
                 </p>
               </div>
 
               <label className="space-y-2">
                 <span className="text-xs uppercase tracking-[.18em] text-white/35">
-                  Opening
+                  {t.opening}
                 </span>
 
                 <input
@@ -228,7 +244,7 @@ function removeClosure(id: number) {
 
               <label className="space-y-2">
                 <span className="text-xs uppercase tracking-[.18em] text-white/35">
-                  Closing
+                  {t.closing}
                 </span>
 
                 <input
@@ -251,7 +267,7 @@ function removeClosure(id: number) {
                   background: item.isOpen ? `${cyan}12` : 'rgba(255,255,255,.03)',
                 }}
               >
-                {item.isOpen ? 'Open' : 'Closed'}
+                {item.isOpen ? t.open : t.closed}
               </button>
             </div>
           ))}
@@ -266,16 +282,15 @@ function removeClosure(id: number) {
 
       <div className="rounded-3xl border border-white/10 bg-white/[.02] p-6">
         <p className="text-xs uppercase tracking-[.22em] text-white/35">
-          Special closures
+          {t.specialClosures}
         </p>
 
         <h2 className="mt-2 font-display text-3xl font-light">
-          Holidays and exceptions
+          {t.holidaysExceptions}
         </h2>
 
         <p className="mt-3 text-sm text-white/45">
-          Add holidays, private events, or unexpected closures so the AI
-          concierge never confirms reservations when the restaurant is closed.
+          {t.specialClosuresDescription}
         </p>
 
         <div className="mt-8 grid gap-4 md:grid-cols-[1fr_1fr_auto]">
@@ -287,7 +302,7 @@ function removeClosure(id: number) {
           />
 
           <input
-            placeholder="Reason (e.g. Christmas Day)"
+            placeholder={t.closureReasonPlaceholder}
             value={closureReason}
             onChange={(event) => setClosureReason(event.target.value)}
             className="rounded-xl border border-white/10 bg-white/[.03] px-4 py-3 text-white outline-none transition focus:border-white/25"
@@ -298,14 +313,14 @@ function removeClosure(id: number) {
             className="rounded-xl px-5 py-3 text-sm font-medium text-black transition hover:opacity-90"
             style={{ background: cyan }}
           >
-            Add closure
+            {t.addClosure}
           </button>
         </div>
 
         <div className="mt-8 space-y-3">
           {closures.length === 0 ? (
             <p className="text-sm text-white/35">
-              No special closures added yet.
+              {t.noSpecialClosures}
             </p>
           ) : (
             closures.map((closure) => (
