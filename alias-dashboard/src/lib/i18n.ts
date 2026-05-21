@@ -131,6 +131,13 @@ export const translations = {
     toneElegantDescription: 'Polished, warm and graceful communication for refined service.',
     toneCasualDescription: 'Friendly, relaxed and approachable tone for informal hospitality.',
     toneModernDescription: 'Clean, confident and contemporary language for modern venues.',
+    launchTitle: 'Your workspace is ready.',
+    launchDescription: 'Alias will configure the concierge workspace for {restaurantName}.',
+    estimatedSeats: 'Estimated seats',
+    successTitle: '{restaurantName} is live on Alias.',
+    successDescription:
+      'The restaurant workspace has been created successfully and the trial is now active.',
+    restaurantId: 'Restaurant ID',
   },
 
   it: {
@@ -230,6 +237,13 @@ export const translations = {
     toneElegantDescription: 'Comunicazione curata, calda ed elegante per un servizio raffinato.',
     toneCasualDescription: 'Tono amichevole, rilassato e accessibile per locali informali.',
     toneModernDescription: 'Linguaggio pulito, sicuro e contemporaneo per locali moderni.',
+    launchTitle: 'Il tuo workspace è pronto.',
+    launchDescription: 'Alias configurerà il workspace concierge per {restaurantName}.',
+    estimatedSeats: 'Posti stimati',
+    successTitle: '{restaurantName} è live su Alias.',
+    successDescription:
+      'Il workspace del ristorante è stato creato con successo e il periodo di prova è ora attivo.',
+    restaurantId: 'ID ristorante',
   },
   es: {
     overview: 'Resumen',
@@ -332,6 +346,13 @@ export const translations = {
       'Tono amigable, relajado y accesible para locales informales.',
     toneModernDescription:
       'Lenguaje limpio, seguro y contemporáneo para espacios modernos.',
+    launchTitle: 'Tu workspace está listo.',
+    launchDescription: 'Alias configurará el workspace concierge para {restaurantName}.',
+    estimatedSeats: 'Asientos estimados',
+    successTitle: '{restaurantName} ya está activo en Alias.',
+    successDescription:
+      'El workspace del restaurante se ha creado correctamente y la prueba ya está activa.',
+    restaurantId: 'ID del restaurante',
   },
 
   fr: {
@@ -435,7 +456,14 @@ export const translations = {
       'Ton amical, détendu et accessible pour les établissements informels.',
     toneModernDescription:
       'Langage propre, confiant et contemporain pour les lieux modernes.',
-  },
+    launchTitle: 'Votre workspace est prêt.',
+    launchDescription: 'Alias configurera le workspace concierge pour {restaurantName}.',
+    estimatedSeats: 'Places estimées',
+    successTitle: '{restaurantName} est maintenant actif sur Alias.',
+    successDescription:
+      'Le workspace du restaurant a été créé avec succès et la période d’essai est maintenant active.',
+    restaurantId: 'ID du restaurant',
+      },
   de: {
     overview: 'Übersicht',
     concierge: 'Concierge AI',
@@ -537,5 +565,12 @@ export const translations = {
       'Freundlicher, entspannter und zugänglicher Ton für informelle Lokale.',
     toneModernDescription:
       'Klare, moderne und selbstbewusste Sprache für moderne Locations.',
+    launchTitle: 'Ihr Workspace ist bereit.',
+    launchDescription: 'Alias richtet den Concierge-Workspace für {restaurantName} ein.',
+    estimatedSeats: 'Geschätzte Sitzplätze',
+    successTitle: '{restaurantName} ist jetzt live auf Alias.',
+    successDescription:
+      'Der Restaurant-Workspace wurde erfolgreich erstellt und die Testphase ist jetzt aktiv.',
+    restaurantId: 'Restaurant-ID',
   },
 } as const;

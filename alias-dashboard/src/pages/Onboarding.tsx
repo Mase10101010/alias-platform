@@ -308,7 +308,15 @@ function updateWeeklySchedule(
         className="glass mt-10 rounded-3xl p-8"
       >
         {createdRestaurantId ? (
-          <Success restaurantId={createdRestaurantId} restaurantName={form.name} />
+          <Success 
+            restaurantId={createdRestaurantId} 
+            restaurantName={form.name} 
+            labels={{
+              successTitle: t.successTitle,
+              successDescription: t.successDescription,
+              restaurantId: t.restaurantId,
+            }}
+          />
         ) : (
           <>
             {step === 0 && (
@@ -386,6 +394,12 @@ function updateWeeklySchedule(
                 form={form}
                 totalTables={totalTables}
                 estimatedSeats={estimatedSeats}
+                labels={{
+                  launchTitle: t.launchTitle,
+                  launchDescription: t.launchDescription,
+                  totalTables: t.totalTables,
+                  estimatedSeats: t.estimatedSeats,
+                }}
               />
             )}
 
@@ -803,10 +817,12 @@ function Launch({
   form,
   totalTables,
   estimatedSeats,
+  labels,
 }: {
   form: FormState;
   totalTables: number;
   estimatedSeats: number;
+  labels: Record<string, string>;
 }) {
   return (
     <div className="text-center">
@@ -818,18 +834,21 @@ function Launch({
       </div>
 
       <h2 className="font-display text-4xl font-light">
-        Your workspace is ready.
+        {labels.launchTitle}
       </h2>
 
       <p className="mx-auto mt-4 max-w-lg text-white/50">
-        Alias will configure the concierge workspace for{' '}
-        {form.name || 'your restaurant'}.
+        {labels.launchDescription.replace(
+          '{restaurantName}',
+          form.name || 'your restaurant',
+        )}
+        
       </p>
 
       <div className="mx-auto mt-8 grid max-w-2xl gap-4 md:grid-cols-2">
         <div className="rounded-2xl border border-white/10 bg-white/[.03] p-5">
           <p className="text-xs uppercase tracking-[.22em] text-white/35">
-            Total tables
+            {labels.totalTables}
           </p>
 
           <p className="mt-3 font-display text-4xl font-light">
@@ -839,7 +858,7 @@ function Launch({
 
         <div className="rounded-2xl border border-white/10 bg-white/[.03] p-5">
           <p className="text-xs uppercase tracking-[.22em] text-white/35">
-            Estimated seats
+            {labels.estimatedSeats}
           </p>
 
           <p className="mt-3 font-display text-4xl font-light">
@@ -854,9 +873,11 @@ function Launch({
 function Success({
   restaurantId,
   restaurantName,
+  labels,
 }: {
   restaurantId: string;
   restaurantName: string;
+  labels: Record<string, string>;
 }) {
   return (
     <div className="text-center">
@@ -868,16 +889,15 @@ function Success({
       </div>
 
       <h2 className="font-display text-4xl font-light">
-        {restaurantName} is live on Alias.
+        {labels.successTitle.replace('{restaurantName}', restaurantName)}
       </h2>
 
       <p className="mx-auto mt-4 max-w-xl text-white/50">
-        The restaurant workspace has been created successfully and the trial is
-        now active.
+        {labels.successDescription}
       </p>
 
       <div className="mx-auto mt-6 max-w-xl rounded-2xl border border-white/10 bg-white/[.03] px-4 py-3 text-left text-xs text-white/50">
-        Restaurant ID:
+        {labels.restaurantId}:
         <span className="ml-2 font-mono text-white/80">
           {restaurantId}
         </span>
