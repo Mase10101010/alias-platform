@@ -350,6 +350,13 @@ function updateWeeklySchedule(
                   noTableConfigurations: t.noTableConfigurations,
                   totalSeats: t.totalSeats,
                   remove: t.remove,
+                  monday: t.monday,
+                  tuesday: t.tuesday,
+                  wednesday: t.wednesday,
+                  thursday: t.thursday,
+                  friday: t.friday,
+                  saturday: t.saturday,
+                  sunday: t.sunday,
                 }}
               />
             )}
