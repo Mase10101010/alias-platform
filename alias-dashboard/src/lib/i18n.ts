@@ -120,6 +120,9 @@ export const translations = {
     friday: 'Fri',
     saturday: 'Sat',
     sunday: 'Sun',
+    tonePickerTitle: 'Choose a concierge tone',
+    tonePickerDescription: 'Select how the AI concierge should communicate with your guests.',
+    toneCardDescription: 'Premium communication profile for guest interactions.',
   },
 
   it: {
@@ -208,6 +211,9 @@ export const translations = {
     friday: 'Ven',
     saturday: 'Sab',
     sunday: 'Dom',
+    tonePickerTitle: 'Scegli il tono del concierge',
+    tonePickerDescription: 'Seleziona come il concierge AI dovrebbe comunicare con i tuoi ospiti.',
+    toneCardDescription: 'Profilo di comunicazione premium per le interazioni con gli ospiti.',
   },
   es: {
     overview: 'Resumen',
@@ -295,6 +301,9 @@ export const translations = {
     friday: 'Vie',
     saturday: 'Sáb',
     sunday: 'Dom',
+    tonePickerTitle: 'Elige el tono del concierge',
+    tonePickerDescription: 'Selecciona cómo el concierge AI debe comunicarse con tus clientes.',
+    toneCardDescription: 'Perfil de comunicación premium para interacciones con clientes.',
   },
 
   fr: {
@@ -383,6 +392,9 @@ export const translations = {
     friday: 'Ven',
     saturday: 'Sam',
     sunday: 'Dim',
+    tonePickerTitle: 'Choisissez le ton du concierge',
+    tonePickerDescription: 'Sélectionnez comment le concierge AI doit communiquer avec vos clients.',
+    toneCardDescription: 'Profil de communication premium pour les interactions clients.',
   },
   de: {
     overview: 'Übersicht',
@@ -470,5 +482,8 @@ export const translations = {
     friday: 'Fr',
     saturday: 'Sa',
     sunday: 'So',
+    tonePickerTitle: 'Wählen Sie den Concierge-Ton',
+    tonePickerDescription: 'Wählen Sie, wie der AI-Concierge mit Ihren Gästen kommunizieren soll.',
+    toneCardDescription: 'Premium-Kommunikationsprofil für Gästeinteraktionen.',
   },
 } as const;

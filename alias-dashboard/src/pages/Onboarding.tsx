@@ -360,7 +360,17 @@ function updateWeeklySchedule(
                 }}
               />
             )}
-            {step === 2 && <TonePicker form={form} updateField={updateField} />}
+            {step === 2 && (
+              <TonePicker 
+              form={form} 
+              updateField={updateField} 
+              labels={{
+                tonePickerTitle: t.tonePickerTitle,
+                tonePickerDescription: t.tonePickerDescription,
+                toneCardDescription: t.toneCardDescription,
+              }}
+            />
+          )}
             {step === 3 && (
               <Launch
                 form={form}
@@ -711,20 +721,22 @@ function ServiceStep({
 function TonePicker({
   form,
   updateField,
+  labels,
 }: {
   form: FormState;
   updateField: (field: keyof FormState, value: string) => void;
+  labels: Record<string, string>;
 }) {
   const tones = ['Luxury', 'Elegant', 'Casual', 'Modern'];
 
   return (
     <>
       <h2 className="font-display text-3xl font-light">
-        Choose a concierge tone
+        {labels.tonePickerTitle}
       </h2>
 
       <p className="mt-3 max-w-2xl text-sm leading-7 text-white/45">
-        Select how the AI concierge should communicate with your guests.
+        {labels.tonePickerDescription}
       </p>
 
       <div className="mt-7 grid gap-4 md:grid-cols-4">
@@ -744,7 +756,7 @@ function TonePicker({
               <p className="font-display text-2xl">{tone}</p>
 
               <p className="mt-3 text-sm text-white/45">
-                Premium communication profile for guest interactions.
+                {labels.toneCardDescription}
               </p>
             </button>
           );
