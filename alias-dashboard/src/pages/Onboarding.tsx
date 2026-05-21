@@ -311,7 +311,14 @@ function updateWeeklySchedule(
           <Success restaurantId={createdRestaurantId} restaurantName={form.name} />
         ) : (
           <>
-            {step === 0 && <BusinessStep form={form} updateField={updateField} />}
+            {step === 0 && (
+              <BusinessStep 
+                form={form} 
+                updateField={updateField} 
+                title={t.businessStepTitle}
+                description={t.businessStepDescription}
+              />
+            )}
             {step === 1 && (
               <ServiceStep
                 form={form}
@@ -374,19 +381,22 @@ function updateWeeklySchedule(
 function BusinessStep({
   form,
   updateField,
+  title,
+  description,
 }: {
   form: FormState;
   updateField: (field: keyof FormState, value: string) => void;
+  title: string;
+  description: string;
 }) {
   return (
     <>
       <h2 className="font-display text-3xl font-light">
-        Tell us about the establishment
+        {title}
       </h2>
 
       <p className="mt-3 max-w-2xl text-sm leading-7 text-white/45">
-        These details help Alias configure your workspace and personalize the
-        AI concierge experience for your guests.
+        {description}
       </p>
 
       <div className="mt-7 grid gap-4 md:grid-cols-2">

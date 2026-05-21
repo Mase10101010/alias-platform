@@ -88,6 +88,9 @@ export const translations = {
     launching: 'Launching…',
     launchConcierge: 'Launch concierge',
     continue: 'Continue',
+    businessStepTitle: 'Tell us about the establishment',
+    businessStepDescription:
+      'These details help Alias configure your workspace and personalize the AI concierge experience for your guests.',
   },
 
   it: {
@@ -144,8 +147,10 @@ export const translations = {
     launching: 'Avvio…',
     launchConcierge: 'Avvia concierge',
     continue: 'Continua',
+    businessStepTitle: 'Raccontaci il tuo locale',
+    businessStepDescription:
+      'Questi dettagli aiutano Alias a configurare il workspace e personalizzare l’esperienza del concierge AI per i tuoi ospiti.',
   },
-
   es: {
     overview: 'Resumen',
     concierge: 'Conserje AI',
@@ -200,6 +205,9 @@ export const translations = {
     launching: 'Lanzando…',
     launchConcierge: 'Lanzar concierge',
     continue: 'Continuar',
+    businessStepTitle: 'Cuéntanos sobre tu establecimiento',
+    businessStepDescription:
+      'Estos detalles ayudan a Alias a configurar tu workspace y personalizar la experiencia del concierge AI para tus clientes.',
   },
 
   fr: {
@@ -256,8 +264,10 @@ export const translations = {
     launching: 'Lancement…',
     launchConcierge: 'Lancer le concierge',
     continue: 'Continuer',
+    businessStepTitle: 'Parlez-nous de votre établissement',
+    businessStepDescription:
+      'Ces informations aident Alias à configurer votre espace de travail et à personnaliser l’expérience du concierge AI pour vos clients.',
   },
-
   de: {
     overview: 'Übersicht',
     concierge: 'Concierge AI',
@@ -312,5 +322,8 @@ export const translations = {
     launching: 'Wird gestartet…',
     launchConcierge: 'Concierge starten',
     continue: 'Weiter',
+    businessStepTitle: 'Erzählen Sie uns von Ihrem Betrieb',
+    businessStepDescription:
+      'Diese Details helfen Alias, Ihren Workspace einzurichten und das AI-Concierge-Erlebnis für Ihre Gäste zu personalisieren.',
   },
 } as const;
