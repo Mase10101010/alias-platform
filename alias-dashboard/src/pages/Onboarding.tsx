@@ -2,6 +2,10 @@ import { useMemo, useState } from 'react';
 
 
 import { cyan } from '@/lib/data';
+import {
+  detectDefaultLanguage,
+  translations,
+} from '@/lib/i18n';
 import { createRestaurant } from '@/lib/api';
 import { motion } from 'framer-motion';
 
@@ -92,6 +96,8 @@ export function Onboarding() {
     null,
   );
   const [error, setError] = useState<string | null>(null);
+  const language = detectDefaultLanguage();
+  const t = translations[language];
 
   const totalTables = useMemo(() => {
   return form.table_setup.reduce(
@@ -274,11 +280,11 @@ function updateWeeklySchedule(
         className="text-[11px] uppercase tracking-[0.28em]"
         style={{ color: cyan }}
       >
-        Onboarding
+        {t.onboardingTitle}
       </p>
 
       <h1 className="mt-4 font-display text-5xl font-light tracking-[-.04em]">
-        Configure your AI concierge.
+        {t.onboardingHeading}
       </h1>
 
       <div className="mt-10 flex gap-2">
@@ -342,7 +348,7 @@ function updateWeeklySchedule(
                 disabled={isSubmitting}
                 className="rounded-full border border-white/10 px-5 py-3 text-sm text-white/60 disabled:opacity-40"
               >
-                Back
+                {t.back}
               </button>
 
               <button
@@ -352,10 +358,10 @@ function updateWeeklySchedule(
                 style={{ background: cyan }}
               >
                 {isSubmitting
-                  ? 'Launching…'
+                  ? t.launching
                   : step === 3
-                    ? 'Launch concierge'
-                    : 'Continue'}
+                    ? t.launchConcierge
+                    : t.continue}
               </button>
             </div>
           </>

@@ -82,6 +82,12 @@ export const translations = {
     conciergePlaceholder: 'Ask Alias Concierge for a table...',
     conciergeError:
       'Sorry, something went wrong while contacting the AI service.',
+    onboardingTitle: 'Onboarding',
+    onboardingHeading: 'Configure your AI concierge.',
+    back: 'Back',
+    launching: 'Launching…',
+    launchConcierge: 'Launch concierge',
+    continue: 'Continue',
   },
 
   it: {
@@ -132,6 +138,12 @@ export const translations = {
     conciergePlaceholder: 'Chiedi ad Alias Concierge un tavolo...',
     conciergeError:
       'Spiacente, si è verificato un errore nel contattare il servizio AI.',
+    onboardingTitle: 'Onboarding',
+    onboardingHeading: 'Configura il tuo concierge AI.',
+    back: 'Indietro',
+    launching: 'Avvio…',
+    launchConcierge: 'Avvia concierge',
+    continue: 'Continua',
   },
 
   es: {
@@ -182,6 +194,12 @@ export const translations = {
     conciergePlaceholder: 'Pide una mesa a Alias Concierge...',
     conciergeError:
       'Lo sentimos, ocurrió un error al contactar el servicio AI.',
+    onboardingTitle: 'Onboarding',
+    onboardingHeading: 'Configura tu concierge AI.',
+    back: 'Atrás',
+    launching: 'Lanzando…',
+    launchConcierge: 'Lanzar concierge',
+    continue: 'Continuar',
   },
 
   fr: {
@@ -232,6 +250,12 @@ export const translations = {
     conciergePlaceholder: 'Demandez une table à Alias Concierge...',
     conciergeError:
       'Désolé, une erreur est survenue lors du contact avec le service AI.',
+    onboardingTitle: 'Onboarding',
+    onboardingHeading: 'Configurez votre concierge AI.',
+    back: 'Retour',
+    launching: 'Lancement…',
+    launchConcierge: 'Lancer le concierge',
+    continue: 'Continuer',
   },
 
   de: {
@@ -282,5 +306,11 @@ export const translations = {
     conciergePlaceholder: 'Fragen Sie Alias Concierge nach einem Tisch...',
     conciergeError:
       'Entschuldigung, beim Kontaktieren des AI-Dienstes ist ein Fehler aufgetreten.',
+    onboardingTitle: 'Onboarding',
+    onboardingHeading: 'Konfigurieren Sie Ihren AI-Concierge.',
+    back: 'Zurück',
+    launching: 'Wird gestartet…',
+    launchConcierge: 'Concierge starten',
+    continue: 'Weiter',
   },
 } as const;
