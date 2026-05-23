@@ -42,6 +42,8 @@ export function Reservations() {
   const [form, setForm] = useState<FormState>(initialForm);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState<'date' | 'time' | 'name' | 'party'>('date');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   const language = detectDefaultLanguage();
   const t = translations[language];
 
@@ -82,6 +84,34 @@ export function Reservations() {
       minute: '2-digit',
     });
   }
+
+  function formatDate(dateString: string) {
+  return new Date(dateString).toLocaleDateString([], {
+    year: 'numeric',
+    month: 'short',
+    day: '2-digit',
+  });
+}
+
+  const sortedReservations = [...reservations].sort((a, b) => {
+    let comparison = 0;
+
+    if (sortBy === 'date' || sortBy === 'time') {
+      comparison =
+        new Date(a.reservation_time).getTime() -
+        new Date(b.reservation_time).getTime();
+    }
+
+    if (sortBy === 'name') {
+      comparison = a.customer_name.localeCompare(b.customer_name);
+    }
+
+    if (sortBy === 'party') {
+      comparison = a.party_size - b.party_size;
+    }
+
+    return sortDirection === 'asc' ? comparison : -comparison;
+  });
 
   async function openConversation(reservation: ReservationResponse) {
     setSelectedReservation(reservation);
@@ -287,8 +317,43 @@ export function Reservations() {
         </div>
       )}
 
+      <div className="mt-8 flex flex-col gap-3 rounded-2xl border border-white/10 bg-white/[.03] p-4 md:flex-row md:items-center md:justify-between">
+        <p className="text-xs uppercase tracking-[.22em] text-white/35">
+          Sort reservations
+        </p>
+
+        <div className="flex flex-col gap-3 md:flex-row">
+          <select
+            value={sortBy}
+            onChange={(event) =>
+              setSortBy(
+                event.target.value as 'date' | 'time' | 'name' | 'party',
+              )
+            }
+            className="rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white outline-none"
+          >
+            <option value="date">Date</option>
+            <option value="time">Time</option>
+            <option value="name">Name</option>
+            <option value="party">Party size</option>
+          </select>
+
+          <select
+            value={sortDirection}
+            onChange={(event) =>
+              setSortDirection(event.target.value as 'asc' | 'desc')
+            }
+            className="rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white outline-none"
+          >
+            <option value="desc">Newest first</option>
+            <option value="asc">Oldest first</option>
+          </select>
+        </div>
+      </div>
+
       <div className="glass mt-10 overflow-hidden rounded-3xl">
-        <div className="grid grid-cols-[90px_1fr_80px_150px_1fr_190px] border-b border-white/[.06] px-5 py-4 text-[10px] uppercase tracking-[.2em] text-white/35">
+        <div className="grid grid-cols-[120px_90px_1fr_80px_150px_1fr_190px] border-b border-white/[.06] px-5 py-4 text-[10px] uppercase tracking-[.2em] text-white/35">
+          <span>Date</span>
           <span>{t.timeColumn}</span>
           <span>{t.guestColumn}</span>
           <span>{t.partyColumn}</span>
@@ -306,11 +371,15 @@ export function Reservations() {
             {t.noReservations}
           </div>
         ) : (
-          reservations.map((reservation) => (
+          sortedReservations.map((reservation) => (
             <div
               key={reservation.id}
-              className="grid grid-cols-[90px_1fr_80px_150px_1fr_190px] items-center border-b border-white/[.04] px-5 py-4 text-sm last:border-none"
+              className="grid grid-cols-[120px_90px_1fr_80px_150px_1fr_190px] items-center border-b border-white/[.04] px-5 py-4 text-sm last:border-none"
             >
+              <span className="text-white/50">
+                {formatDate(reservation.reservation_time)}
+              </span>
+
               <span className="text-white/50">
                 {formatTime(reservation.reservation_time)}
               </span>
