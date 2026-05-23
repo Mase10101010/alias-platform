@@ -2,6 +2,10 @@ import { useEffect, useMemo, useState } from 'react';
 import { Copy, ExternalLink } from 'lucide-react';
 
 import { cyan } from '@/lib/data';
+import {
+  detectDefaultLanguage,
+  translations,
+} from '@/lib/i18n';
 import { getRestaurants, type RestaurantResponse } from '@/lib/api';
 
 function getPublicConciergeUrl(slug: string) {
@@ -11,6 +15,8 @@ function getPublicConciergeUrl(slug: string) {
 export function Settings() {
   const [restaurant, setRestaurant] = useState<RestaurantResponse | null>(null);
   const [copied, setCopied] = useState<string | null>(null);
+  const language = detectDefaultLanguage();
+  const t = translations[language];
 
   useEffect(() => {
     async function loadRestaurant() {
@@ -53,32 +59,32 @@ export function Settings() {
         className="text-[11px] uppercase tracking-[0.28em]"
         style={{ color: cyan }}
       >
-        Settings
+        {t.settings}
       </p>
 
       <h1 className="mt-4 font-display text-5xl font-light tracking-[-.04em]">
-        Restaurant settings.
+        {t.settingsHeading}
       </h1>
 
       <div className="glass mt-10 rounded-3xl p-8">
         <div className="grid gap-4 md:grid-cols-2">
           <ReadOnlyField
-            label="Restaurant name"
+            label={t.restaurantName}
             value={restaurant?.name || '—'}
           />
 
           <ReadOnlyField
-            label="Contact email"
+            label={t.contactEmail}
             value={restaurant?.email || '—'}
           />
 
           <ReadOnlyField
-            label="Phone number"
+            label={t.phoneNumber}
             value={restaurant?.phone || '—'}
           />
 
           <ReadOnlyField
-            label="Opening hours"
+            label={t.openingHoursLabel}
             value={
               restaurant
                 ? `${restaurant.opening_hour}:00 - ${restaurant.closing_hour}:00`
@@ -87,12 +93,12 @@ export function Settings() {
           />
 
           <ReadOnlyField
-            label="Business type"
+            label={t.businessType}
             value={restaurant?.business_type || '—'}
           />
 
           <ReadOnlyField
-            label="Concierge tone"
+            label={t.conciergeTone}
             value={restaurant?.concierge_tone || '—'}
           />
         </div>
@@ -104,10 +110,10 @@ export function Settings() {
             background: `${cyan}08`,
           }}
         >
-          <p className="font-display text-2xl">Trial active</p>
+          <p className="font-display text-2xl">{t.trialActive}</p>
 
           <p className="mt-2 text-white/50">
-            Billing integration will be connected in the next product phase.
+           {t.billingNextPhase}
           </p>
         </div>
       </div>
@@ -119,16 +125,15 @@ export function Settings() {
               className="text-[11px] uppercase tracking-[0.28em]"
               style={{ color: cyan }}
             >
-              Public Concierge
+              {t.publicConcierge}
             </p>
 
             <h2 className="mt-3 font-display text-4xl font-light tracking-[-.04em]">
-              Share or embed your AI concierge.
+              {t.shareEmbedTitle}
             </h2>
 
             <p className="mt-3 max-w-2xl text-sm leading-7 text-white/45">
-              Use this public link on your website, Instagram bio, Google
-              Business profile, QR code, or embed it directly with an iframe.
+              {t.shareEmbedDescription}
             </p>
           </div>
 
@@ -140,26 +145,30 @@ export function Settings() {
               className="flex items-center gap-2 rounded-full border border-white/10 px-5 py-3 text-sm text-white/65 transition hover:border-white/20 hover:text-white"
             >
               <ExternalLink size={16} />
-              Open concierge
+              {t.openConcierge}
             </a>
           )}
         </div>
 
         <div className="mt-8 space-y-5">
           <CopyBox
-            label="Public link"
-            value={conciergeUrl || 'Create a restaurant first.'}
+            label={t.publicLink}
+            value={conciergeUrl || t.createRestaurantFirst}
             onCopy={() => copyToClipboard(conciergeUrl, 'link')}
             copied={copied === 'link'}
             disabled={!conciergeUrl}
+            copiedLabel={t.copied}
+            copyLabel={t.copy}
           />
 
           <CopyBox
-            label="Iframe embed code"
-            value={iframeCode || 'Create a restaurant first.'}
+            label={t.iframeEmbedCode}
+            value={iframeCode || t.createRestaurantFirst}
             onCopy={() => copyToClipboard(iframeCode, 'iframe')}
             copied={copied === 'iframe'}
             disabled={!iframeCode}
+            copiedLabel={t.copied}
+            copyLabel={t.copy}
             multiline
           />
         </div>
@@ -171,16 +180,15 @@ export function Settings() {
                 className="text-[11px] uppercase tracking-[0.28em]"
                 style={{ color: cyan }}
               >
-                QR Access
+                {t.qrAccess}
               </p>
 
               <h3 className="mt-3 font-display text-3xl font-light tracking-[-.04em]">
-                Instant guest access.
+                {t.instantGuestAccess}
               </h3>
 
               <p className="mt-3 max-w-xl text-sm leading-7 text-white/45">
-                Guests can scan this QR code to instantly open your AI concierge
-                and make reservations without downloading any app.
+                {t.qrDescription}
               </p>
             </div>
 
@@ -207,7 +215,7 @@ export function Settings() {
                       background: cyan,
                     }}
                   >
-                    Download QR
+                    {t.downloadQr}
                   </a>
                 </div>
               </div>
@@ -245,6 +253,8 @@ function CopyBox({
   onCopy,
   copied,
   disabled,
+  copiedLabel,
+  copyLabel,
   multiline = false,
 }: {
   label: string;
@@ -252,6 +262,8 @@ function CopyBox({
   onCopy: () => void;
   copied: boolean;
   disabled?: boolean;
+  copiedLabel: string;
+  copyLabel: string;
   multiline?: boolean;
 }) {
   return (
@@ -267,7 +279,7 @@ function CopyBox({
           className="flex items-center gap-2 rounded-full border border-white/10 px-3 py-1.5 text-xs text-white/55 transition hover:border-white/20 hover:text-white disabled:opacity-40"
         >
           <Copy size={13} />
-          {copied ? 'Copied' : 'Copy'}
+          {copied ? copiedLabel : copyLabel}
         </button>
       </div>
 
