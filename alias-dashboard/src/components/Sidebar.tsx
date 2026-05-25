@@ -29,12 +29,14 @@ export function Sidebar({
   language,
   isOpen = false,
   onClose,
+  restaurantName,
 }: {
   active: string;
   setActive: (id: string) => void;
   language: LanguageCode;
   isOpen?: boolean;
   onClose?: () => void;
+  restaurantName: string;
 }) {
   const t = translations[language];
 
@@ -82,7 +84,7 @@ export function Sidebar({
 
         <div className="glass mt-10 rounded-2xl p-4">
           <div className="mb-3 flex items-center gap-2 text-xs text-white/55">
-            <Users size={15} /> La Maison
+            <Users size={15} /> {restaurantName}
           </div>
 
           <p className="font-display text-xl font-light text-white">

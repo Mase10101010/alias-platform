@@ -24,6 +24,7 @@ import { PublicConcierge } from '@/pages/PublicConcierge';
 import { ForgotPassword } from '@/pages/ForgotPassword';
 import { ResetPassword } from '@/pages/ResetPassword';
 import { option } from 'framer-motion/client';
+import { getRestaurants } from '@/lib/api';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
@@ -42,6 +43,7 @@ export default function App() {
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [active, setActive] = useState('home');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [restaurantName, setRestaurantName] = useState('Restaurant');
   const [language, setLanguage] = useState<LanguageCode>(
     detectDefaultLanguage(),
   );
@@ -96,6 +98,21 @@ export default function App() {
     verifySession();
   }, []);
 
+  useEffect(() => {
+    async function loadRestaurantName() {
+      if (!authed) return;
+
+      try {
+        const restaurants = await getRestaurants();
+        setRestaurantName(restaurants[0]?.name || 'Restaurant');
+      } catch (error) {
+        console.error('Failed to load restaurant name', error);
+      }
+    }
+
+    loadRestaurantName();
+  }, [authed]);
+
   function handleLogout() {
     localStorage.removeItem('alias_access_token');
     localStorage.removeItem('alias_user');
@@ -142,6 +159,7 @@ export default function App() {
           language={language}
           isOpen={sidebarOpen}
           onClose={() => setSidebarOpen(false)}
+          restaurantName={restaurantName}
         />
 
         <main className="min-h-screen flex-1 px-5 py-5 md:px-8 lg:px-10">
