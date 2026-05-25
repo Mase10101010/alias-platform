@@ -41,6 +41,7 @@ export default function App() {
   const [authed, setAuthed] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [active, setActive] = useState('home');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [language, setLanguage] = useState<LanguageCode>(
     detectDefaultLanguage(),
   );
@@ -139,6 +140,8 @@ export default function App() {
           active={active} 
           setActive={setActive} 
           language={language}
+          isOpen={sidebarOpen}
+          onClose={() => setSidebarOpen(false)}
         />
 
         <main className="min-h-screen flex-1 px-5 py-5 md:px-8 lg:px-10">
@@ -181,8 +184,13 @@ export default function App() {
                 <LogOut size={14} />
                 {t.logout}
               </button>
-
-              <Menu className="text-white/60 lg:hidden" />
+              <button
+                onClick={() => setSidebarOpen(true)}
+                className="rounded-full border border-white/10 p-2 text-white/60 transition hover:text-white lg:hidden"
+                >
+                  <Menu size={18} />
+                </button>
+              
             </div>
           </header>
 

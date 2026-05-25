@@ -9,7 +9,7 @@ import {
 import { getRestaurants, type RestaurantResponse } from '@/lib/api';
 
 function getPublicConciergeUrl(slug: string) {
-  return `https://alias-platform.vercel.app/concierge?restaurant=${slug}`;
+  return `https://www.aliasconcierge.com/concierge?restaurant=${slug}`;
 }
 
 export function Settings() {
