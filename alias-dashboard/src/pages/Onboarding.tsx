@@ -480,8 +480,9 @@ function BusinessStep({
 
         <Input
           placeholder={labels.businessType}
-          value={form.business_type}
-          onChange={(value) => updateField('business_type', value)}
+          value={labels.business_type}
+          onChange={() => {}} 
+          disabled
         />
 
         <Input
