@@ -246,6 +246,8 @@ export const translations = {
     subscriptionActive: 'Active',
     subscriptionCancelled: 'Cancelled',
     phoneNumberLabel: 'Phone number',
+    tablesLabel: 'tables',
+    seatsEachLabel: 'seats each',
   },
 
   it: {
@@ -460,6 +462,8 @@ export const translations = {
     subscriptionActive: 'Attivo',
     subscriptionCancelled: 'Cancellato',
     phoneNumberLabel: 'Numero di telefono',
+    tablesLabel: 'tavoli',
+    seatsEachLabel: 'posti ciascuno',
       },
   es: {
     overview: 'Resumen',
@@ -677,6 +681,8 @@ export const translations = {
     subscriptionActive: 'Activo',
     subscriptionCancelled: 'Cancelado',
     phoneNumberLabel: 'Número de teléfono',
+    tablesLabel: 'mesas',
+    seatsEachLabel: 'asientos cada una',
   },
 
   fr: {
@@ -895,7 +901,9 @@ export const translations = {
     subscriptionActive: 'Actif',
     subscriptionCancelled: 'Annulé',
     phoneNumberLabel: 'Numéro de téléphone',
-      },
+    tablesLabel: 'tables',
+    seatsEachLabel: 'places chacune',
+  },
   de: {
     overview: 'Übersicht',
     concierge: 'Concierge AI',
@@ -1112,5 +1120,7 @@ export const translations = {
     subscriptionActive: 'Aktiv',
     subscriptionCancelled: 'Storniert',
     phoneNumberLabel: 'Telefonnummer',
+    tablesLabel: 'Tische',
+    seatsEachLabel: 'Sitzplätze pro Tisch'
   },
 } as const;

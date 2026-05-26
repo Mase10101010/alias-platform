@@ -372,6 +372,8 @@ function updateWeeklySchedule(
                   friday: t.friday,
                   saturday: t.saturday,
                   sunday: t.sunday,
+                  tablesLabel: t.tablesLabel,
+                  seatsEachLabel: t.seatsEachLabel,
                 }}
               />
             )}
@@ -727,7 +729,7 @@ function ServiceStep({
                 >
                   <div>
                     <p className="font-medium text-white">
-                      {table.count} tables · {table.seats} seats each
+                      {table.count} {labels.tablesLabel} · {table.seats} {labels.seatsEachLabel}
                     </p>
 
                     <p className="mt-1 text-sm text-white/40">
