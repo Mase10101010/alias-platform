@@ -219,7 +219,7 @@ export function Overview() {
                         {
                           hour: '2-digit',
                           minute: '2-digit',
-                          hour12: language !== 'it',
+                          hour12: language === 'en',
                         },
                       )}
                   </p>
