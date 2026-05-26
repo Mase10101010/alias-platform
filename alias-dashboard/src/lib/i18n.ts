@@ -245,6 +245,7 @@ export const translations = {
     subscriptionTrialing: 'Trial',
     subscriptionActive: 'Active',
     subscriptionCancelled: 'Cancelled',
+    phoneNumberLabel: 'Phone number',
   },
 
   it: {
@@ -458,6 +459,7 @@ export const translations = {
     subscriptionTrialing: 'Prova',
     subscriptionActive: 'Attivo',
     subscriptionCancelled: 'Cancellato',
+    phoneNumberLabel: 'Numero di telefono',
       },
   es: {
     overview: 'Resumen',
@@ -674,6 +676,7 @@ export const translations = {
     subscriptionTrialing: 'Prueba',
     subscriptionActive: 'Activo',
     subscriptionCancelled: 'Cancelado',
+    phoneNumberLabel: 'Número de teléfono',
   },
 
   fr: {
@@ -891,6 +894,7 @@ export const translations = {
     subscriptionTrialing: 'Essai',
     subscriptionActive: 'Actif',
     subscriptionCancelled: 'Annulé',
+    phoneNumberLabel: 'Numéro de téléphone',
       },
   de: {
     overview: 'Übersicht',
@@ -1107,5 +1111,6 @@ export const translations = {
     subscriptionTrialing: 'Testversion',
     subscriptionActive: 'Aktiv',
     subscriptionCancelled: 'Storniert',
+    phoneNumberLabel: 'Telefonnummer',
   },
 } as const;

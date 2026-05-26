@@ -8,6 +8,7 @@ import {
 } from '@/lib/i18n';
 import { createRestaurant } from '@/lib/api';
 import { motion } from 'framer-motion';
+import { Contact } from 'lucide-react';
 
 const steps = ['Business', 'Service', 'Concierge', 'Launch'];
 
@@ -325,6 +326,12 @@ function updateWeeklySchedule(
                 updateField={updateField} 
                 title={t.businessStepTitle}
                 description={t.businessStepDescription}
+                labels={{
+                  restaurantName: t.restaurantName,
+                  businessType: t.businessType,
+                  contactEmail: t.contactEmail,
+                  phoneNumberLabel: t.phoneNumberLabel,
+                }}
               />
             )}
             {step === 1 && (
@@ -446,11 +453,13 @@ function BusinessStep({
   updateField,
   title,
   description,
+  labels,
 }: {
   form: FormState;
   updateField: (field: keyof FormState, value: string) => void;
   title: string;
   description: string;
+  labels: Record<string, string>;
 }) {
   return (
     <>
@@ -464,25 +473,25 @@ function BusinessStep({
 
       <div className="mt-7 grid gap-4 md:grid-cols-2">
         <Input
-          placeholder="Restaurant name"
+          placeholder={labels.restaurantName}
           value={form.name}
           onChange={(value) => updateField('name', value)}
         />
 
         <Input
-          placeholder="Business type"
+          placeholder={labels.businessType}
           value={form.business_type}
           onChange={(value) => updateField('business_type', value)}
         />
 
         <Input
-          placeholder="Contact email"
+          placeholder={labels.contactEmail}
           value={form.email}
           onChange={(value) => updateField('email', value)}
         />
 
         <Input
-          placeholder="Phone number"
+          placeholder={labels.phoneNumberLabel}
           value={form.phone}
           onChange={(value) => updateField('phone', value)}
         />
@@ -910,14 +919,17 @@ function Input({
   placeholder,
   value,
   onChange,
+  disabled = false,
 }: {
   placeholder: string;
   value: string;
   onChange: (value: string) => void;
+  disabled?: boolean;
 }) {
   return (
     <input
-      className="rounded-xl border border-white/10 bg-white/[.03] px-4 py-3 text-white outline-none transition focus:border-white/25"
+      disabled={disabled}
+      className="rounded-xl border border-white/10 bg-white/[.03] px-4 py-3 text-white outline-none transition focus:border-white/25 disabled:cursor-not-allowed disabled:opacity-50"
       placeholder={placeholder}
       value={value}
       onChange={(event) => onChange(event.target.value)}
