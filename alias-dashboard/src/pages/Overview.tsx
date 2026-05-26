@@ -38,6 +38,13 @@ export function Overview() {
   const [loading, setLoading] = useState(true);
   const language = detectDefaultLanguage();
   const t = translations[language];
+  const statusLabels: Record<string, string> = {
+    confirmed: t.statusConfirmed,
+    pending: t.statusPending,
+    cancelled: t.statusCancelled,
+    completed: t.statusCompleted,
+    no_show: t.statusNoShow,
+};
 
   useEffect(() => {
     async function loadDashboard() {
@@ -201,16 +208,20 @@ export function Overview() {
 
                 <div className="text-right">
                   <p className="text-xs uppercase tracking-[.16em] text-white/35">
-                    {reservation.status}
+                    {statusLabels[reservation.status] || reservation.status}
                   </p>
 
                   <p className="mt-1 text-sm text-white/65">
                     {new Date(
                       reservation.reservation_time,
-                    ).toLocaleTimeString([], {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
+                    ).toLocaleTimeString(
+                        language === 'it' ? 'it-IT' : undefined,
+                        {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                          hour12: language !== 'it',
+                        },
+                      )}
                   </p>
                 </div>
               </div>

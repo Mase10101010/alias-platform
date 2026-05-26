@@ -237,6 +237,11 @@ export const translations = {
     realTime: 'real-time',
     guests: 'guests',
     noAnalyticsData: 'No analytics data available yet.',
+    statusConfirmed: 'Confirmed',
+    statusPending: 'Pending',
+    statusCancelled: 'Cancelled',
+    statusCompleted: 'Completed',
+    statusNoShow: 'No-show',
   },
 
   it: {
@@ -442,6 +447,11 @@ export const translations = {
     realTime: 'tempo reale',
     guests: 'ospiti',
     noAnalyticsData: 'Nessun dato analytics disponibile.',
+    statusConfirmed: 'Confermata',
+    statusPending: 'In attesa',
+    statusCancelled: 'Cancellata',
+    statusCompleted: 'Completata',
+    statusNoShow: 'No-show',
       },
   es: {
     overview: 'Resumen',
@@ -650,6 +660,11 @@ export const translations = {
     realTime: 'tiempo real',
     guests: 'clientes',
     noAnalyticsData: 'Todavía no hay datos analytics.',
+    statusConfirmed: 'Confirmada',
+    statusPending: 'Pendiente',
+    statusCancelled: 'Cancelada',
+    statusCompleted: 'Completada',
+    statusNoShow: 'No-show',
   },
 
   fr: {
@@ -859,6 +874,11 @@ export const translations = {
     realTime: 'temps réel',
     guests: 'clients',
     noAnalyticsData: 'Aucune donnée analytics disponible.',
+    statusConfirmed: 'Confirmée',
+    statusPending: 'En attente',
+    statusCancelled: 'Annulée',
+    statusCompleted: 'Terminée',
+    statusNoShow: 'No-show',
       },
   de: {
     overview: 'Übersicht',
@@ -1067,5 +1087,10 @@ export const translations = {
     realTime: 'Echtzeit',
     guests: 'Gäste',
     noAnalyticsData: 'Noch keine Analytics-Daten verfügbar.',
+    statusConfirmed: 'Bestätigt',
+    statusPending: 'Ausstehend',
+    statusCancelled: 'Storniert',
+    statusCompleted: 'Abgeschlossen',
+    statusNoShow: 'No-show',
   },
 } as const;
