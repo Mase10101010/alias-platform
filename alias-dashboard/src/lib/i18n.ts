@@ -242,6 +242,9 @@ export const translations = {
     statusCancelled: 'Cancelled',
     statusCompleted: 'Completed',
     statusNoShow: 'No-show',
+    subscriptionTrialing: 'Trial',
+    subscriptionActive: 'Active',
+    subscriptionCancelled: 'Cancelled',
   },
 
   it: {
@@ -452,6 +455,9 @@ export const translations = {
     statusCancelled: 'Cancellata',
     statusCompleted: 'Completata',
     statusNoShow: 'No-show',
+    subscriptionTrialing: 'Prova',
+    subscriptionActive: 'Attivo',
+    subscriptionCancelled: 'Cancellato',
       },
   es: {
     overview: 'Resumen',
@@ -665,6 +671,9 @@ export const translations = {
     statusCancelled: 'Cancelada',
     statusCompleted: 'Completada',
     statusNoShow: 'No-show',
+    subscriptionTrialing: 'Prueba',
+    subscriptionActive: 'Activo',
+    subscriptionCancelled: 'Cancelado',
   },
 
   fr: {
@@ -879,6 +888,9 @@ export const translations = {
     statusCancelled: 'Annulée',
     statusCompleted: 'Terminée',
     statusNoShow: 'No-show',
+    subscriptionTrialing: 'Essai',
+    subscriptionActive: 'Actif',
+    subscriptionCancelled: 'Annulé',
       },
   de: {
     overview: 'Übersicht',
@@ -1092,5 +1104,8 @@ export const translations = {
     statusCancelled: 'Storniert',
     statusCompleted: 'Abgeschlossen',
     statusNoShow: 'No-show',
+    subscriptionTrialing: 'Testversion',
+    subscriptionActive: 'Aktiv',
+    subscriptionCancelled: 'Storniert',
   },
 } as const;

@@ -44,7 +44,13 @@ export function Overview() {
     cancelled: t.statusCancelled,
     completed: t.statusCompleted,
     no_show: t.statusNoShow,
-};
+  };
+  const subscriptionLabels: Record<string, string> = {
+    trialing: t.subscriptionTrialing,
+    active: t.subscriptionActive,
+    cancelled: t.subscriptionCancelled,
+  };
+
 
   useEffect(() => {
     async function loadDashboard() {
@@ -154,7 +160,11 @@ export function Overview() {
         <StatCard
           icon={<Activity size={18} />}
           label={t.statSubscription}
-          value={restaurant?.subscription_status || 'trialing'}
+          value={
+            subscriptionLabels[
+              restaurant?.subscription_status || 'trialing'
+            ] || restaurant?.subscription_status || 'Trial'
+          }
         />
       </div>
 
