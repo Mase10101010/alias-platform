@@ -3,7 +3,6 @@ import {
   LifeBuoy,
   Clock3,
   Home, 
-  Rocket,
   Settings,  
   Users,
 } from 'lucide-react';
@@ -14,7 +13,6 @@ import { translations, type LanguageCode } from '@/lib/i18n';
 
 const items = [
   { id: 'home', labelKey: 'overview', icon: Home },
-  { id: 'onboarding', labelKey: 'onboarding', icon: Rocket },
   { id: 'reservations', labelKey: 'reservations', icon: CalendarDays },
   { id: 'availability', labelKey: 'availability', icon: Clock3 },
   { id: 'settings', labelKey: 'settings', icon: Settings },
