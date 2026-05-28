@@ -249,6 +249,16 @@ export const translations = {
     tablesLabel: 'tables',
     seatsEachLabel: 'seats each',
     support: 'Support',
+    supportTitle: 'Support',
+    supportHeading: 'Need help?',
+    supportDescription:
+      'Our team is here to help you with onboarding, reservations, integrations and concierge setup.',
+    supportEmailTitle: 'Email support',
+    supportEmailDescription:
+      'Contact us anytime and we’ll get back to you as soon as possible.',
+    supportFastResponseTitle: 'Fast response',
+    supportFastResponseDescription:
+      'We usually reply within a few hours during business days.',
   },
 
   it: {
@@ -466,6 +476,16 @@ export const translations = {
     tablesLabel: 'tavoli',
     seatsEachLabel: 'posti ciascuno',
     support: 'Supporto',
+    supportTitle: 'Supporto',
+    supportHeading: 'Hai bisogno di aiuto?',
+    supportDescription:
+      'Il nostro team è qui per aiutarti con onboarding, prenotazioni, integrazioni e configurazione del concierge.',
+    supportEmailTitle: 'Supporto email',
+    supportEmailDescription:
+      'Contattaci quando vuoi e ti risponderemo il prima possibile.',
+    supportFastResponseTitle: 'Risposta rapida',
+    supportFastResponseDescription:
+      'Di solito rispondiamo entro poche ore nei giorni lavorativi.',
       },
   es: {
     overview: 'Resumen',
@@ -686,6 +706,16 @@ export const translations = {
     tablesLabel: 'mesas',
     seatsEachLabel: 'asientos cada una',
     support: 'Soporte',
+    supportTitle: 'Soporte',
+    supportHeading: '¿Necesitas ayuda?',
+    supportDescription:
+      'Nuestro equipo está aquí para ayudarte con onboarding, reservas, integraciones y configuración del concierge.',
+    supportEmailTitle: 'Soporte por email',
+    supportEmailDescription:
+      'Contáctanos cuando quieras y te responderemos lo antes posible.',
+    supportFastResponseTitle: 'Respuesta rápida',
+    supportFastResponseDescription:
+      'Normalmente respondemos en pocas horas durante días laborables.',
   },
 
   fr: {
@@ -907,6 +937,16 @@ export const translations = {
     tablesLabel: 'tables',
     seatsEachLabel: 'places chacune',
     support: 'Support',
+    supportTitle: 'Support',
+    supportHeading: 'Besoin d’aide ?',
+    supportDescription:
+      'Notre équipe est là pour vous aider avec l’onboarding, les réservations, les intégrations et la configuration du concierge.',
+    supportEmailTitle: 'Support email',
+    supportEmailDescription:
+      'Contactez-nous à tout moment et nous vous répondrons dès que possible.',
+    supportFastResponseTitle: 'Réponse rapide',
+    supportFastResponseDescription:
+      'Nous répondons généralement en quelques heures pendant les jours ouvrés.',
   },
   de: {
     overview: 'Übersicht',
@@ -1127,5 +1167,15 @@ export const translations = {
     tablesLabel: 'Tische',
     seatsEachLabel: 'Sitzplätze pro Tisch',
     support: 'Support',
+    supportTitle: 'Support',
+    supportHeading: 'Brauchst du Hilfe?',
+    supportDescription:
+      'Unser Team hilft dir bei Onboarding, Reservierungen, Integrationen und der Einrichtung des Concierges.',
+    supportEmailTitle: 'E-Mail-Support',
+    supportEmailDescription:
+      'Kontaktiere uns jederzeit und wir melden uns so schnell wie möglich.',
+    supportFastResponseTitle: 'Schnelle Antwort',
+    supportFastResponseDescription:
+      'Wir antworten normalerweise innerhalb weniger Stunden an Werktagen.',
   },
 } as const;

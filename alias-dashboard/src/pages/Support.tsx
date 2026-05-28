@@ -1,23 +1,30 @@
 import { Mail, MessageCircle } from 'lucide-react';
 import { cyan } from '@/lib/data';
 
+import {
+    detectDefaultLanguage,
+    translations,
+} from '@/lib/i18n';
+
 export function Support() {
+  const language = detectDefaultLanguage();
+  const t = translations[language];
+  
   return (
     <div className="mx-auto max-w-4xl">
       <p
         className="text-[11px] uppercase tracking-[0.28em]"
         style={{ color: cyan }}
       >
-        SUPPORT
+        {t.supportTitle}
       </p>
 
       <h1 className="mt-4 font-display text-5xl font-light tracking-[-.04em] text-white">
-        Need help?
+        {t.supportHeading}
       </h1>
 
       <p className="mt-4 max-w-2xl text-sm leading-7 text-white/45">
-        Our team is here to help you with onboarding,
-        reservations, integrations and concierge setup.
+        {t.supportDescription}
       </p>
 
       <div className="mt-10 grid gap-5 md:grid-cols-2">
@@ -33,11 +40,11 @@ export function Support() {
           </div>
 
           <h2 className="mt-6 font-display text-2xl font-light">
-            Email support
+            {t.supportEmailTitle}
           </h2>
 
           <p className="mt-3 text-sm leading-7 text-white/45">
-            Contact us anytime and we’ll get back to you as soon as possible.
+            {t.supportEmailDescription}
           </p>
 
           <a
@@ -61,11 +68,11 @@ export function Support() {
           </div>
 
           <h2 className="mt-6 font-display text-2xl font-light">
-            Fast response
+            {t.supportFastResponseTitle}
           </h2>
 
           <p className="mt-3 text-sm leading-7 text-white/45">
-            We usually reply within a few hours during business days.
+            {t.supportFastResponseDescription}
           </p>
         </div>
       </div>
