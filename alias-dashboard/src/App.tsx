@@ -16,7 +16,6 @@ import { Auth } from '@/pages/Auth';
 import { Overview } from '@/pages/Overview';
 import { Onboarding } from '@/pages/Onboarding';
 import { Reservations } from '@/pages/Reservations';
-import { Analytics } from '@/pages/Analytics';
 import { Settings } from '@/pages/Settings';
 import { Concierge } from '@/pages/Concierge';
 import { Availability } from '@/pages/Availability';
@@ -25,6 +24,7 @@ import { ForgotPassword } from '@/pages/ForgotPassword';
 import { ResetPassword } from '@/pages/ResetPassword';
 import { option } from 'framer-motion/client';
 import { getRestaurants } from '@/lib/api';
+import { Support } from './pages/Support';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
@@ -33,7 +33,7 @@ function Page({ active }: { active: string }) {
   if (active === 'onboarding') return <Onboarding />;
   if (active === 'reservations') return <Reservations />;
   if (active === 'availability') return <Availability />;
-  if (active === 'analytics') return <Analytics />;
+  if (active === 'support') return <Support />;
   if (active === 'settings') return <Settings />;
   return <Overview />;
 }

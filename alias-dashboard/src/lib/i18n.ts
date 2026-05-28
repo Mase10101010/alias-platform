@@ -248,6 +248,7 @@ export const translations = {
     phoneNumberLabel: 'Phone number',
     tablesLabel: 'tables',
     seatsEachLabel: 'seats each',
+    support: 'Support',
   },
 
   it: {
@@ -464,6 +465,7 @@ export const translations = {
     phoneNumberLabel: 'Numero di telefono',
     tablesLabel: 'tavoli',
     seatsEachLabel: 'posti ciascuno',
+    support: 'Supporto',
       },
   es: {
     overview: 'Resumen',
@@ -683,6 +685,7 @@ export const translations = {
     phoneNumberLabel: 'Número de teléfono',
     tablesLabel: 'mesas',
     seatsEachLabel: 'asientos cada una',
+    support: 'Soporte',
   },
 
   fr: {
@@ -903,6 +906,7 @@ export const translations = {
     phoneNumberLabel: 'Numéro de téléphone',
     tablesLabel: 'tables',
     seatsEachLabel: 'places chacune',
+    support: 'Support',
   },
   de: {
     overview: 'Übersicht',
@@ -1121,6 +1125,7 @@ export const translations = {
     subscriptionCancelled: 'Storniert',
     phoneNumberLabel: 'Telefonnummer',
     tablesLabel: 'Tische',
-    seatsEachLabel: 'Sitzplätze pro Tisch'
+    seatsEachLabel: 'Sitzplätze pro Tisch',
+    support: 'Support',
   },
 } as const;

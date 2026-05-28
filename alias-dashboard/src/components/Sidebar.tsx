@@ -1,6 +1,6 @@
 import { 
   CalendarDays, 
-  ChartNoAxesCombined, 
+  LifeBuoy,
   Clock3,
   Home, 
   Rocket,
@@ -19,8 +19,8 @@ const items = [
   { id: 'onboarding', labelKey: 'onboarding', icon: Rocket },
   { id: 'reservations', labelKey: 'reservations', icon: CalendarDays },
   { id: 'availability', labelKey: 'availability', icon: Clock3 },
-  { id: 'analytics', labelKey: 'analytics', icon: ChartNoAxesCombined },
   { id: 'settings', labelKey: 'settings', icon: Settings },
+  { id: 'support', labelKey: 'support', icon: LifeBuoy},
 ] as const;
 
 export function Sidebar({
