@@ -191,7 +191,14 @@ export function Auth({ onEnter }: { onEnter: () => void }) {
                 handleSubmit();
               }}
             >
-              
+              {mode === 'register' && (
+                <input
+                  className="w-full rounded-x1 border border-white/10 bg-white/[.03] px-4 py-3 text-white outline-none focus:border-white/25"
+                  placeholder="Enter your full name"
+                  value={fullName}
+                  onChange={(event) => setFullName(event.target.value)}
+                />
+               )}
 
               <input
                 className="w-full rounded-xl border border-white/10 bg-white/[.03] px-4 py-3 text-white outline-none focus:border-white/25"
