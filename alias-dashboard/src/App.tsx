@@ -17,7 +17,6 @@ import { Overview } from '@/pages/Overview';
 import { Onboarding } from '@/pages/Onboarding';
 import { Reservations } from '@/pages/Reservations';
 import { Settings } from '@/pages/Settings';
-import { Concierge } from '@/pages/Concierge';
 import { Availability } from '@/pages/Availability';
 import { PublicConcierge } from '@/pages/PublicConcierge';
 import { ForgotPassword } from '@/pages/ForgotPassword';
@@ -29,7 +28,6 @@ import { Support } from './pages/Support';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 function Page({ active }: { active: string }) {
-  if (active === 'concierge') return <Concierge />;
   if (active === 'onboarding') return <Onboarding />;
   if (active === 'reservations') return <Reservations />;
   if (active === 'availability') return <Availability />;

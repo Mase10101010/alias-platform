@@ -4,8 +4,7 @@ import {
   Clock3,
   Home, 
   Rocket,
-  Settings, 
-  Sparkles, 
+  Settings,  
   Users,
 } from 'lucide-react';
 
@@ -15,7 +14,6 @@ import { translations, type LanguageCode } from '@/lib/i18n';
 
 const items = [
   { id: 'home', labelKey: 'overview', icon: Home },
-  { id: 'concierge', labelKey: 'concierge', icon: Sparkles },
   { id: 'onboarding', labelKey: 'onboarding', icon: Rocket },
   { id: 'reservations', labelKey: 'reservations', icon: CalendarDays },
   { id: 'availability', labelKey: 'availability', icon: Clock3 },
