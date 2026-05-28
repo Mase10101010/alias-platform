@@ -259,6 +259,7 @@ export const translations = {
     supportFastResponseTitle: 'Fast response',
     supportFastResponseDescription:
       'We usually reply within a few hours during business days.',
+    goToDashboard: 'Go to dashboard',
   },
 
   it: {
@@ -486,7 +487,8 @@ export const translations = {
     supportFastResponseTitle: 'Risposta rapida',
     supportFastResponseDescription:
       'Di solito rispondiamo entro poche ore nei giorni lavorativi.',
-      },
+    goToDashboard: 'Vai alla dashboard',
+    },
   es: {
     overview: 'Resumen',
     concierge: 'Conserje AI',
@@ -716,6 +718,7 @@ export const translations = {
     supportFastResponseTitle: 'Respuesta rápida',
     supportFastResponseDescription:
       'Normalmente respondemos en pocas horas durante días laborables.',
+    goToDashboard: 'Ve a la dashboard',
   },
 
   fr: {
@@ -947,6 +950,7 @@ export const translations = {
     supportFastResponseTitle: 'Réponse rapide',
     supportFastResponseDescription:
       'Nous répondons généralement en quelques heures pendant les jours ouvrés.',
+    goToDashboard: 'va au tableau de bord',
   },
   de: {
     overview: 'Übersicht',
@@ -1177,5 +1181,6 @@ export const translations = {
     supportFastResponseTitle: 'Schnelle Antwort',
     supportFastResponseDescription:
       'Wir antworten normalerweise innerhalb weniger Stunden an Werktagen.',
+    goToDashboard: 'Geh zum Dashboard',
   },
 } as const;

@@ -39,6 +39,7 @@ function Page({ active }: { active: string }) {
 export default function App() {
   const [authed, setAuthed] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
+  const [hasRestaurant, setHasRestaurant] = useState(false);
   const [active, setActive] = useState('home');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [restaurantName, setRestaurantName] = useState('Restaurant');
@@ -91,6 +92,19 @@ export default function App() {
       } finally {
         setCheckingAuth(false);
       }
+
+      const restaurantResponse = await fetch(
+        `${API_BASE_URL}/api/v1/restaurants`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      if (restaurantResponse.ok) {
+        const restaurantData = await restaurantResponse.json();
+        setHasRestaurant(restaurantData.length > 0);
+      }
     }
 
     verifySession();
@@ -133,6 +147,16 @@ export default function App() {
 
   if (!authed) {
     return <Auth onEnter={() => setAuthed(true)} />;
+  }
+  if (authed && !hasRestaurant) {
+    return (
+      <Onboarding
+        onComplete={() => {
+          setHasRestaurant(true);
+          setActive('home');
+        }}
+      />
+    );
   }
 
   return (

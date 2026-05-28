@@ -89,7 +89,11 @@ function toNumber(value: string) {
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
-export function Onboarding() {
+export function Onboarding({
+  onComplete,
+}: {
+  onComplete?: () => void;
+}) {
   const [step, setStep] = useState(0);
   const [form, setForm] = useState<FormState>(initialForm);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -312,10 +316,12 @@ function updateWeeklySchedule(
           <Success 
             restaurantId={createdRestaurantId} 
             restaurantName={form.name} 
+            onComplete={onComplete}
             labels={{
               successTitle: t.successTitle,
               successDescription: t.successDescription,
               restaurantId: t.restaurantId,
+              goToDashboard: t.goToDashboard,
             }}
           />
         ) : (
@@ -482,7 +488,7 @@ function BusinessStep({
 
         <Input
           placeholder={labels.businessType}
-          value={labels.business_type}
+          value={labels.businessType}
           onChange={() => {}} 
           disabled
         />
@@ -886,10 +892,12 @@ function Success({
   restaurantId,
   restaurantName,
   labels,
+  onComplete,
 }: {
   restaurantId: string;
   restaurantName: string;
   labels: Record<string, string>;
+  onComplete?: () => void;
 }) {
   return (
     <div className="text-center">
@@ -914,6 +922,13 @@ function Success({
           {restaurantId}
         </span>
       </div>
+      <button
+        onClick={onComplete}
+        className="mt-8 rounded-full px-6 py-3 text-sm text-black"
+        style={{ background: cyan}}
+      >
+        {labels.goToDashboard}
+      </button>
     </div>
   );
 }
