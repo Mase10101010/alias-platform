@@ -42,6 +42,7 @@ export default function App() {
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [hasRestaurant, setHasRestaurant] = useState(false);
   const [welcomeCompleted, setWelcomeCompleted] = useState(false);
+  const [checkingWorkspace, setCheckingWorkspace] = useState(true);
   const [active, setActive] = useState('home');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [restaurantName, setRestaurantName] = useState('Restaurant');
@@ -94,8 +95,8 @@ export default function App() {
       } finally {
         setCheckingAuth(false);
       }
-
-      const restaurantResponse = await fetch(
+      try {
+        const restaurantResponse = await fetch(
         `${API_BASE_URL}/api/v1/restaurants`,
         {
           headers: {
@@ -107,6 +108,10 @@ export default function App() {
         const restaurantData = await restaurantResponse.json();
         setHasRestaurant(restaurantData.length > 0);
       }
+    } finally {
+      setCheckingWorkspace(false);
+    }
+      
     }
 
     verifySession();
@@ -149,6 +154,18 @@ export default function App() {
 
   if (!authed) {
     return <Auth onEnter={() => setAuthed(true)} />;
+  }
+  if (authed && checkingWorkspace) {
+    return (
+      <main className="grain flex min-h-screen items-center justify-center bg-ink text-white">
+        <div className="text-center">
+          <AliasMark />
+          <p className="mt-6 text-sm uppercase tracking-[.28em] text-white/35">
+            Loading Workspace
+          </p>
+        </div>
+      </main>
+    );
   }
   if (authed && !hasRestaurant && !welcomeCompleted) {
     return (
