@@ -24,6 +24,7 @@ import { ResetPassword } from '@/pages/ResetPassword';
 import { option } from 'framer-motion/client';
 import { getRestaurants } from '@/lib/api';
 import { Support } from './pages/Support';
+import { WelcomeFlow } from '@/pages/WelcomeFlow';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
@@ -40,6 +41,7 @@ export default function App() {
   const [authed, setAuthed] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [hasRestaurant, setHasRestaurant] = useState(false);
+  const [welcomeCompleted, setWelcomeCompleted] = useState(false);
   const [active, setActive] = useState('home');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [restaurantName, setRestaurantName] = useState('Restaurant');
@@ -148,9 +150,17 @@ export default function App() {
   if (!authed) {
     return <Auth onEnter={() => setAuthed(true)} />;
   }
-  if (authed && !hasRestaurant) {
+  if (authed && !hasRestaurant && !welcomeCompleted) {
     return (
-      <Onboarding
+      <WelcomeFlow
+        onComplete={() => setWelcomeCompleted(true)}
+      />
+    );
+  }
+
+  if (authed && !hasRestaurant && welcomeCompleted) {
+    return (
+      <Onboarding 
         onComplete={() => {
           setHasRestaurant(true);
           setActive('home');
@@ -158,6 +168,7 @@ export default function App() {
       />
     );
   }
+ 
 
   return (
     <div className="grain min-h-screen bg-ink text-white">

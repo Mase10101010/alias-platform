@@ -260,6 +260,9 @@ export const translations = {
     supportFastResponseDescription:
       'We usually reply within a few hours during business days.',
     goToDashboard: 'Go to dashboard',
+    welcomeFlowHeading: 'Let’s configure your AI concierge.',
+    welcomeFlowDescription:
+      'Alias will help you manage reservations, availability and guest communication from one simple workspace.',
   },
 
   it: {
@@ -488,6 +491,9 @@ export const translations = {
     supportFastResponseDescription:
       'Di solito rispondiamo entro poche ore nei giorni lavorativi.',
     goToDashboard: 'Vai alla dashboard',
+    welcomeFlowHeading: 'Configuriamo il tuo concierge AI.',
+    welcomeFlowDescription:
+      'Alias ti aiuterà a gestire prenotazioni, disponibilità e comunicazione con gli ospiti da un unico workspace semplice.',
     },
   es: {
     overview: 'Resumen',
@@ -719,6 +725,9 @@ export const translations = {
     supportFastResponseDescription:
       'Normalmente respondemos en pocas horas durante días laborables.',
     goToDashboard: 'Ve a la dashboard',
+    welcomeFlowHeading: 'Configuremos tu concierge AI.',
+    welcomeFlowDescription:
+      'Alias te ayudará a gestionar reservas, disponibilidad y comunicación con clientes desde un workspace simple.',
   },
 
   fr: {
@@ -951,6 +960,9 @@ export const translations = {
     supportFastResponseDescription:
       'Nous répondons généralement en quelques heures pendant les jours ouvrés.',
     goToDashboard: 'va au tableau de bord',
+    welcomeFlowHeading: 'Configurons votre concierge AI.',
+    welcomeFlowDescription:
+      'Alias vous aidera à gérer les réservations, les disponibilités et la communication client depuis un workspace simple.',
   },
   de: {
     overview: 'Übersicht',
@@ -1182,5 +1194,8 @@ export const translations = {
     supportFastResponseDescription:
       'Wir antworten normalerweise innerhalb weniger Stunden an Werktagen.',
     goToDashboard: 'Geh zum Dashboard',
+    welcomeFlowHeading: 'Lass uns deinen AI-Concierge einrichten.',
+    welcomeFlowDescription:
+      'Alias hilft dir, Reservierungen, Verfügbarkeit und Gästekommunikation über einen einfachen Workspace zu verwalten.',
   },
 } as const;
