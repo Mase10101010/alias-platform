@@ -171,18 +171,6 @@ export default function App() {
   if (!authed) {
     return <Auth onEnter={() => setAuthed(true)} />;
   }
-  if (authed && checkingWorkspace) {
-    return (
-      <main className="grain flex min-h-screen items-center justify-center bg-ink text-white">
-        <div className="text-center">
-          <AliasMark />
-          <p className="mt-6 text-sm uppercase tracking-[.28em] text-white/35">
-            Loading Workspace
-          </p>
-        </div>
-      </main>
-    );
-  }
 
   const storedUser = localStorage.getItem('alias_user');
   const parsedUser = currentUser ?? (storedUser ? JSON.parse(storedUser) : null);
@@ -198,6 +186,21 @@ export default function App() {
       />
     );
   }
+
+  if (authed && checkingWorkspace) {
+    return (
+      <main className="grain flex min-h-screen items-center justify-center bg-ink text-white">
+        <div className="text-center">
+          <AliasMark />
+          <p className="mt-6 text-sm uppercase tracking-[.28em] text-white/35">
+            Loading Workspace
+          </p>
+        </div>
+      </main>
+    );
+  }
+
+  
 
   if (authed && !hasRestaurant && !welcomeCompleted) {
     return (
