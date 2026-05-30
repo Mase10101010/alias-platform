@@ -15,6 +15,7 @@ type AuthResponse = {
     email: string;
     full_name: string | null;
     is_active: boolean;
+    is_email_verified: boolean;
   };
 };
 
@@ -103,6 +104,11 @@ export function Auth({ onEnter }: { onEnter: () => void }) {
 
       localStorage.setItem('alias_access_token', auth.access_token);
       localStorage.setItem('alias_user', JSON.stringify(auth.user));
+
+      if (mode === 'register') {
+        window.location.href = '/';
+        return;
+      }
 
       onEnter();
     } catch (err) {

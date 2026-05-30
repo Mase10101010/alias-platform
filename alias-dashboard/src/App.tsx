@@ -45,6 +45,7 @@ export default function App() {
   const [welcomeCompleted, setWelcomeCompleted] = useState(false);
   const [checkingWorkspace, setCheckingWorkspace] = useState(true);
   const [active, setActive] = useState('home');
+  const [currentUser, setCurrentUser] = useState<any>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [restaurantName, setRestaurantName] = useState('Restaurant');
   const [language, setLanguage] = useState<LanguageCode>(
@@ -93,8 +94,14 @@ export default function App() {
         if (!response.ok) {
           throw new Error('Invalid session');
         }
+        
+        const user = await response.json();
+
+        setCurrentUser(user);
+        localStorage.setItem('alias_user', JSON.stringify(user));
 
         setAuthed(true);
+
       } catch {
         localStorage.removeItem('alias_access_token');
         localStorage.removeItem('alias_user');
@@ -174,6 +181,18 @@ export default function App() {
       </main>
     );
   }
+
+  if (authed && currentUser && !currentUser.is_email_verified) {
+    return (
+      <WelcomeFlow
+        requireEmailVerification
+        onComplete={() => {
+          window.location.reload();
+        }}
+      />
+    );
+  }
+
   if (authed && !hasRestaurant && !welcomeCompleted) {
     return (
       <WelcomeFlow

@@ -11,7 +11,13 @@ import {
   type LanguageCode,
 } from '@/lib/i18n';
 
-export function WelcomeFlow({ onComplete }: { onComplete: () => void }) {
+export function WelcomeFlow({
+   onComplete,
+  requireEmailVerification = false, 
+}: { 
+  onComplete: () => void;
+requireEmailVerification?: boolean;
+}) {
   const [step, setStep] = useState(0);
   const [language, setLanguage] = useState<LanguageCode>(
     detectDefaultLanguage(),
@@ -66,23 +72,29 @@ export function WelcomeFlow({ onComplete }: { onComplete: () => void }) {
         )}
 
         {step === 1 && (
-          <>
-            <p
-              className="mt-10 text-[11px] uppercase tracking-[0.28em]"
-              style={{ color: cyan }}
-            >
-              {t.onboardingTitle}
-            </p>
+            <>
+              <p
+                className="mt-10 text-[11px] uppercase tracking-[0.28em]"
+                style={{ color: cyan }}
+              >
+                {requireEmailVerification
+                  ? 'EMAIL VERIFICATION'
+                  : t.onboardingTitle}
+              </p>
 
-            <h1 className="mt-5 font-display text-5xl font-light tracking-[-.04em]">
-              {t.welcomeFlowHeading}
-            </h1>
+              <h1 className="mt-5 font-display text-5xl font-light tracking-[-.04em]">
+                {requireEmailVerification
+                  ? t.verifyEmailHeading
+                  : t.welcomeFlowHeading}
+              </h1>
 
-            <p className="mx-auto mt-4 max-w-xl text-sm leading-7 text-white/45">
-              {t.welcomeFlowDescription}
-            </p>
-          </>
-        )}
+              <p className="mx-auto mt-4 max-w-xl text-sm leading-7 text-white/45">
+                {requireEmailVerification
+                  ? t.verifyEmailDescription
+                  : t.welcomeFlowDescription}
+              </p>
+            </>
+          )}
 
         <div className="mt-10 flex items-center justify-between">
           <button
@@ -106,7 +118,11 @@ export function WelcomeFlow({ onComplete }: { onComplete: () => void }) {
             className="flex items-center gap-2 rounded-full px-5 py-3 text-sm text-black transition hover:opacity-90"
             style={{ background: cyan }}
           >
-            {step === 0 ? t.continue : t.launchConcierge}
+            {step === 0
+              ? t.continue 
+              : requireEmailVerification
+                ? t.emailVerifiedButton
+                : t.launchConcierge}
             <ArrowRight size={16} />
           </button>
         </div>

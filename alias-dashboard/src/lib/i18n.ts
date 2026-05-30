@@ -263,6 +263,10 @@ export const translations = {
     welcomeFlowHeading: 'Let’s configure your AI concierge.',
     welcomeFlowDescription:
       'Alias will help you manage reservations, availability and guest communication from one simple workspace.',
+    verifyEmailHeading: 'Before continuing, verify your email.',
+    verifyEmailDescription:
+      'We have sent you a verification email. Open the link in your inbox, then come back here and continue.',
+    emailVerifiedButton: 'I verified my email',
   },
 
   it: {
@@ -494,6 +498,10 @@ export const translations = {
     welcomeFlowHeading: 'Configuriamo il tuo concierge AI.',
     welcomeFlowDescription:
       'Alias ti aiuterà a gestire prenotazioni, disponibilità e comunicazione con gli ospiti da un unico workspace semplice.',
+    verifyEmailHeading: 'Prima di continuare, verifica la tua email.',
+    verifyEmailDescription:
+      'Ti abbiamo inviato una email di verifica. Apri il link nella tua casella di posta, poi torna qui e continua.',
+    emailVerifiedButton: 'Ho verificato la email',
     },
   es: {
     overview: 'Resumen',
@@ -728,6 +736,10 @@ export const translations = {
     welcomeFlowHeading: 'Configuremos tu concierge AI.',
     welcomeFlowDescription:
       'Alias te ayudará a gestionar reservas, disponibilidad y comunicación con clientes desde un workspace simple.',
+    verifyEmailHeading: 'Antes de continuar, verifica tu correo electrónico.',
+    verifyEmailDescription:
+      'Te hemos enviado un correo de verificación. Abre el enlace en tu bandeja de entrada y luego vuelve aquí para continuar.',
+    emailVerifiedButton: 'He verificado mi correo',
   },
 
   fr: {
@@ -963,6 +975,10 @@ export const translations = {
     welcomeFlowHeading: 'Configurons votre concierge AI.',
     welcomeFlowDescription:
       'Alias vous aidera à gérer les réservations, les disponibilités et la communication client depuis un workspace simple.',
+    verifyEmailHeading: 'Avant de continuer, vérifiez votre adresse e-mail.',
+    verifyEmailDescription:
+      'Nous vous avons envoyé un e-mail de vérification. Ouvrez le lien dans votre boîte de réception puis revenez ici pour continuer.',
+    emailVerifiedButton: "J'ai vérifié mon e-mail",
   },
   de: {
     overview: 'Übersicht',
@@ -1197,5 +1213,9 @@ export const translations = {
     welcomeFlowHeading: 'Lass uns deinen AI-Concierge einrichten.',
     welcomeFlowDescription:
       'Alias hilft dir, Reservierungen, Verfügbarkeit und Gästekommunikation über einen einfachen Workspace zu verwalten.',
+    verifyEmailHeading: 'Bevor Sie fortfahren, bestätigen Sie Ihre E-Mail-Adresse.',
+    verifyEmailDescription:
+      'Wir haben Ihnen eine Bestätigungs-E-Mail gesendet. Öffnen Sie den Link in Ihrem Posteingang und kehren Sie anschließend hierher zurück.',
+    emailVerifiedButton: 'Ich habe meine E-Mail bestätigt',
   },
 } as const;
