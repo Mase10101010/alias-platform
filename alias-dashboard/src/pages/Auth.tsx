@@ -68,6 +68,8 @@ export function Auth({ onEnter }: { onEnter: () => void }) {
     }
 
     if (mode === 'register') {
+      localStorage.removeItem('alias_access_token');
+      localStorage.removeItem('alias_user');
       localStorage.removeItem('alias_welcome_completed');
     }
 

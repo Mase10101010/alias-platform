@@ -172,8 +172,10 @@ export default function App() {
     return (
       <Auth 
       onEnter={() => {
+        setCurrentUser(null)
+        setHasRestaurant(false);
         setWelcomeCompleted(false);
-        localStorage.removeItem('alias_welcome_completed');
+        setCheckingWorkspace(false);
         setAuthed(true);
       }} 
     />
