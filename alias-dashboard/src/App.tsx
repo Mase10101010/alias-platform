@@ -182,7 +182,10 @@ export default function App() {
     );
   }
 
-  if (authed && currentUser && !currentUser.is_email_verified) {
+  const storedUser = localStorage.getItem('alias_user');
+  const parsedUser = currentUser ?? (storedUser ? JSON.parse(storedUser) : null);
+
+  if (authed && parsedUser && !parsedUser.is_email_verified) {
     return (
       <WelcomeFlow
         requireEmailVerification
