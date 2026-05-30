@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { sendVerificationEmail } from '@/lib/api';
 
 import { AliasMark } from '@/components/Brand';
 import { cyan } from '@/lib/data';
@@ -19,6 +20,8 @@ export function WelcomeFlow({
 requireEmailVerification?: boolean;
 }) {
   const [step, setStep] = useState(0);
+  const [isSendingVerification, setIsSendingVerification] = useState(false);
+  const [verificationError, setVerificationError] = useState<string | null>(null);
   const [language, setLanguage] = useState<LanguageCode>(
     detectDefaultLanguage(),
   );
@@ -96,6 +99,12 @@ requireEmailVerification?: boolean;
             </>
           )}
 
+        {verificationError && (
+          <div className="mx-auto mt-6 max-w-xl rounded-xl border border-red-400/20 bg-red-400/10 px-4 py-3 text-sm text-red-200">
+            {verificationError}
+          </div>
+        )}
+
         <div className="mt-10 flex items-center justify-between">
           <button
             onClick={() => setStep((current) => Math.max(0, current - 1))}
@@ -107,10 +116,32 @@ requireEmailVerification?: boolean;
           </button>
 
           <button
-            onClick={() => {
+            onClick={async () => {
               if (step === 0) {
+                if (requireEmailVerification){
+                  try {
+                    setVerificationError(null);
+                    setIsSendingVerification(true);
+
+                    await sendVerificationEmail();
+
+                    setStep(1);
+                  } catch (error){
+                    setVerificationError(
+                        error instanceof Error
+                          ? error.message
+                          : 'Unable to send verification email.',
+                    );      
+                  } finally {
+                    setIsSendingVerification(false);
+                  }
+
+                  return;
+                }
+                
                 setStep(1);
                 return;
+                
               }
 
               onComplete();
@@ -118,11 +149,13 @@ requireEmailVerification?: boolean;
             className="flex items-center gap-2 rounded-full px-5 py-3 text-sm text-black transition hover:opacity-90"
             style={{ background: cyan }}
           >
-            {step === 0
-              ? t.continue 
-              : requireEmailVerification
-                ? t.emailVerifiedButton
-                : t.launchConcierge}
+            {isSendingVerification
+              ? t.sendingVerificationEmail
+              : step === 0
+                ? t.continue
+                : requireEmailVerification
+                  ? t.emailVerifiedButton
+                  : t.launchConcierge}
             <ArrowRight size={16} />
           </button>
         </div>

@@ -331,3 +331,23 @@ export async function verifyEmail(
 
   return response.json();
 }
+
+export async function sendVerificationEmail(): Promise<MessageResponse> {
+  const token = localStorage.getItem('alias_access_token');
+
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/auth/send-verification-email`,
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+
+  if (!response.ok) {
+    throw await parseApiError(response, 'Unable to send verification email');
+  }
+
+  return response.json();
+}

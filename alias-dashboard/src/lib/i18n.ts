@@ -267,6 +267,7 @@ export const translations = {
     verifyEmailDescription:
       'We have sent you a verification email. Open the link in your inbox, then come back here and continue.',
     emailVerifiedButton: 'I verified my email',
+    sendingVerificationEmail: 'Sending verification email...',
   },
 
   it: {
@@ -502,6 +503,7 @@ export const translations = {
     verifyEmailDescription:
       'Ti abbiamo inviato una email di verifica. Apri il link nella tua casella di posta, poi torna qui e continua.',
     emailVerifiedButton: 'Ho verificato la email',
+    sendingVerificationEmail: 'Invio email di verifica...',
     },
   es: {
     overview: 'Resumen',
@@ -740,6 +742,7 @@ export const translations = {
     verifyEmailDescription:
       'Te hemos enviado un correo de verificación. Abre el enlace en tu bandeja de entrada y luego vuelve aquí para continuar.',
     emailVerifiedButton: 'He verificado mi correo',
+    sendingVerificationEmail: 'Enviando email de verificación...',
   },
 
   fr: {
@@ -979,6 +982,7 @@ export const translations = {
     verifyEmailDescription:
       'Nous vous avons envoyé un e-mail de vérification. Ouvrez le lien dans votre boîte de réception puis revenez ici pour continuer.',
     emailVerifiedButton: "J'ai vérifié mon e-mail",
+    sendingVerificationEmail: 'Envoi de l’e-mail de vérification...',
   },
   de: {
     overview: 'Übersicht',
@@ -1217,5 +1221,6 @@ export const translations = {
     verifyEmailDescription:
       'Wir haben Ihnen eine Bestätigungs-E-Mail gesendet. Öffnen Sie den Link in Ihrem Posteingang und kehren Sie anschließend hierher zurück.',
     emailVerifiedButton: 'Ich habe meine E-Mail bestätigt',
+    sendingVerificationEmail: 'Bestätigungs-E-Mail wird gesendet...',
   },
 } as const;
