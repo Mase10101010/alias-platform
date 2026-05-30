@@ -11,6 +11,8 @@ import {
 type TableSetup, 
 } from '@/lib/api';
 
+import { TablesManager } from '@/components/TablesManager';
+
 const initialSchedule = [
   { day: 'Monday', isOpen: true, openingHour: '11', closingHour: '22' },
   { day: 'Tuesday', isOpen: true, openingHour: '11', closingHour: '22' },
@@ -398,6 +400,10 @@ const dayLabels: Record<string, string> = {
           )}
         </div>
       </div>
+
+      {restaurantId && (
+        <TablesManager restaurantId={restaurantId} />
+      )}
 
       <div className="rounded-3xl border border-white/10 bg-white/[.02] p-6">
         <p className="text-xs uppercase tracking-[.22em] text-white/35">

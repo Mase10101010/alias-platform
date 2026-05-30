@@ -351,3 +351,118 @@ export async function sendVerificationEmail(): Promise<MessageResponse> {
 
   return response.json();
 }
+
+export type TableCreate = {
+  table_number: string;
+  seats: number;
+};
+
+export type TableUpdate = {
+  table_number?: string;
+  seats?: number;
+  is_active?: boolean;
+};
+
+export type TableResponse = {
+  id: string;
+  restaurant_id: string;
+  table_code: string;
+  table_number: string;
+  seats: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export async function getTables(
+  restaurantId: string,
+): Promise<TableResponse[]> {
+  const token = getAuthToken();
+
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/restaurants/${restaurantId}/tables`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+
+  if (!response.ok) {
+    throw await parseApiError(response, 'Unable to load tables');
+  }
+
+  return response.json();
+}
+
+export async function createTable(
+  restaurantId: string,
+  payload: TableCreate,
+): Promise<TableResponse> {
+  const token = getAuthToken();
+
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/restaurants/${restaurantId}/tables`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    },
+  );
+
+  if (!response.ok) {
+    throw await parseApiError(response, 'Unable to create table');
+  }
+
+  return response.json();
+}
+
+export async function updateTable(
+  restaurantId: string,
+  tableId: string,
+  payload: TableUpdate,
+): Promise<TableResponse> {
+  const token = getAuthToken();
+
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/restaurants/${restaurantId}/tables/${tableId}`,
+    {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    },
+  );
+
+  if (!response.ok) {
+    throw await parseApiError(response, 'Unable to update table');
+  }
+
+  return response.json();
+}
+
+export async function deleteTable(
+  restaurantId: string,
+  tableId: string,
+): Promise<void> {
+  const token = getAuthToken();
+
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/restaurants/${restaurantId}/tables/${tableId}`,
+    {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+
+  if (!response.ok) {
+    throw await parseApiError(response, 'Unable to delete table');
+  }
+}
