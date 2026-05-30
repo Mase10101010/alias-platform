@@ -73,6 +73,9 @@ export function VerifyEmail() {
         <button
           type="button"
           onClick={() => {
+            localStorage.removeItem('alias_access_token');
+            localStorage.removeItem('alias_user');
+            localStorage.removeItem('alias_welcome_completed');
             window.location.href = '/';
           }}
           className="mt-8 rounded-full bg-white px-6 py-3 text-sm font-semibold text-black transition hover:bg-white/90"
