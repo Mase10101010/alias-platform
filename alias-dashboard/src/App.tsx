@@ -42,7 +42,9 @@ export default function App() {
   const [authed, setAuthed] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [hasRestaurant, setHasRestaurant] = useState(false);
-  const [welcomeCompleted, setWelcomeCompleted] = useState(false);
+  const [welcomeCompleted, setWelcomeCompleted] = useState(
+    localStorage.getItem('alias_welcome_completed') === 'true',
+  );
   const [checkingWorkspace, setCheckingWorkspace] = useState(true);
   const [active, setActive] = useState('home');
   const [currentUser, setCurrentUser] = useState<any>(null);
@@ -189,6 +191,7 @@ export default function App() {
     return (
       <WelcomeFlow
         requireEmailVerification
+        initialStep={welcomeCompleted ? 1 : 0}
         onComplete={() => {
           window.location.reload();
         }}

@@ -13,13 +13,15 @@ import {
 } from '@/lib/i18n';
 
 export function WelcomeFlow({
-   onComplete,
-  requireEmailVerification = false, 
+  onComplete,
+  requireEmailVerification = false,
+  initialStep = 0, 
 }: { 
   onComplete: () => void;
-requireEmailVerification?: boolean;
+  requireEmailVerification?: boolean;
+  initialStep?: number;
 }) {
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(initialStep);
   const [isSendingVerification, setIsSendingVerification] = useState(false);
   const [verificationError, setVerificationError] = useState<string | null>(null);
   const [language, setLanguage] = useState<LanguageCode>(
@@ -124,7 +126,9 @@ requireEmailVerification?: boolean;
                     setIsSendingVerification(true);
 
                     await sendVerificationEmail();
+                    
 
+                    localStorage.setItem('alias_welcome_completed', 'true');
                     setStep(1);
                   } catch (error){
                     setVerificationError(
