@@ -67,6 +67,10 @@ export function Auth({ onEnter }: { onEnter: () => void }) {
       return;
     }
 
+    if (mode === 'register') {
+      localStorage.removeItem('alias_welcome_completed');
+    }
+
     setIsSubmitting(true);
 
     try {
