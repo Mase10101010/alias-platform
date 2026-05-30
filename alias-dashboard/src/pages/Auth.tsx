@@ -216,6 +216,7 @@ export function Auth({ onEnter }: { onEnter: () => void }) {
             </div>
 
             <form
+              autoComplete="off"
               className="mt-8 space-y-4"
               onSubmit={(event) => {
                 event.preventDefault();
@@ -225,6 +226,7 @@ export function Auth({ onEnter }: { onEnter: () => void }) {
               {mode === 'register' && (
                 <input
                   className="w-full rounded-xl border border-white/10 bg-white/[.03] px-4 py-3 text-white outline-none focus:border-white/25"
+                  autoComplete="off"
                   placeholder="Enter your full name"
                   value={fullName}
                   onChange={(event) => setFullName(event.target.value)}
@@ -233,6 +235,7 @@ export function Auth({ onEnter }: { onEnter: () => void }) {
 
               <input
                 className="w-full rounded-xl border border-white/10 bg-white/[.03] px-4 py-3 text-white outline-none focus:border-white/25"
+                autoComplete="new-email"
                 placeholder="Enter your email"
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
@@ -242,6 +245,7 @@ export function Auth({ onEnter }: { onEnter: () => void }) {
                 className="w-full rounded-xl border border-white/10 bg-white/[.03] px-4 py-3 text-white outline-none focus:border-white/25"
                 placeholder="Enter your password"
                 type="password"
+                autoComplete="new-password"
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
               />
