@@ -169,7 +169,15 @@ export default function App() {
   }
 
   if (!authed) {
-    return <Auth onEnter={() => setAuthed(true)} />;
+    return (
+      <Auth 
+      onEnter={() => {
+        setWelcomeCompleted(false);
+        localStorage.removeItem('alias_welcome_completed');
+        setAuthed(true);
+      }} 
+    />
+    );
   }
 
   const storedUser = localStorage.getItem('alias_user');
