@@ -1,6 +1,13 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Eye, EyeOff } from 'lucide-react';
+import {
+  detectDefaultLanguage,
+  languages,
+  saveLanguage,
+  translations,
+  type LanguageCode,
+} from '@/lib/i18n';
 
 import { AliasMark } from '@/components/Brand';
 import { cyan } from '@/lib/data';
@@ -22,6 +29,10 @@ type AuthResponse = {
 
 export function Auth({ onEnter }: { onEnter: () => void }) {
   const [mode, setMode] = useState<'register' | 'login'>('register');
+  const [language, setLanguage] = useState<LanguageCode>(
+    detectDefaultLanguage(),
+  );
+  const t = translations[language];
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -151,13 +162,12 @@ export function Auth({ onEnter }: { onEnter: () => void }) {
             <AliasMark />
 
             <h1 className="mt-14 font-display text-5xl font-light leading-[1.02] tracking-[-.04em] text-white md:text-7xl">
-              AI operations for places where service matters
+              {t.authHeroTitle}
               <span style={{ color: cyan }}>.</span>
             </h1>
 
             <p className="mt-7 max-w-xl text-lg leading-relaxed text-white/55">
-              Create your restaurant workspace, configure your AI concierge, and
-              begin the 14-day trial in minutes.
+              {t.authHeroDescription}
             </p>
           </motion.div>
 
@@ -168,13 +178,35 @@ export function Auth({ onEnter }: { onEnter: () => void }) {
             className="glass rounded-3xl p-7"
           >
             <p className="text-[11px] uppercase tracking-[0.26em] text-white/40">
-              Private beta
+              {t.authPrivateBeta}
             </p>
+
+            <div className="mt-4 flex justify-end">
+              <select 
+                value={language}
+                onChange={(event) => {
+                  const nextLanguage = event.target.value as LanguageCode;
+                  setLanguage(nextLanguage);
+                  saveLanguage(nextLanguage);
+                }}
+                className="rounded-full border border-white/10 bg-white/[.03] px-3 py-2 text-xs uppercase tracking-[.18em] text-white/70 outline-none"
+              >
+                {languages.map((item) => (
+                  <option
+                    key={item.code}
+                    value={item.code}
+                    className="bg-[#050816]"
+                  >
+                    {item.shortLabel}
+                  </option>
+                ))}
+              </select>
+            </div>
 
             <h2 className="mt-3 font-display text-3xl font-light text-white">
               {mode === 'register'
-                ? 'Create your Alias account'
-                : 'Welcome back to Alias'}
+                ? t.authCreateAccount
+                : t.authWelcomeBack}
             </h2>
 
             <div className="mt-6 grid grid-cols-2 rounded-full border border-white/10 bg-white/[.03] p-1">
@@ -194,7 +226,7 @@ export function Auth({ onEnter }: { onEnter: () => void }) {
                   color: mode === 'register' ? '#050707' : 'rgba(255,255,255,.5)',
                 }}
               >
-                Register
+                {t.authRegister}
               </button>
 
               <button
@@ -213,7 +245,7 @@ export function Auth({ onEnter }: { onEnter: () => void }) {
                   color: mode === 'login' ? '#050707' : 'rgba(255,255,255,.5)',
                 }}
               >
-                Login
+                {t.authLogin}
               </button>
             </div>
 
@@ -229,7 +261,7 @@ export function Auth({ onEnter }: { onEnter: () => void }) {
                 <input
                   className="w-full rounded-xl border border-white/10 bg-white/[.03] px-4 py-3 text-white outline-none focus:border-white/25"
                   autoComplete="off"
-                  placeholder="Enter your full name"
+                  placeholder={t.authFullNamePlaceholder}
                   value={fullName}
                   onChange={(event) => setFullName(event.target.value)}
                 />
@@ -238,14 +270,14 @@ export function Auth({ onEnter }: { onEnter: () => void }) {
               <input
                 className="w-full rounded-xl border border-white/10 bg-white/[.03] px-4 py-3 text-white outline-none focus:border-white/25"
                 autoComplete="new-email"
-                placeholder="Enter your email"
+                placeholder={t.authEmailPlaceholder}
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
               />
               <div className='relative'>
                 <input
                   className="w-full rounded-xl border border-white/10 bg-white/[.03] px-4 py-3 text-white outline-none focus:border-white/25"
-                  placeholder="Enter your password"
+                  placeholder={t.authPasswordPlaceholder}
                   type={showPassword ? 'text' : 'password'}
                   autoComplete="new-password"
                   value={password}
@@ -271,7 +303,9 @@ export function Auth({ onEnter }: { onEnter: () => void }) {
                   disabled={isResettingPassword}
                   className="text-left text-xs uppercase tracking-[.18em] text-white/40 transition hover:text-white disabled:opacity-50"
                 >
-                  {isResettingPassword ? 'Sending reset link...' : 'Forgot password?'}
+                  {isResettingPassword 
+                    ? t.authSendingResetLink 
+                    : t.authForgotPassword}
                 </button>
               )}
 
@@ -293,15 +327,15 @@ export function Auth({ onEnter }: { onEnter: () => void }) {
                 style={{ background: cyan }}
               >
                 {isSubmitting
-                  ? 'Please wait...'
+                  ? t.authPleaseWait
                   : mode === 'register'
-                    ? 'Start 14-day trial'
-                    : 'Login'}
+                    ? t.authStartTrial
+                    : t.authLogin}
               </button>
             </form>
 
             <p className="mt-5 text-center text-sm text-white/38">
-              No installation required. Cancel anytime.
+              {t.authFooter}
             </p>
           </motion.div>
         </div>
