@@ -88,7 +88,15 @@ export function Auth({ onEnter }: { onEnter: () => void }) {
       const data = await response.json().catch(() => null);
 
       if (!response.ok) {
-        throw new Error(data?.detail || 'Authentication failed.');
+        const detail = data?.detail;
+        const message =
+        typeof detail === 'string'
+          ? detail
+          : Array.isArray(detail)
+            ? detail.map((item) => item.msg).join(', ')
+            : 'Authentication failed.';
+
+        throw new Error(message);
       }
 
       const auth = data as AuthResponse;

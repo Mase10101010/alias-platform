@@ -259,6 +259,7 @@ function updateWeeklySchedule(
         business_type: form.business_type || 'restaurant',
         phone: form.phone || undefined,
         email: form.email || undefined,
+        preferred_language: language,
         timezone: 'Australia/Perth',
         opening_hour: Number(form.opening_hour),
         closing_hour: Number(form.closing_hour),

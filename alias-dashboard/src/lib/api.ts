@@ -27,6 +27,7 @@ export type RestaurantCreate = {
   business_type: string;
   phone?: string;
   email?: string;
+  preferred_language?: string;
   timezone: string;
   opening_hour: number;
   closing_hour: number;
@@ -309,6 +310,23 @@ export async function resetPassword(
 
   if (!response.ok) {
     throw await parseApiError(response, 'Unable to reset password');
+  }
+
+  return response.json();
+}
+
+export async function verifyEmail(
+  token: string,
+): Promise<MessageResponse> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/auth/verify-email?token=${encodeURIComponent(token)}`,
+  );
+
+  if (!response.ok) {
+    throw await parseApiError(
+      response,
+      'Unable to verify email',
+    );
   }
 
   return response.json();

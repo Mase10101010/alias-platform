@@ -8,6 +8,7 @@ import {
   type LanguageCode
 } from '@/lib/i18n' ;
 import { translations } from '@/lib/i18n';
+import { VerifyEmail } from '@/pages/VerifyEmail';
 
 
 import { Sidebar } from '@/components/Sidebar';
@@ -53,6 +54,8 @@ export default function App() {
   const isPublicConcierge = window.location.pathname === '/concierge';
   const isForgotPassword = window.location.pathname === '/forgot-password';
   const isResetPassword = window.location.pathname === '/reset-password';
+  const isVerifyEmail = window.location.pathname === '/verify-email';
+  
 
   if (isPublicConcierge) {
     return <PublicConcierge />
@@ -64,6 +67,10 @@ export default function App() {
 
   if (isResetPassword) {
     return <ResetPassword />;
+  }
+
+  if (isVerifyEmail) {
+    return <VerifyEmail />;
   }
 
   useEffect(() => {
