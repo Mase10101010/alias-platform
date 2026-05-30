@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { Eye, EyeOff } from 'lucide-react';
 
 import { AliasMark } from '@/components/Brand';
 import { cyan } from '@/lib/data';
@@ -23,6 +24,7 @@ export function Auth({ onEnter }: { onEnter: () => void }) {
   const [mode, setMode] = useState<'register' | 'login'>('register');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [fullName, setFullName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -240,15 +242,23 @@ export function Auth({ onEnter }: { onEnter: () => void }) {
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
               />
-
-              <input
+              <div className='relative'>
+                <input
                 className="w-full rounded-xl border border-white/10 bg-white/[.03] px-4 py-3 text-white outline-none focus:border-white/25"
                 placeholder="Enter your password"
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 autoComplete="new-password"
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword((current) => !current)}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+              </div>
+              
 
               {mode === 'login' && (
                 <button
