@@ -178,7 +178,14 @@ export function Auth({ onEnter }: { onEnter: () => void }) {
             <div className="mt-6 grid grid-cols-2 rounded-full border border-white/10 bg-white/[.03] p-1">
               <button
                 type="button"
-                onClick={() => setMode('register')}
+                onClick={() => {
+                  setMode('register');
+                  setEmail('');
+                  setPassword('');
+                  setFullName('');
+                  setError(null);
+                  setMessage(null);
+                }}
                 className="rounded-full px-4 py-2 text-sm transition"
                 style={{
                   background: mode === 'register' ? cyan : 'transparent',
@@ -190,7 +197,14 @@ export function Auth({ onEnter }: { onEnter: () => void }) {
 
               <button
                 type="button"
-                onClick={() => setMode('login')}
+                onClick={() => {
+                  setMode('login');
+                  setEmail('');
+                  setPassword('');
+                  setFullName('');
+                  setError(null);
+                  setMessage(null);
+                }}
                 className="rounded-full px-4 py-2 text-sm transition"
                 style={{
                   background: mode === 'login' ? cyan : 'transparent',
