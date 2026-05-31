@@ -6,7 +6,11 @@ import {
   detectDefaultLanguage,
   translations,
 } from '@/lib/i18n';
-import { getRestaurants, type RestaurantResponse } from '@/lib/api';
+import { 
+  getRestaurants, 
+  updateRestaurant,
+  type RestaurantResponse,
+} from '@/lib/api';
 
 function getPublicConciergeUrl(slug: string) {
   return `https://www.aliasconcierge.com/concierge?restaurant=${slug}`;
@@ -15,6 +19,9 @@ function getPublicConciergeUrl(slug: string) {
 export function Settings() {
   const [restaurant, setRestaurant] = useState<RestaurantResponse | null>(null);
   const [copied, setCopied] = useState<string | null>(null);
+  const [preferredLanguage, setPreferredLanguage] = useState('en');
+  const [savingLanguage, setSavingLanguage] = useState(false);
+  const [languageMessage, setLanguageMessage] = useState<string | null>(null);
   const language = detectDefaultLanguage();
   const t = translations[language];
 
@@ -22,7 +29,12 @@ export function Settings() {
     async function loadRestaurant() {
       try {
         const restaurants = await getRestaurants();
-        setRestaurant(restaurants[0] || null);
+        const currentRestaurant = restaurants[0] || null;
+        setRestaurant(currentRestaurant);
+
+        if (currentRestaurant?.preferred_language) {
+          setPreferredLanguage(currentRestaurant.preferred_language);
+        }
       } catch (error) {
         console.error('Failed to load restaurant settings', error);
       }
@@ -53,6 +65,28 @@ export function Settings() {
     }, 1800);
   }
 
+  async function handleSaveLanguage() {
+    if (!restaurant) return;
+
+    try {
+      setSavingLanguage(true);
+      setLanguageMessage(null);
+
+      const updated = await updateRestaurant(restaurant.id, {
+        preferred_language: preferredLanguage,
+      });
+
+      setRestaurant(updated);
+      setLanguageMessage('Language updated successfully.');
+    } catch (error) {
+      setLanguageMessage(
+        error instanceof Error ? error.message : 'Unable to update language.',
+      );
+    } finally {
+      setSavingLanguage(false);
+    }
+  }
+
   return (
     <div className="mx-auto max-w-5xl">
       <p
@@ -72,6 +106,45 @@ export function Settings() {
             label={t.restaurantName}
             value={restaurant?.name || '—'}
           />
+
+          <div className="mt-8 rounded-2xl border border-white/10 bg-white/[.03] p-5">
+            <p className="text-xs uppercase tracking-[.22em] text-white/35">
+              Restaurant language
+            </p>
+
+            <p className="mt-2 text-sm text-white/45">
+              This language will be used for restaurant notifications and internal emails.
+            </p>
+
+            <div className="mt-5 flex flex-col gap-3 md:flex-row md:items-center">
+              <select
+                value={preferredLanguage}
+                onChange={(event) => setPreferredLanguage(event.target.value)}
+                className="rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white outline-none"
+              >
+                <option value="en">English</option>
+                <option value="it">Italiano</option>
+                <option value="es">Español</option>
+                <option value="fr">Français</option>
+                <option value="de">Deutsch</option>
+              </select>
+
+              <button
+                onClick={handleSaveLanguage}
+                disabled={savingLanguage || !restaurant}
+                className="rounded-xl px-5 py-3 text-sm font-medium text-black transition hover:opacity-90 disabled:opacity-50"
+                style={{ background: cyan }}
+              >
+                {savingLanguage ? 'Saving...' : 'Save language'}
+              </button>
+            </div>
+
+            {languageMessage && (
+              <p className="mt-4 text-sm text-white/50">
+                {languageMessage}
+              </p>
+            )}
+          </div>
 
           <ReadOnlyField
             label={t.contactEmail}
