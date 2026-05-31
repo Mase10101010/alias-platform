@@ -64,6 +64,9 @@ export type ReservationResponse = ReservationCreate & {
   session_id?: string | null;
   created_at: string;
   updated_at: string;
+  table_id: string | null;
+  table_number: string | null;
+  table_code: string | null;
 };
 
 function getAuthToken() {

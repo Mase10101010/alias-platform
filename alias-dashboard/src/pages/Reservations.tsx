@@ -408,9 +408,15 @@ export function Reservations() {
                 {reservation.status}
               </span>
 
-              <span className="text-white/45">
-                {reservation.special_requests || '—'}
-              </span>
+              <div className="text-white/45">
+                <div>{reservation.special_requests || '—'}</div>
+
+                {reservation.table_number && (
+                  <div className="mt-1 text-xs" style={{ color: cyan }}>
+                    Table {reservation.table_number}
+                  </div>
+                )}
+              </div>
 
               <div className="flex flex-col items-center justify-center gap-2">
                 {reservation.session_id && (
