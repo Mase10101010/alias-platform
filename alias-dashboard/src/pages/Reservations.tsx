@@ -69,8 +69,14 @@ export function Reservations() {
   }
 
   useEffect(() => {
+  loadReservations();
+
+  const interval = setInterval(() => {
     loadReservations();
-  }, []);
+  }, 10000);
+
+  return () => clearInterval(interval);
+}, []);
 
   function updateField(field: keyof FormState, value: string) {
     setForm((current) => ({ ...current, [field]: value }));
