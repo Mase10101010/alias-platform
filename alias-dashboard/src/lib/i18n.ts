@@ -284,6 +284,12 @@ export const translations = {
     authPleaseWait: 'Please wait...',
     authStartTrial: 'Start 14-day trial',
     authFooter: 'No installation required. Cancel anytime.',
+    privacyAcceptancePrefix: 'I have read and accept the',
+    privacyPolicy: 'Privacy Policy',
+    termsOfService: 'Terms of Service',
+    privacyAcceptanceMiddle: 'and',
+    privacyRequired:
+      'Please review and accept the Privacy Policy and Terms of Service before creating an account.',
   },
 
   it: {
@@ -536,6 +542,12 @@ export const translations = {
     authPleaseWait: 'Attendi...',
     authStartTrial: 'Inizia prova di 14 giorni',
     authFooter: 'Nessuna installazione richiesta. Puoi annullare quando vuoi.',
+    privacyAcceptancePrefix: 'Ho preso visione e accetto la',
+    privacyPolicy: 'Privacy Policy',
+    termsOfService: 'Termini di Servizio',
+    privacyAcceptanceMiddle: 'e i',
+    privacyRequired:
+      'Prima di creare un account devi prendere visione e accettare Privacy Policy e Termini di Servizio.',
     },
   es: {
     overview: 'Resumen',
@@ -791,6 +803,12 @@ export const translations = {
     authPleaseWait: 'Por favor espera...',
     authStartTrial: 'Comenzar prueba de 14 días',
     authFooter: 'No se requiere instalación. Cancela cuando quieras.',
+    privacyAcceptancePrefix: 'He leído y acepto la',
+    privacyPolicy: 'Política de Privacidad',
+    termsOfService: 'Términos de Servicio',
+    privacyAcceptanceMiddle: 'y los',
+    privacyRequired:
+      'Antes de crear una cuenta debes leer y aceptar la Política de Privacidad y los Términos de Servicio.',
   },
 
   fr: {
@@ -1047,6 +1065,12 @@ export const translations = {
     authPleaseWait: 'Veuillez patienter...',
     authStartTrial: "Commencer l'essai de 14 jours",
     authFooter: 'Aucune installation requise. Annulez à tout moment.',
+    privacyAcceptancePrefix: "J'ai lu et j'accepte la",
+    privacyPolicy: 'Politique de Confidentialité',
+    termsOfService: "Conditions d'Utilisation",
+    privacyAcceptanceMiddle: 'et les',
+    privacyRequired:
+      "Avant de créer un compte, vous devez lire et accepter la Politique de Confidentialité et les Conditions d'Utilisation.",
   },
   de: {
     overview: 'Übersicht',
@@ -1302,5 +1326,11 @@ export const translations = {
     authPleaseWait: 'Bitte warten...',
     authStartTrial: '14-Tage-Test starten',
     authFooter: 'Keine Installation erforderlich. Jederzeit kündbar.',
+    privacyAcceptancePrefix: 'Ich habe die',
+    privacyPolicy: 'Datenschutzerklärung',
+    termsOfService: 'Nutzungsbedingungen',
+    privacyAcceptanceMiddle: 'gelesen und akzeptiere die',
+    privacyRequired:
+      'Bevor du ein Konto erstellst, musst du die Datenschutzerklärung und die Nutzungsbedingungen lesen und akzeptieren.',
   },
 } as const;

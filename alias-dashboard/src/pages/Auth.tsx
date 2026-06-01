@@ -41,6 +41,7 @@ export function Auth({ onEnter }: { onEnter: () => void }) {
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string |null>(null);
   const [isResettingPassword, setIsResettingPassword] = useState(false);
+  const [acceptedPolicies, setAcceptedPolicies] = useState(false);
 
   async function handleForgotPassword() {
   if (!email) {
@@ -77,6 +78,11 @@ export function Auth({ onEnter }: { onEnter: () => void }) {
 
     if (mode === 'register' && !fullName.trim()) {
       setError('Full name is required.');
+      return;
+    }
+
+    if (mode === 'register' && !acceptedPolicies) {
+      setError(t.privacyRequired);
       return;
     }
 
@@ -219,6 +225,7 @@ export function Auth({ onEnter }: { onEnter: () => void }) {
                   setFullName('');
                   setError(null);
                   setMessage(null);
+                  setAcceptedPolicies(false);
                 }}
                 className="rounded-full px-4 py-2 text-sm transition"
                 style={{
@@ -238,6 +245,7 @@ export function Auth({ onEnter }: { onEnter: () => void }) {
                   setFullName('');
                   setError(null);
                   setMessage(null);
+                  setAcceptedPolicies(false);
                 }}
                 className="rounded-full px-4 py-2 text-sm transition"
                 style={{
@@ -293,6 +301,38 @@ export function Auth({ onEnter }: { onEnter: () => void }) {
                 </button>
               </div>
               
+              {mode === 'register' && (
+                <label className="flex items-start gap-3 text-sm leading-6 text-white/50">
+                  <input
+                    type="checkbox"
+                    checked={acceptedPolicies}
+                    onChange={(event) => setAcceptedPolicies(event.target.checked)}
+                    className="mt-1 h-4 w-4"
+                  />
+
+                  <span>
+                    {t.privacyAcceptancePrefix}{' '}
+                    <a
+                      href="/privacy"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="underline"
+                    >
+                      {t.privacyPolicy}
+                    </a>{' '}
+                    {t.privacyAcceptanceMiddle}{' '}
+                    <a
+                      href="/terms"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="underline"
+                    >
+                      {t.termsOfService}
+                    </a>
+                    .
+                  </span>
+                </label>
+              )}
 
               {mode === 'login' && (
                 <button
