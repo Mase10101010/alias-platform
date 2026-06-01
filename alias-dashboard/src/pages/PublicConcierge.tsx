@@ -6,7 +6,12 @@ import {
 } from '@/lib/i18n';
 
 import { cyan } from '@/lib/data';
-import { sendPublicChatMessage } from '@/lib/api';
+import { 
+  sendPublicChatMessage,
+  getPublicRestaurant,
+} from '@/lib/api';
+
+type SupportedLanguage = keyof typeof translations;
 
 type Message = {
   role: 'guest' | 'concierge' | 'confirmation';
@@ -33,7 +38,9 @@ export function PublicConcierge() {
     () => formatRestaurantName(restaurantSlug),
     [restaurantSlug],
   );
-  const language = detectDefaultLanguage();
+  const [language, setLanguage] = useState<SupportedLanguage>(
+    detectDefaultLanguage() as SupportedLanguage,
+  );
   const t = translations[language];
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [input, setInput] = useState('');
@@ -49,6 +56,33 @@ export function PublicConcierge() {
       ),
     },
   ]);
+
+  useEffect(() => {
+    async function loadPublicRestaurant() {
+      try {
+        const restaurant = await getPublicRestaurant(restaurantSlug);
+        const restaurantLanguage = (
+          restaurant.preferred_language || detectDefaultLanguage()
+        ) as SupportedLanguage;
+
+        setLanguage(restaurantLanguage);
+
+        setMessages([
+          {
+            role: 'concierge',
+            content: translations[restaurantLanguage].publicWelcome.replace(
+              '{restaurantName}',
+              restaurant.name,
+            ),
+          },
+        ]);
+      } catch (error) {
+        console.error('Failed to load public restaurant', error);
+      }
+    }
+
+    loadPublicRestaurant();
+  }, [restaurantSlug]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({

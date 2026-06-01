@@ -120,6 +120,23 @@ export async function getRestaurants(): Promise<RestaurantResponse[]> {
   return response.json();
 }
 
+export async function getPublicRestaurant(
+  slug: string,
+): Promise<RestaurantResponse> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/restaurants/public/${slug}`,
+  );
+
+  if (!response.ok) {
+    throw await parseApiError(
+      response,
+      'Unable to load public restaurant',
+    );
+  }
+
+  return response.json();
+}
+
 export async function updateRestaurant(
   restaurantId: string,
   payload: Partial<RestaurantCreate>,
