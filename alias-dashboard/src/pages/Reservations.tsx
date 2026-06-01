@@ -357,8 +357,8 @@ export function Reservations() {
         </div>
       </div>
 
-      <div className="glass mt-10 overflow-hidden rounded-3xl">
-        <div className="grid grid-cols-[120px_90px_1fr_80px_150px_1fr_190px] border-b border-white/[.06] px-5 py-4 text-[10px] uppercase tracking-[.2em] text-white/35">
+      <div className="glass mt-10 overflow-x-auto rounded-3xl">
+        <div className="grid min-w-[920px] grid-cols-[120px_90px_1fr_80px_150px_1fr_190px] border-b border-white/[.06] px-5 py-4 text-[10px] uppercase tracking-[.2em] text-white/35">
           <span>Date</span>
           <span>{t.timeColumn}</span>
           <span>{t.guestColumn}</span>
@@ -380,7 +380,7 @@ export function Reservations() {
           sortedReservations.map((reservation) => (
             <div
               key={reservation.id}
-              className="grid grid-cols-[120px_90px_1fr_80px_150px_1fr_190px] items-center border-b border-white/[.04] px-5 py-4 text-sm last:border-none"
+              className="grid min-w-[920px] grid-cols-[120px_90px_1fr_80px_150px_1fr_190px] items-center border-b border-white/[.04] px-5 py-4 text-sm last:border-none"
             >
               <span className="text-white/50">
                 {formatDate(reservation.reservation_time)}
