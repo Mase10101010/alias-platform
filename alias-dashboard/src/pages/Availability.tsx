@@ -329,77 +329,7 @@ const dayLabels: Record<string, string> = {
         )}
       </div>
       
-      <div className="rounded-3xl border border-white/10 bg-white/[.02] p-6">
-        <p className="text-xs uppercase tracking-[.22em] text-white/35">
-          Table capacity
-        </p>
-
-        <h2 className="mt-2 font-display text-3xl font-light">
-          Restaurant tables
-        </h2>
-
-        <p className="mt-3 text-sm text-white/45">
-          Manage the number of tables and seats available in your restaurant.
-        </p>
-
-        <div className="mt-8 grid gap-4 md:grid-cols-[1fr_1fr_auto]">
-          <input
-            type="number"
-            placeholder="Number of tables"
-            value={tableCountInput}
-            onChange={(event) => setTableCountInput(event.target.value)}
-            className="rounded-xl border border-white/10 bg-white/[.03] px-4 py-3 text-white outline-none transition focus:border-white/25"
-          />
-
-          <input
-            type="number"
-            placeholder="Seats per table"
-            value={tableSeatsInput}
-            onChange={(event) => setTableSeatsInput(event.target.value)}
-            className="rounded-xl border border-white/10 bg-white/[.03] px-4 py-3 text-white outline-none transition focus:border-white/25"
-          />
-
-          <button
-            onClick={addTableSetup}
-            className="rounded-xl px-5 py-3 text-sm font-medium text-black transition hover:opacity-90"
-            style={{ background: cyan }}
-          >
-            Add table
-          </button>
-        </div>
-
-        <div className="mt-8 space-y-3">
-          {tableSetup.length === 0 ? (
-            <p className="text-sm text-white/35">
-              No table configurations added yet.
-            </p>
-          ) : (
-            tableSetup.map((table, index) => (
-              <div
-                key={`${table.count}-${table.seats}-${index}`}
-                className="flex flex-col gap-4 rounded-2xl border border-white/10 bg-white/[.03] p-4 md:flex-row md:items-center md:justify-between"
-              >
-                <div>
-                  <p className="font-medium text-white">
-                    {table.count} tables
-                  </p>
-
-                  <p className="mt-1 text-sm text-white/40">
-                    {table.seats} seats per table
-                  </p>
-                </div>
-
-                <button
-                  onClick={() => removeTableSetup(index)}
-                  className="rounded-full border border-red-400/20 bg-red-400/10 px-4 py-2 text-sm text-red-200 transition hover:bg-red-400/15"
-                >
-                  Remove
-                </button>
-              </div>
-            ))
-          )}
-        </div>
-      </div>
+      
 
       {restaurantId && (
         <TablesManager restaurantId={restaurantId} />

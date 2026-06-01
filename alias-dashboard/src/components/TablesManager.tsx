@@ -78,7 +78,7 @@ export function TablesManager({ restaurantId }: { restaurantId: string }) {
         </p>
 
         <h2 className="mt-3 font-display text-3xl font-light text-white">
-          Real restaurant tables.
+          Restaurant tables.
         </h2>
 
         <p className="mt-3 max-w-2xl text-sm leading-7 text-white/45">
