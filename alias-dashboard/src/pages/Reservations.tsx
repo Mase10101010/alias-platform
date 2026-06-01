@@ -198,7 +198,7 @@ export function Reservations() {
   }
 
   return (
-    <div>
+    <div className="min-w-0 overflow-x-hidden">
       <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
         <div>
           <p
@@ -357,7 +357,7 @@ export function Reservations() {
         </div>
       </div>
 
-      <div className="glass mt-10 overflow-x-auto rounded-3xl">
+      <div className="glass mt-10 max-w-full overflow-x-auto rounded-3xl">
         <div className="grid min-w-[920px] grid-cols-[120px_90px_1fr_80px_150px_1fr_190px] border-b border-white/[.06] px-5 py-4 text-[10px] uppercase tracking-[.2em] text-white/35">
           <span>Date</span>
           <span>{t.timeColumn}</span>

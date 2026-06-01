@@ -241,7 +241,7 @@ export default function App() {
  
 
   return (
-    <div className="grain min-h-screen bg-ink text-white">
+    <div className="grain min-h-screen overflow-x-hidden bg-ink text-white">
       <div
         className="fixed inset-0 -z-10 opacity-[.06]"
         style={{
@@ -265,7 +265,7 @@ export default function App() {
           restaurantName={restaurantName}
         />
 
-        <main className="min-h-screen flex-1 px-5 py-5 md:px-8 lg:px-10">
+        <main className="min-h-screen min-w-0 flex-1 overflow-x-hidden px-5 py-5 md:px-8 lg:px-10">
           <header className="mb-8 flex items-center justify-between rounded-2xl border border-white/[.06] bg-white/[.025] px-4 py-3">
             <div className="lg:hidden">
               <AliasMark />
