@@ -56,23 +56,28 @@ export function Reservations() {
     null,
   );
 
-  async function loadReservations() {
+  async function loadReservations(showLoader = false) {
     try {
-      setLoading(true);
+      if (showLoader) {
+        setLoading(true);
+      }
+
       const data = await getReservations();
       setReservations(data);
     } catch (err) {
       console.error('Failed to load reservations', err);
     } finally {
-      setLoading(false);
+      if (showLoader) {
+        setLoading(false);
+      }
     }
   }
 
   useEffect(() => {
-  loadReservations();
+  loadReservations(true);
 
   const interval = setInterval(() => {
-    loadReservations();
+    loadReservations(false);
   }, 10000);
 
   return () => clearInterval(interval);
