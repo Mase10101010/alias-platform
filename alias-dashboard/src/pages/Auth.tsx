@@ -183,11 +183,9 @@ export function Auth({ onEnter }: { onEnter: () => void }) {
             transition={{ duration: 0.8, delay: 0.15 }}
             className="glass rounded-3xl p-7"
           >
-            <p className="text-[11px] uppercase tracking-[0.26em] text-white/40">
-              {t.authPrivateBeta}
-            </p>
+            
 
-            <div className="mt-4 flex justify-end">
+            <div className="flex justify-end">
               <select 
                 value={language}
                 onChange={(event) => {
