@@ -183,13 +183,9 @@ export default function App() {
   if (!authed) {
     return (
       <Auth 
-      onEnter={() => {
-        setCurrentUser(null)
-        setHasRestaurant(false);
-        setWelcomeCompleted(false);
-        setCheckingWorkspace(false);
-        setAuthed(true);
-      }} 
+        onEnter={() => {
+          window.location.reload();
+        }} 
     />
     );
   }
