@@ -116,13 +116,13 @@ export function Settings() {
               <select
                 value={preferredLanguage}
                 onChange={(event) => setPreferredLanguage(event.target.value)}
-                className="flex-1 rounded-xl border border-white/10 bg-white/[.03] px-4 py-3 text-white/70 outline-none"
+                className="flex-1 rounded-xl border border-white/10 bg-zinc-900 px-4 py-3 text-white outline-none"
               >
-                <option value="en">English</option>
-                <option value="it">Italiano</option>
-                <option value="es">Español</option>
-                <option value="fr">Français</option>
-                <option value="de">Deutsch</option>
+                <option value="en" style={{ backgroundColor: '#111827', color: 'white' }}>English</option>
+                <option value="it" style={{ backgroundColor: '#111827', color: 'white' }}>Italiano</option>
+                <option value="es" style={{ backgroundColor: '#111827', color: 'white' }}>Español</option>
+                <option value="fr" style={{ backgroundColor: '#111827', color: 'white' }}>Français</option>
+                <option value="de" style={{ backgroundColor: '#111827', color: 'white' }}>Deutsch</option>
               </select>
 
               <button
