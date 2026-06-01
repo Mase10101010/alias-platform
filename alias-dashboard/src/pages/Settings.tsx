@@ -107,20 +107,16 @@ export function Settings() {
             value={restaurant?.name || '—'}
           />
 
-          <div className="mt-8 rounded-2xl border border-white/10 bg-white/[.03] p-5">
-            <p className="text-xs uppercase tracking-[.22em] text-white/35">
+          <div>
+            <label className="mb-2 block text-[10px] uppercase tracking-[.22em] text-white/35">
               Restaurant language
-            </p>
+            </label>
 
-            <p className="mt-2 text-sm text-white/45">
-              This language will be used for restaurant notifications and internal emails.
-            </p>
-
-            <div className="mt-5 flex flex-col gap-3 md:flex-row md:items-center">
+            <div className="flex gap-3">
               <select
                 value={preferredLanguage}
                 onChange={(event) => setPreferredLanguage(event.target.value)}
-                className="rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white outline-none"
+                className="flex-1 rounded-xl border border-white/10 bg-white/[.03] px-4 py-3 text-white/70 outline-none"
               >
                 <option value="en">English</option>
                 <option value="it">Italiano</option>
@@ -135,16 +131,17 @@ export function Settings() {
                 className="rounded-xl px-5 py-3 text-sm font-medium text-black transition hover:opacity-90 disabled:opacity-50"
                 style={{ background: cyan }}
               >
-                {savingLanguage ? 'Saving...' : 'Save language'}
+                {savingLanguage ? 'Saving...' : 'Save'}
               </button>
             </div>
 
             {languageMessage && (
-              <p className="mt-4 text-sm text-white/50">
+              <p className="mt-2 text-xs text-white/50">
                 {languageMessage}
               </p>
             )}
           </div>
+       
 
           <ReadOnlyField
             label={t.contactEmail}
