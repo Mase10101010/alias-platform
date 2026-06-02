@@ -146,9 +146,10 @@ export function Reservations() {
   function formatTime(dateString: string) {
     const date = new Date(dateString);
 
-    return date.toLocaleTimeString([], {
+    return date.toLocaleTimeString(getLocale(language), {
       hour: '2-digit',
       minute: '2-digit',
+      hour12: language === 'en',
     });
   }
 
