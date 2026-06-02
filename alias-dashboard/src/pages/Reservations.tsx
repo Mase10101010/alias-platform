@@ -13,6 +13,9 @@ import {
   getReservations,
   type ConversationHistoryResponse,
   type ReservationResponse,
+  getRestaurants,
+  getTables,
+  type TableResponse,
 } from '@/lib/api';
 
 type FormState = {
@@ -20,6 +23,7 @@ type FormState = {
   customer_phone: string;
   customer_email: string;
   party_size: string;
+  table_id: string;
   reservation_date: string;
   reservation_time: string;
   special_requests: string;
@@ -30,6 +34,7 @@ const initialForm: FormState = {
   customer_phone: '',
   customer_email: '',
   party_size: '2',
+  table_id: '',
   reservation_date: '',
   reservation_time: '19:30',
   special_requests: '',
@@ -43,6 +48,7 @@ export function Reservations() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<'date' | 'time' | 'name' | 'party'>('date');
+  const [tables, setTables] = useState<TableResponse[]>([]);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   const [searchQuery, setSearchQuery] = useState('');
   const language = detectDefaultLanguage();
@@ -65,6 +71,13 @@ export function Reservations() {
 
       const data = await getReservations();
       setReservations(data);
+      const restaurants = await getRestaurants();
+      const restaurant = restaurants[0];
+
+      if (restaurant) {
+        const restaurantTables = await getTables(restaurant.id);
+        setTables(restaurantTables);
+      }
     } catch (err) {
       console.error('Failed to load reservations', err);
     } finally {
@@ -212,6 +225,7 @@ export function Reservations() {
         party_size: Number(form.party_size),
         reservation_time: reservationDateTime.toISOString(),
         special_requests: form.special_requests.trim() || undefined,
+        table_id: form.table_id || null,
       });
 
       setForm(initialForm);
@@ -304,6 +318,20 @@ export function Reservations() {
               value={form.party_size}
               onChange={(value) => updateField('party_size', value)}
             />
+
+            <select
+              value={form.table_id}
+              onChange={(event) => updateField('table_id', event.target.value)}
+              className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-white outline-none"
+            >
+              <option value="">Automatic table assignment</option>
+
+              {tables.map((table) => (
+                <option key={table.id} value={table.id}>
+                  Table {table.table_number} · {table.seats} seats
+                </option>
+              ))}
+            </select>
 
             <Input
               type={t.date}

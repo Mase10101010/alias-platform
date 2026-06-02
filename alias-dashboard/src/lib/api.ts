@@ -48,6 +48,7 @@ export type RestaurantResponse = RestaurantCreate & {
 
 export type ReservationCreate = {
   restaurant_id?: string;
+  table_id?: string | null;
   customer_name: string;
   customer_phone: string;
   customer_email?: string;
