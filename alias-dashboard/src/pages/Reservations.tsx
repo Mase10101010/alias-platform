@@ -364,7 +364,7 @@ export function Reservations() {
             <select
               value={form.table_id}
               onChange={(event) => updateField('table_id', event.target.value)}
-              className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-white outline-none"
+              className="w-full rounded-xl border border-white/10 bg-white/[.03] px-4 py-3 text-white outline-none transition focus:border-white/25"
             >
               <option value="">Automatic table assignment</option>
 
@@ -385,7 +385,7 @@ export function Reservations() {
             <select
               value={form.reservation_time}
               onChange={(event) => updateField('reservation_time', event.target.value)}
-              className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-white outline-none"
+              className="w-full rounded-xl border border-white/10 bg-white/[.03] px-4 py-3 text-white outline-none transition focus:border-white/25"
             >
               {reservationTimeOptions.map((time) => (
                 <option key={time} value={time}>
