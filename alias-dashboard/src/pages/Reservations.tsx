@@ -248,6 +248,11 @@ export function Reservations() {
       return;
     }
 
+    if (!form.customer_email.trim()) {
+      setError(t.emailRequiredError);
+      return;
+    }
+
     if (!form.reservation_date || !form.reservation_time) {
       setError('Reservation date and time are required.');
       return;
@@ -263,7 +268,7 @@ export function Reservations() {
       await createReservation({
         customer_name: form.customer_name.trim(),
         customer_phone: form.customer_phone.trim(),
-        customer_email: form.customer_email.trim() || undefined,
+        customer_email: form.customer_email.trim(),
         party_size: Number(form.party_size),
         reservation_time: reservationDateTime.toISOString(),
         special_requests: form.special_requests.trim() || undefined,
@@ -350,7 +355,7 @@ export function Reservations() {
             />
 
             <Input
-              placeholder={t.emailOptional}
+              placeholder={t.emailRequired}
               value={form.customer_email}
               onChange={(value) => updateField('customer_email', value)}
             />

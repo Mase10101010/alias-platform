@@ -297,6 +297,8 @@ export const translations = {
     searchReservationsPlaceholder: 'Search by name, phone or email',
     newestFirst: 'Newest first',
     oldestFirst: 'Oldest first',
+    emailRequired: 'Email required',
+    emailRequiredError: 'Customer email is required to send the booking confirmation.',
   },
 
   it: {
@@ -562,6 +564,8 @@ export const translations = {
     searchReservationsPlaceholder: 'Cerca per nome, telefono o email',
     newestFirst: 'Più recenti prima',
     oldestFirst: 'Meno recenti prima',
+    emailRequired: 'Email obbligatoria',
+    emailRequiredError: 'L’email del cliente è obbligatoria per inviare la conferma della prenotazione.',
     },
   es: {
     overview: 'Resumen',
@@ -830,7 +834,9 @@ export const translations = {
     searchReservationsPlaceholder: 'Buscar por nombre, teléfono o email',
     newestFirst: 'Más recientes primero',
     oldestFirst: 'Más antiguas primero',
-  },
+    emailRequired: 'Email obligatoria',
+    emailRequiredError: 'El email del cliente es obligatorio para enviar la confirmación de la reserva.',
+      },
 
   fr: {
     overview: 'Vue générale',
@@ -1099,6 +1105,8 @@ export const translations = {
     searchReservationsPlaceholder: 'Rechercher par nom, téléphone ou email',
     newestFirst: 'Plus récentes d’abord',
     oldestFirst: 'Plus anciennes d’abord',
+    emailRequired: 'Email obligatoire',
+    emailRequiredError: "L’email du client est obligatoire pour envoyer la confirmation de réservation.",
   },
   de: {
     overview: 'Übersicht',
@@ -1367,5 +1375,7 @@ export const translations = {
     searchReservationsPlaceholder: 'Nach Name, Telefon oder E-Mail suchen',
     newestFirst: 'Neueste zuerst',
     oldestFirst: 'Älteste zuerst',
+    emailRequired: 'E-Mail erforderlich',
+    emailRequiredError: 'Die E-Mail des Kunden ist erforderlich, um die Buchungsbestätigung zu senden.',
   },
 } as const;
