@@ -290,6 +290,9 @@ export const translations = {
     privacyAcceptanceMiddle: 'and',
     privacyRequired:
       'Please review and accept the Privacy Policy and Terms of Service before creating an account.',
+    welcomeToAlias: 'Welcome to Alias.',
+    welcomeLanguageDescription:
+      'Choose your language before configuring your restaurant workspace.',
   },
 
   it: {
@@ -548,6 +551,9 @@ export const translations = {
     privacyAcceptanceMiddle: 'e i',
     privacyRequired:
       'Prima di creare un account devi prendere visione e accettare Privacy Policy e Termini di Servizio.',
+    welcomeToAlias: 'Benvenuto in Alias.',
+    welcomeLanguageDescription:
+      'Scegli la tua lingua prima di configurare il tuo ristorante.',
     },
   es: {
     overview: 'Resumen',
@@ -809,6 +815,9 @@ export const translations = {
     privacyAcceptanceMiddle: 'y los',
     privacyRequired:
       'Antes de crear una cuenta debes leer y aceptar la Política de Privacidad y los Términos de Servicio.',
+    welcomeToAlias: 'Bienvenido a Alias.',
+    welcomeLanguageDescription:
+      'Elige tu idioma antes de configurar tu restaurante.',
   },
 
   fr: {
@@ -1071,6 +1080,9 @@ export const translations = {
     privacyAcceptanceMiddle: 'et les',
     privacyRequired:
       "Avant de créer un compte, vous devez lire et accepter la Politique de Confidentialité et les Conditions d'Utilisation.",
+    welcomeToAlias: 'Bienvenue sur Alias.',
+    welcomeLanguageDescription:
+      'Choisissez votre langue avant de configurer votre restaurant.',
   },
   de: {
     overview: 'Übersicht',
@@ -1332,5 +1344,8 @@ export const translations = {
     privacyAcceptanceMiddle: 'gelesen und akzeptiere die',
     privacyRequired:
       'Bevor du ein Konto erstellst, musst du die Datenschutzerklärung und die Nutzungsbedingungen lesen und akzeptieren.',
+    welcomeToAlias: 'Willkommen bei Alias.',
+    welcomeLanguageDescription:
+      'Wähle deine Sprache, bevor du dein Restaurant konfigurierst.',
   },
 } as const;

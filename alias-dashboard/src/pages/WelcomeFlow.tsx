@@ -47,11 +47,11 @@ export function WelcomeFlow({
             </p>
 
             <h1 className="mt-5 font-display text-5xl font-light tracking-[-.04em]">
-              Welcome to Alias.
+              {t.welcomeToAlias}
             </h1>
 
             <p className="mx-auto mt-4 max-w-xl text-sm leading-7 text-white/45">
-              Choose your language before configuring your restaurant workspace.
+              {t.welcomeLanguageDescription}
             </p>
 
             <select
