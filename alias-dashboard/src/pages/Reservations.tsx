@@ -40,6 +40,48 @@ const initialForm: FormState = {
   special_requests: '',
 };
 
+function formatReservationTimeOption(time: string, language: string) {
+  const [hourRaw, minute] = time.split(':');
+  const hour = Number(hourRaw);
+
+  if (language === 'en') {
+    const period = hour >= 12 ? 'PM' : 'AM';
+    const displayHour = hour % 12 || 12;
+    return `${displayHour}:${minute} ${period}`;
+  }
+
+  return time;
+}
+
+const reservationTimeOptions = [
+  '10:30',
+  '11:00',
+  '11:30',
+  '12:00',
+  '12:30',
+  '13:00',
+  '13:30',
+  '14:00',
+  '14:30',
+  '15:00',
+  '15:30',
+  '16:00',
+  '16:30',
+  '17:00',
+  '17:30',
+  '18:00',
+  '18:30',
+  '19:00',
+  '19:30',
+  '20:00',
+  '20:30',
+  '21:00',
+  '21:30',
+  '22:00',
+  '22:30',
+  '23:00',
+];
+
 export function Reservations() {
   const [reservations, setReservations] = useState<ReservationResponse[]>([]);
   const [loading, setLoading] = useState(true);
@@ -334,18 +376,23 @@ export function Reservations() {
             </select>
 
             <Input
-              type={t.date}
+              type="date"
               placeholder="Date"
               value={form.reservation_date}
               onChange={(value) => updateField('reservation_date', value)}
             />
 
-            <Input
-              type="time"
-              placeholder={t.time}
+            <select
               value={form.reservation_time}
-              onChange={(value) => updateField('reservation_time', value)}
-            />
+              onChange={(event) => updateField('reservation_time', event.target.value)}
+              className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-white outline-none"
+            >
+              {reservationTimeOptions.map((time) => (
+                <option key={time} value={time}>
+                  {formatReservationTimeOption(time, language)}
+                </option>
+              ))}
+            </select>
 
             <div className="md:col-span-2">
               <Input
