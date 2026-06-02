@@ -299,6 +299,9 @@ export const translations = {
     oldestFirst: 'Oldest first',
     emailRequired: 'Email required',
     emailRequiredError: 'Customer email is required to send the booking confirmation.',
+    automaticTableAssignment: 'Automatic table assignment',
+    tableLabel: 'Table',
+    seatsLabel: 'seats',
   },
 
   it: {
@@ -566,6 +569,9 @@ export const translations = {
     oldestFirst: 'Meno recenti prima',
     emailRequired: 'Email obbligatoria',
     emailRequiredError: 'L’email del cliente è obbligatoria per inviare la conferma della prenotazione.',
+    automaticTableAssignment: 'Assegnazione automatica tavolo',
+    tableLabel: 'Tavolo',
+    seatsLabel: 'posti',
     },
   es: {
     overview: 'Resumen',
@@ -836,6 +842,9 @@ export const translations = {
     oldestFirst: 'Más antiguas primero',
     emailRequired: 'Email obligatoria',
     emailRequiredError: 'El email del cliente es obligatorio para enviar la confirmación de la reserva.',
+    automaticTableAssignment: 'Asignación automática de mesa',
+    tableLabel: 'Mesa',
+    seatsLabel: 'plazas',
       },
 
   fr: {
@@ -1107,6 +1116,9 @@ export const translations = {
     oldestFirst: 'Plus anciennes d’abord',
     emailRequired: 'Email obligatoire',
     emailRequiredError: "L’email du client est obligatoire pour envoyer la confirmation de réservation.",
+    automaticTableAssignment: 'Attribution automatique de table',
+    tableLabel: 'Table',
+    seatsLabel: 'places',
   },
   de: {
     overview: 'Übersicht',
@@ -1377,5 +1389,8 @@ export const translations = {
     oldestFirst: 'Älteste zuerst',
     emailRequired: 'E-Mail erforderlich',
     emailRequiredError: 'Die E-Mail des Kunden ist erforderlich, um die Buchungsbestätigung zu senden.',
+    automaticTableAssignment: 'Automatische Tischzuweisung',
+    tableLabel: 'Tisch',
+    seatsLabel: 'Sitzplätze',
   },
 } as const;

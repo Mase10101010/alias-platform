@@ -375,7 +375,7 @@ export function Reservations() {
                 value=""
                 style={{ backgroundColor: '#111827', color: 'white' }}
               >
-                Automatic table assignment
+                {t.automaticTableAssignment}
               </option>
 
               {tables.map((table) => (
@@ -384,7 +384,7 @@ export function Reservations() {
                   value={table.id}
                   style={{ backgroundColor: '#111827', color: 'white' }}
                 >
-                  Table {table.table_number} · {table.seats} seats
+                  {t.tableLabel} {table.table_number} · {table.seats} {t.seatsLabel}
                 </option>
               ))}
             </select>
