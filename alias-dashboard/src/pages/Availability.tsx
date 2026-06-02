@@ -216,6 +216,13 @@ const dayLabels: Record<string, string> = {
   Friday: t.friday,
   Saturday: t.saturday,
   Sunday: t.sunday,
+  Mon: t.monday,
+  Tue: t.tuesday,
+  Wed: t.wednesday,
+  Thu: t.thursday,
+  Fri: t.friday,
+  Sat: t.saturday,
+  Sun: t.sunday,
 };
 
   return (
@@ -267,7 +274,7 @@ const dayLabels: Record<string, string> = {
             >
               <div>
                 <p className="font-medium text-white">
-                  {dayLabels[item.day]}
+                  {dayLabels[item.day] || item.day}
                 </p>
 
                 <p className="mt-1 text-xs uppercase tracking-[.18em] text-white/35">
