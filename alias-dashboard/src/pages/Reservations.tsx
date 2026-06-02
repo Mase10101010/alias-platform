@@ -366,10 +366,19 @@ export function Reservations() {
               onChange={(event) => updateField('table_id', event.target.value)}
               className="w-full rounded-xl border border-white/10 bg-white/[.03] px-4 py-3 text-white outline-none transition focus:border-white/25"
             >
-              <option value="">Automatic table assignment</option>
+              <option 
+                value=""
+                style={{ backgroundColor: '#111827', color: 'white' }}
+              >
+                Automatic table assignment
+              </option>
 
               {tables.map((table) => (
-                <option key={table.id} value={table.id}>
+                <option 
+                  key={table.id} 
+                  value={table.id}
+                  style={{ backgroundColor: '#111827', color: 'white' }}
+                >
                   Table {table.table_number} · {table.seats} seats
                 </option>
               ))}
@@ -388,7 +397,11 @@ export function Reservations() {
               className="w-full rounded-xl border border-white/10 bg-white/[.03] px-4 py-3 text-white outline-none transition focus:border-white/25"
             >
               {reservationTimeOptions.map((time) => (
-                <option key={time} value={time}>
+                <option 
+                  key={time} 
+                  value={time}
+                  style={{ backgroundColor: '#111827', color: 'white' }}
+                >
                   {formatReservationTimeOption(time, language)}
                 </option>
               ))}
