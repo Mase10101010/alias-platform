@@ -520,7 +520,7 @@ export function Reservations() {
           sortedReservations.map((reservation) => (
             <div
               key={reservation.id}
-              className="grid min-w-[920px] grid-cols-[120px_90px_1fr_80px_150px_1fr_190px] items-center border-b border-white/[.04] px-5 py-4 text-sm last:border-none"
+              className="grid min-w-[1050px] grid-cols-[120px_80px_1fr_80px_110px_240px_1fr_170px] items-center gap-3 border-b border-white/[.04] px-5 py-4 text-sm last:border-none"
             >
               <span className="text-white/50">
                 {formatDate(reservation.reservation_time)}
