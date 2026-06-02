@@ -124,7 +124,7 @@ export function Overview() {
           </p>
 
           <h1 className="mt-4 font-display text-5xl font-light tracking-[-.04em]">
-            {t.goodEvening}
+            {t.welcome}
             {restaurant ? `, ${restaurant.name}` : ''}.
           </h1>
 

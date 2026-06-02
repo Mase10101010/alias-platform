@@ -303,6 +303,7 @@ export const translations = {
     tableLabel: 'Table',
     seatsLabel: 'seats',
     contactDetails: 'Contact',
+    welcome: 'Welcome',
   },
 
   it: {
@@ -574,6 +575,7 @@ export const translations = {
     tableLabel: 'Tavolo',
     seatsLabel: 'posti',
     contactDetails: 'Contatti',
+    welcome: 'Benvenuto',
     },
   es: {
     overview: 'Resumen',
@@ -848,6 +850,7 @@ export const translations = {
     tableLabel: 'Mesa',
     seatsLabel: 'plazas',
     contactDetails: 'Contacto',
+    welcome: 'Bienvenido',
       },
 
   fr: {
@@ -1123,6 +1126,7 @@ export const translations = {
     tableLabel: 'Table',
     seatsLabel: 'places',
     contactDetails: 'Contact',
+    welcome: 'Bienvenue',
   },
   de: {
     overview: 'Übersicht',
@@ -1397,5 +1401,6 @@ export const translations = {
     tableLabel: 'Tisch',
     seatsLabel: 'Sitzplätze',
     contactDetails: 'Kontakt',
+    welcome: 'Willkommen',
   },
 } as const;
