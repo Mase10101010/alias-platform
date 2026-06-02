@@ -8,6 +8,10 @@ import {
   type TableResponse,
 } from '@/lib/api';
 import { cyan } from '@/lib/data';
+import {
+  detectDefaultLanguage,
+  translations,
+} from '@/lib/i18n';
 
 export function TablesManager({ restaurantId }: { restaurantId: string }) {
   const [tables, setTables] = useState<TableResponse[]>([]);
@@ -16,6 +20,8 @@ export function TablesManager({ restaurantId }: { restaurantId: string }) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const language = detectDefaultLanguage();
+  const t = translations[language];
 
   async function loadTables() {
     try {
@@ -24,7 +30,7 @@ export function TablesManager({ restaurantId }: { restaurantId: string }) {
       const data = await getTables(restaurantId);
       setTables(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unable to load tables.');
+      setError(err instanceof Error ? err.message : t.unableToLoadTables);
     } finally {
       setLoading(false);
     }
@@ -36,7 +42,7 @@ export function TablesManager({ restaurantId }: { restaurantId: string }) {
 
   async function handleCreateTable() {
     if (!tableNumber.trim()) {
-      setError('Table number is required.');
+      setError(t.tableNumberRequired);
       return;
     }
 
@@ -54,7 +60,7 @@ export function TablesManager({ restaurantId }: { restaurantId: string }) {
 
       await loadTables();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unable to create table.');
+      setError(err instanceof Error ? err.message : t.unableToCreateTable);
     } finally {
       setSaving(false);
     }
@@ -66,7 +72,7 @@ export function TablesManager({ restaurantId }: { restaurantId: string }) {
       await deleteTable(restaurantId, tableId);
       await loadTables();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unable to delete table.');
+      setError(err instanceof Error ? err.message : t.unableToDeleteTable);
     }
   }
 
@@ -74,16 +80,15 @@ export function TablesManager({ restaurantId }: { restaurantId: string }) {
     <section className="rounded-3xl border border-white/10 bg-white/[.03] p-6">
       <div>
         <p className="text-xs uppercase tracking-[.24em] text-white/35">
-          Table Management
+          {t.tableManagement}
         </p>
 
         <h2 className="mt-3 font-display text-3xl font-light text-white">
-          Restaurant tables.
+          {t.restaurantTablesTitle}
         </h2>
 
         <p className="mt-3 max-w-2xl text-sm leading-7 text-white/45">
-          Add physical tables with visible numbers and internal Alias codes for
-          future AI reservation assignment.
+          {t.restaurantTablesDescription}
         </p>
       </div>
 
@@ -91,7 +96,7 @@ export function TablesManager({ restaurantId }: { restaurantId: string }) {
         <input
           value={tableNumber}
           onChange={(event) => setTableNumber(event.target.value)}
-          placeholder="Table number"
+          placeholder={t.tableNumberPlaceholder}
           className="rounded-xl border border-white/10 bg-white/[.03] px-4 py-3 text-white outline-none focus:border-white/25"
         />
 
@@ -100,7 +105,7 @@ export function TablesManager({ restaurantId }: { restaurantId: string }) {
           onChange={(event) => setSeats(Number(event.target.value))}
           type="number"
           min={1}
-          placeholder="Seats"
+          placeholder={t.seatsPlaceholder}
           className="rounded-xl border border-white/10 bg-white/[.03] px-4 py-3 text-white outline-none focus:border-white/25"
         />
 
@@ -112,7 +117,7 @@ export function TablesManager({ restaurantId }: { restaurantId: string }) {
           style={{ background: cyan }}
         >
           <Plus size={16} />
-          {saving ? 'Adding...' : 'Add table'}
+          {saving ? t.addingTable : t.addTable}
         </button>
       </div>
 
@@ -124,11 +129,11 @@ export function TablesManager({ restaurantId }: { restaurantId: string }) {
 
       <div className="mt-6 space-y-3">
         {loading && (
-          <p className="text-sm text-white/40">Loading tables...</p>
+          <p className="text-sm text-white/40">{t.loadingTables}</p>
         )}
 
         {!loading && tables.length === 0 && (
-          <p className="text-sm text-white/40">No tables added yet.</p>
+          <p className="text-sm text-white/40">{t.noTablesAdded}</p>
         )}
 
         {tables.map((table) => (
@@ -138,10 +143,10 @@ export function TablesManager({ restaurantId }: { restaurantId: string }) {
           >
             <div>
               <p className="font-medium text-white">
-                Table {table.table_number}
+                {t.tableLabel} {table.table_number}
               </p>
               <p className="mt-1 text-sm text-white/40">
-                {table.seats} seats · {table.table_code}
+                {table.seats} {t.seatsLabel} · {table.table_code}
               </p>
             </div>
 
