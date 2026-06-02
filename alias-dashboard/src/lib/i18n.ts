@@ -293,6 +293,10 @@ export const translations = {
     welcomeToAlias: 'Welcome to Alias.',
     welcomeLanguageDescription:
       'Choose your language before configuring your restaurant workspace.',
+    searchAndSortReservations: 'Search and sort reservations',
+    searchReservationsPlaceholder: 'Search by name, phone or email',
+    newestFirst: 'Newest first',
+    oldestFirst: 'Oldest first',
   },
 
   it: {
@@ -554,6 +558,10 @@ export const translations = {
     welcomeToAlias: 'Benvenuto in Alias.',
     welcomeLanguageDescription:
       'Scegli la tua lingua prima di configurare il tuo ristorante.',
+    searchAndSortReservations: 'Cerca e ordina prenotazioni',
+    searchReservationsPlaceholder: 'Cerca per nome, telefono o email',
+    newestFirst: 'Più recenti prima',
+    oldestFirst: 'Meno recenti prima',
     },
   es: {
     overview: 'Resumen',
@@ -818,6 +826,10 @@ export const translations = {
     welcomeToAlias: 'Bienvenido a Alias.',
     welcomeLanguageDescription:
       'Elige tu idioma antes de configurar tu restaurante.',
+    searchAndSortReservations: 'Buscar y ordenar reservas',
+    searchReservationsPlaceholder: 'Buscar por nombre, teléfono o email',
+    newestFirst: 'Más recientes primero',
+    oldestFirst: 'Más antiguas primero',
   },
 
   fr: {
@@ -1083,6 +1095,10 @@ export const translations = {
     welcomeToAlias: 'Bienvenue sur Alias.',
     welcomeLanguageDescription:
       'Choisissez votre langue avant de configurer votre restaurant.',
+    searchAndSortReservations: 'Rechercher et trier les réservations',
+    searchReservationsPlaceholder: 'Rechercher par nom, téléphone ou email',
+    newestFirst: 'Plus récentes d’abord',
+    oldestFirst: 'Plus anciennes d’abord',
   },
   de: {
     overview: 'Übersicht',
@@ -1347,5 +1363,9 @@ export const translations = {
     welcomeToAlias: 'Willkommen bei Alias.',
     welcomeLanguageDescription:
       'Wähle deine Sprache, bevor du dein Restaurant konfigurierst.',
+    searchAndSortReservations: 'Reservierungen suchen und sortieren',
+    searchReservationsPlaceholder: 'Nach Name, Telefon oder E-Mail suchen',
+    newestFirst: 'Neueste zuerst',
+    oldestFirst: 'Älteste zuerst',
   },
 } as const;

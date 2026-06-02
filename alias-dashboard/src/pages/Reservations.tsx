@@ -44,6 +44,7 @@ export function Reservations() {
   const [error, setError] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<'date' | 'time' | 'name' | 'party'>('date');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+  const [searchQuery, setSearchQuery] = useState('');
   const language = detectDefaultLanguage();
   const t = translations[language];
 
@@ -109,7 +110,22 @@ export function Reservations() {
 
   const visibleReservations = reservations.filter((reservation) => {
     const reservationDate = new Date(reservation.reservation_time);
-    return reservationDate >= todayStart;
+
+    if (reservationDate < todayStart) {
+      return false;
+    }
+
+    const query = searchQuery.toLowerCase().trim();
+
+    if (!query) {
+      return true;
+    }
+
+    return (
+      reservation.customer_name.toLowerCase().includes(query) ||
+      reservation.customer_phone.toLowerCase().includes(query) ||
+      (reservation.customer_email || '').toLowerCase().includes(query)
+    );
   });
 
   const sortedReservations = [...visibleReservations].sort((a, b) => {
@@ -227,10 +243,7 @@ export function Reservations() {
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="hidden items-center gap-3 rounded-full border border-white/10 bg-white/[.03] px-4 py-3 text-white/45 md:flex">
-            <Search size={16} />
-            <span className="text-sm">{t.liveReservationFeed}</span>
-          </div>
+          
 
           <button
             onClick={() => setShowForm(true)}
@@ -336,12 +349,24 @@ export function Reservations() {
         </div>
       )}
 
-      <div className="mt-8 flex flex-col gap-3 rounded-2xl border border-white/10 bg-white/[.03] p-4 md:flex-row md:items-center md:justify-between">
-        <p className="text-xs uppercase tracking-[.22em] text-white/35">
-          Sort reservations
-        </p>
+      <div className="mt-8 flex flex-col gap-4 rounded-2xl border border-white/10 bg-white/[.03] p-4 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+          <p className="text-xs uppercase tracking-[.22em] text-white/35">
+            {t.searchAndSortReservations}
+          </p>
+        </div>
 
-        <div className="flex flex-col gap-3 md:flex-row">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
+          <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-white/45 lg:w-80">
+            <Search size={16} />
+            <input
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              placeholder={t.searchReservationsPlaceholder}
+              className="w-full bg-transparent text-sm text-white outline-none placeholder:text-white/30"
+            />
+          </div>
+
           <select
             value={sortBy}
             onChange={(event) =>
@@ -351,10 +376,10 @@ export function Reservations() {
             }
             className="rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white outline-none"
           >
-            <option value="date">Date</option>
-            <option value="time">Time</option>
-            <option value="name">Name</option>
-            <option value="party">Party size</option>
+            <option value="date">{t.date}</option>
+            <option value="time">{t.time}</option>
+            <option value="name">{t.guestName}</option>
+            <option value="party">{t.partySize}</option>
           </select>
 
           <select
@@ -364,8 +389,8 @@ export function Reservations() {
             }
             className="rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white outline-none"
           >
-            <option value="desc">Newest first</option>
-            <option value="asc">Oldest first</option>
+            <option value="desc">{t.newestFirst}</option>
+            <option value="asc">{t.oldestFirst}</option>
           </select>
         </div>
       </div>
