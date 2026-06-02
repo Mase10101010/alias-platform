@@ -152,13 +152,21 @@ export function Reservations() {
     });
   }
 
+  function getLocale(language: string) {
+    if (language === 'it') return 'it-IT';
+    if (language === 'es') return 'es-ES';
+    if (language === 'fr') return 'fr-FR';
+    if (language === 'de') return 'de-DE';
+    return 'en-US';
+  }
+
   function formatDate(dateString: string) {
-  return new Date(dateString).toLocaleDateString([], {
-    year: 'numeric',
-    month: 'short',
-    day: '2-digit',
-  });
-}
+    return new Date(dateString).toLocaleDateString(getLocale(language), {
+      year: 'numeric',
+      month: 'short',
+      day: '2-digit',
+    });
+  }
 
   const todayStart = new Date();
   todayStart.setHours(0, 0, 0, 0);
@@ -489,12 +497,14 @@ export function Reservations() {
       </div>
 
       <div className="glass mt-10 max-w-full overflow-x-auto rounded-3xl">
-        <div className="grid min-w-[920px] grid-cols-[120px_90px_1fr_80px_150px_1fr_190px] border-b border-white/[.06] px-5 py-4 text-[10px] uppercase tracking-[.2em] text-white/35">
-          <span>Date</span>
+        <div className="grid min-w-[1180px] grid-cols-[120px_80px_1fr_90px_110px_150px_220px_1fr_170px] items-center border-b border-white/[.04] px-5 py-4 text-sm last:border-none">
+          <span>{t.date}</span>
           <span>{t.timeColumn}</span>
           <span>{t.guestColumn}</span>
           <span>{t.partyColumn}</span>
-          <span>{t.statusColumn}</span>
+          <span>{t.tableLabel}</span>
+          <span>{t.phoneNumber}</span>
+          <span>Email</span>
           <span>{t.notesColumn}</span>
           <span>{t.actionsColumn}</span>
         </div>
@@ -529,31 +539,25 @@ export function Reservations() {
                 {reservation.party_size}
               </span>
 
-              <span
-                className="justify-self-start rounded-full px-2.5 py-1 text-[11px] uppercase tracking-[.12em]"
-                style={{
-                  color:
-                    reservation.status === 'confirmed'
-                      ? cyan
-                      : 'rgba(255,255,255,.62)',
-                  background:
-                    reservation.status === 'confirmed'
-                      ? `${cyan}12`
-                      : 'rgba(255,255,255,.05)',
-                }}
-              >
-                {reservation.status}
+              
+
+              <span className="text-white/55">
+                {reservation.table_number
+                  ? `${t.tableLabel} ${reservation.table_number}`
+                  : '—'}
               </span>
 
-              <div className="text-white/45">
-                <div>{reservation.special_requests || '—'}</div>
+              <span className="text-white/55">
+                {reservation.customer_phone || '—'}
+              </span>
 
-                {reservation.table_number && (
-                  <div className="mt-1 text-xs" style={{ color: cyan }}>
-                    Table {reservation.table_number}
-                  </div>
-                )}
-              </div>
+              <span className="truncate text-white/55">
+                {reservation.customer_email || '—'}
+              </span>
+
+              <span className="text-white/45">
+                {reservation.special_requests || '—'}
+              </span>
 
               <div className="flex flex-col items-center justify-center gap-2">
                 {reservation.session_id && (
