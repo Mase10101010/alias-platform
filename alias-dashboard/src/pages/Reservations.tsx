@@ -104,7 +104,15 @@ export function Reservations() {
   });
 }
 
-  const sortedReservations = [...reservations].sort((a, b) => {
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+
+  const visibleReservations = reservations.filter((reservation) => {
+    const reservationDate = new Date(reservation.reservation_time);
+    return reservationDate >= todayStart;
+  });
+
+  const sortedReservations = [...visibleReservations].sort((a, b) => {
     let comparison = 0;
 
     if (sortBy === 'date' || sortBy === 'time') {
@@ -377,7 +385,7 @@ export function Reservations() {
           <div className="px-5 py-10 text-sm text-white/45">
             {t.loadingReservations}
           </div>
-        ) : reservations.length === 0 ? (
+        ) : visibleReservations.length === 0 ? (
           <div className="px-5 py-10 text-sm text-white/45">
             {t.noReservations}
           </div>
