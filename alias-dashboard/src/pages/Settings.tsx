@@ -77,10 +77,10 @@ export function Settings() {
       });
 
       setRestaurant(updated);
-      setLanguageMessage('Language updated successfully.');
+      setLanguageMessage(t.languageUpdatedSuccessfully);
     } catch (error) {
       setLanguageMessage(
-        error instanceof Error ? error.message : 'Unable to update language.',
+        error instanceof Error ? error.message : t.unableToUpdateLanguage,
       );
     } finally {
       setSavingLanguage(false);
@@ -109,7 +109,7 @@ export function Settings() {
 
           <div>
             <label className="mb-2 block text-[10px] uppercase tracking-[.22em] text-white/35">
-              Restaurant language
+              {t.restaurantLanguage}
             </label>
 
             <div className="flex gap-3">
@@ -131,7 +131,7 @@ export function Settings() {
                 className="rounded-xl px-5 py-3 text-sm font-medium text-black transition hover:opacity-90 disabled:opacity-50"
                 style={{ background: cyan }}
               >
-                {savingLanguage ? 'Saving...' : 'Save'}
+                {savingLanguage ? t.saving : t.save}
               </button>
             </div>
 

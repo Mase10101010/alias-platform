@@ -318,6 +318,11 @@ export const translations = {
     addTable: 'Add table',
     loadingTables: 'Loading tables...',
     noTablesAdded: 'No tables added yet.',
+    restaurantLanguage: 'Restaurant language',
+    save: 'Save',
+    saving: 'Saving...',
+    languageUpdatedSuccessfully: 'Language updated successfully.',
+    unableToUpdateLanguage: 'Unable to update language.',
   },
 
   it: {
@@ -604,6 +609,11 @@ export const translations = {
     addTable: 'Aggiungi tavolo',
     loadingTables: 'Caricamento tavoli...',
     noTablesAdded: 'Nessun tavolo aggiunto.',
+    restaurantLanguage: 'Lingua del ristorante',
+    save: 'Salva',
+    saving: 'Salvataggio...',
+    languageUpdatedSuccessfully: 'Lingua aggiornata con successo.',
+    unableToUpdateLanguage: 'Impossibile aggiornare la lingua.',
     },
   es: {
     overview: 'Resumen',
@@ -893,6 +903,11 @@ export const translations = {
     addTable: 'Añadir mesa',
     loadingTables: 'Cargando mesas...',
     noTablesAdded: 'Aún no se han añadido mesas.',
+    restaurantLanguage: 'Idioma del restaurante',
+    save: 'Guardar',
+    saving: 'Guardando...',
+    languageUpdatedSuccessfully: 'Idioma actualizado correctamente.',
+    unableToUpdateLanguage: 'No se pudo actualizar el idioma.',
     },
 
   fr: {
@@ -1183,6 +1198,11 @@ export const translations = {
     addTable: 'Ajouter une table',
     loadingTables: 'Chargement des tables...',
     noTablesAdded: 'Aucune table ajoutée.',
+    restaurantLanguage: 'Langue du restaurant',
+    save: 'Enregistrer',
+    saving: 'Enregistrement...',
+    languageUpdatedSuccessfully: 'Langue mise à jour avec succès.',
+    unableToUpdateLanguage: 'Impossible de mettre à jour la langue.',
   },
   de: {
     overview: 'Übersicht',
@@ -1472,5 +1492,10 @@ export const translations = {
     addTable: 'Tisch hinzufügen',
     loadingTables: 'Tische werden geladen...',
     noTablesAdded: 'Noch keine Tische hinzugefügt.',
+    restaurantLanguage: 'Restaurantsprache',
+    save: 'Speichern',
+    saving: 'Wird gespeichert...',
+    languageUpdatedSuccessfully: 'Sprache erfolgreich aktualisiert.',
+    unableToUpdateLanguage: 'Sprache konnte nicht aktualisiert werden.',
   },
 } as const;
