@@ -161,11 +161,19 @@ export function Reservations() {
   }
 
   function formatDate(dateString: string) {
-    return new Date(dateString).toLocaleDateString(getLocale(language), {
-      year: 'numeric',
-      month: 'short',
-      day: '2-digit',
-    });
+    const formatted = new Date(dateString).toLocaleDateString(
+      getLocale(language),
+      {
+        year: 'numeric',
+        month: 'short',
+        day: '2-digit',
+      },
+    );
+
+    return formatted.replace(
+      /\b([a-zà-ÿ])/,
+      (match) => match.toUpperCase(),
+    );
   }
 
   const todayStart = new Date();
