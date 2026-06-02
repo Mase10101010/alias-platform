@@ -497,14 +497,13 @@ export function Reservations() {
       </div>
 
       <div className="glass mt-10 max-w-full overflow-x-auto rounded-3xl">
-        <div className="grid min-w-[1180px] grid-cols-[120px_80px_1fr_90px_110px_150px_220px_1fr_170px] items-center border-b border-white/[.04] px-5 py-4 text-sm last:border-none">
+        <div className="grid min-w-[1050px] grid-cols-[120px_80px_1fr_80px_110px_240px_1fr_170px] items-center gap-3 border-b border-white/[.04] px-5 py-4 text-sm last:border-none">
           <span>{t.date}</span>
           <span>{t.timeColumn}</span>
           <span>{t.guestColumn}</span>
           <span>{t.partyColumn}</span>
           <span>{t.tableLabel}</span>
-          <span>{t.phoneNumber}</span>
-          <span>Email</span>
+          <span>{t.contactDetails}</span>
           <span>{t.notesColumn}</span>
           <span>{t.actionsColumn}</span>
         </div>
@@ -547,13 +546,12 @@ export function Reservations() {
                   : '—'}
               </span>
 
-              <span className="text-white/55">
-                {reservation.customer_phone || '—'}
-              </span>
-
-              <span className="truncate text-white/55">
-                {reservation.customer_email || '—'}
-              </span>
+              <div className="min-w-0 text-white/55">
+                <div className="truncate">{reservation.customer_phone || '—'}</div>
+                <div className="mt-1 truncate text-xs text-white/35">
+                  {reservation.customer_email || '—'}
+                </div>
+              </div>
 
               <span className="text-white/45">
                 {reservation.special_requests || '—'}

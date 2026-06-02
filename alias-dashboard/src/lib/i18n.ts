@@ -302,6 +302,7 @@ export const translations = {
     automaticTableAssignment: 'Automatic table assignment',
     tableLabel: 'Table',
     seatsLabel: 'seats',
+    contactDetails: 'Contact',
   },
 
   it: {
@@ -572,6 +573,7 @@ export const translations = {
     automaticTableAssignment: 'Assegnazione automatica tavolo',
     tableLabel: 'Tavolo',
     seatsLabel: 'posti',
+    contactDetails: 'Contatti',
     },
   es: {
     overview: 'Resumen',
@@ -845,6 +847,7 @@ export const translations = {
     automaticTableAssignment: 'Asignación automática de mesa',
     tableLabel: 'Mesa',
     seatsLabel: 'plazas',
+    contactDetails: 'Contacto',
       },
 
   fr: {
@@ -1119,6 +1122,7 @@ export const translations = {
     automaticTableAssignment: 'Attribution automatique de table',
     tableLabel: 'Table',
     seatsLabel: 'places',
+    contactDetails: 'Contact',
   },
   de: {
     overview: 'Übersicht',
@@ -1392,5 +1396,6 @@ export const translations = {
     automaticTableAssignment: 'Automatische Tischzuweisung',
     tableLabel: 'Tisch',
     seatsLabel: 'Sitzplätze',
+    contactDetails: 'Kontakt',
   },
 } as const;
