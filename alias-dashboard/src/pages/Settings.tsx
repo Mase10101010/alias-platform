@@ -153,14 +153,7 @@ export function Settings() {
             value={restaurant?.phone || '—'}
           />
 
-          <ReadOnlyField
-            label={t.openingHoursLabel}
-            value={
-              restaurant
-                ? `${restaurant.opening_hour}:00 - ${restaurant.closing_hour}:00`
-                : '—'
-            }
-          />
+          
 
           <ReadOnlyField
             label={t.businessType}
