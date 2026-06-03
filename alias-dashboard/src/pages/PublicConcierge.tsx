@@ -46,6 +46,7 @@ export function PublicConcierge() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const inputWrapRef = useRef<HTMLDivElement | null>(null);
 
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -149,7 +150,7 @@ export function PublicConcierge() {
   }
 
   return (
-    <main className="grain relative flex min-h-screen items-center justify-center overflow-hidden bg-ink px-4 py-8 text-white">
+    <main className="grain relative flex min-h-[100dvh] items-start justify-center overflow-y-auto bg-ink px-4 py-4 text-white md:items-center md:py-8">
       <div
         className="absolute left-1/2 top-0 h-[420px] w-[680px] -translate-x-1/2 rounded-full blur-3xl"
         style={{ background: `${cyan}12` }}
@@ -186,7 +187,7 @@ export function PublicConcierge() {
           </div>
         </div>
 
-        <div className="glass flex h-[640px] flex-col rounded-3xl p-5 shadow-2xl">
+        <div className="glass flex h-[calc(100dvh-140px)] max-h-[640px] min-h-[520px] flex-col rounded-3xl p-5 shadow-2xl">
           <div className="mb-4 flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[.025] px-4 py-3 text-xs text-white/42">
             <ShieldCheck size={15} style={{ color: cyan }} />
             {t.publicSecure}
@@ -264,10 +265,21 @@ export function PublicConcierge() {
             <div ref={messagesEndRef} />
           </div>
 
-          <div className="mt-5 flex gap-3 rounded-2xl border border-white/10 bg-white/[.03] p-3">
+          <div 
+            ref={inputWrapRef}
+            className="mt-5 flex gap-3 rounded-2xl border border-white/10 bg-white/[.03] p-3"
+          >
             <input
               value={input}
               onChange={(event) => setInput(event.target.value)}
+              onFocus={() => {
+                window.setTimeout(() => {
+                  inputWrapRef.current?.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'end',
+                  });
+                }, 300);
+              }}
               onKeyDown={(event) => {
                 if (event.key === 'Enter') {
                   handleSend();
