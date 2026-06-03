@@ -181,6 +181,9 @@ export function Reservations() {
   todayStart.setHours(0, 0, 0, 0);
 
   const visibleReservations = reservations.filter((reservation) => {
+    if (reservation.status === 'cancelled' || reservation.status === 'CANCELLED') {
+      return false;
+    }
     const reservationDate = new Date(reservation.reservation_time);
 
     if (reservationDate < todayStart) {
