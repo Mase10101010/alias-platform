@@ -1,7 +1,11 @@
 {
   "rewrites": [
     {
-      "source": "/(.*)",
+      "source": "/api/(.*)",
+      "destination": "https://ai-receptionist-gsl0.onrender.com/api/$1"
+    },
+    {
+      "source": "/((?!.*\\..*).*)",
       "destination": "/"
     }
   ]
