@@ -150,7 +150,7 @@ export function PublicConcierge() {
   }
 
   return (
-    <main className="grain relative flex min-h-[100dvh] items-start justify-center overflow-y-auto bg-ink px-4 py-4 text-white md:items-center md:py-8">
+    <main className="grain relative flex min-h-screen items-center justify-center bg-ink px-4 py-8 text-white">
       <div
         className="absolute left-1/2 top-0 h-[420px] w-[680px] -translate-x-1/2 rounded-full blur-3xl"
         style={{ background: `${cyan}12` }}
@@ -187,7 +187,7 @@ export function PublicConcierge() {
           </div>
         </div>
 
-        <div className="glass flex h-[calc(100dvh-140px)] max-h-[640px] min-h-[520px] flex-col rounded-3xl p-5 shadow-2xl">
+        <div className="glass flex h-[640px] flex-col rounded-3xl p-5 shadow-2xl">
           <div className="mb-4 flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[.025] px-4 py-3 text-xs text-white/42">
             <ShieldCheck size={15} style={{ color: cyan }} />
             {t.publicSecure}
@@ -273,12 +273,12 @@ export function PublicConcierge() {
               value={input}
               onChange={(event) => setInput(event.target.value)}
               onFocus={() => {
-                window.setTimeout(() => {
-                  inputWrapRef.current?.scrollIntoView({
+                setTimeout(() => {
+                  messagesEndRef.current?.scrollIntoView({
                     behavior: 'smooth',
                     block: 'end',
                   });
-                }, 300);
+                }, 350);
               }}
               onKeyDown={(event) => {
                 if (event.key === 'Enter') {
