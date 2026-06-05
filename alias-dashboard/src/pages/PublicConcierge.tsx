@@ -46,7 +46,7 @@ export function PublicConcierge() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
-  const inputWrapRef = useRef<HTMLDivElement | null>(null);
+  
 
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -266,20 +266,11 @@ export function PublicConcierge() {
           </div>
 
           <div 
-            ref={inputWrapRef}
             className="mt-5 flex gap-3 rounded-2xl border border-white/10 bg-white/[.03] p-3"
           >
             <input
               value={input}
               onChange={(event) => setInput(event.target.value)}
-              onFocus={() => {
-                setTimeout(() => {
-                  messagesEndRef.current?.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'end',
-                  });
-                }, 350);
-              }}
               onKeyDown={(event) => {
                 if (event.key === 'Enter') {
                   handleSend();
