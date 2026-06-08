@@ -353,7 +353,9 @@ export async function verifyEmail(
   return response.json();
 }
 
-export async function sendVerificationEmail(): Promise<MessageResponse> {
+export async function sendVerificationEmail(
+  language: string = 'en',
+): Promise<MessageResponse> {
   const token = localStorage.getItem('alias_access_token');
 
   const response = await fetch(
@@ -361,8 +363,12 @@ export async function sendVerificationEmail(): Promise<MessageResponse> {
     {
       method: 'POST',
       headers: {
+        'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       },
+      body: JSON.stringify({
+        language,
+      }),
     },
   );
 

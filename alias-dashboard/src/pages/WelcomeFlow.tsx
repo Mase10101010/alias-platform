@@ -125,7 +125,7 @@ export function WelcomeFlow({
                     setVerificationError(null);
                     setIsSendingVerification(true);
 
-                    await sendVerificationEmail();
+                    await sendVerificationEmail(language);
                     
 
                     localStorage.setItem('alias_welcome_completed', 'true');
