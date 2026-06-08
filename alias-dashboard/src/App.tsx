@@ -218,21 +218,20 @@ export default function App() {
     );
   }
 
-  
+  const hasSelectedLanguage = Boolean(localStorage.getItem('alias_language'));
 
-  if (
-    authed && 
-    !hasRestaurant && 
-    !localStorage.getItem('alias_language')
-  ) {
+  if (authed && !hasRestaurant && !hasSelectedLanguage) {
     return (
       <WelcomeFlow
-        onComplete={() => setWelcomeCompleted(true)}
+        onComplete={() => {
+          localStorage.setItem('alias_welcome_completed', 'true');
+          setWelcomeCompleted(true)
+        }}
       />
     );
   }
 
-  if (authed && !hasRestaurant && welcomeCompleted) {
+  if (authed && !hasRestaurant && hasSelectedLanguage) {
     return (
       <Onboarding 
         onComplete={() => {
