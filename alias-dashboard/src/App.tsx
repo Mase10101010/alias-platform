@@ -11,7 +11,7 @@ import { translations } from '@/lib/i18n';
 import { VerifyEmail } from '@/pages/VerifyEmail';
 import { Privacy } from '@/pages/Privacy';
 import { Terms } from '@/pages/Terms';
-
+import { Billing } from '@/pages/Billing';
 
 import { Sidebar } from '@/components/Sidebar';
 import { AliasMark } from '@/components/Brand';
@@ -35,6 +35,7 @@ function Page({ active }: { active: string }) {
   if (active === 'onboarding') return <Onboarding />;
   if (active === 'reservations') return <Reservations />;
   if (active === 'availability') return <Availability />;
+  if (active === 'billing') return <Billing />
   if (active === 'support') return <Support />;
   if (active === 'settings') return <Settings />;
   return <Overview />;

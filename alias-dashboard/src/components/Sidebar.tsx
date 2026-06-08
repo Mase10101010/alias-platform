@@ -90,6 +90,17 @@ export function Sidebar({
           <p className="mt-2 text-sm leading-relaxed text-white/45">
             {t.liveConcierge}
           </p>
+
+          <button
+            onClick={() => {
+              setActive('billing');
+              onClose?.();
+            }}
+            className="mt-4 w-full rounded-xl px-4 py-3 text-sm font-medium text-black transition hover:opacity-90"
+            style={{ background: cyan }}
+          >
+            Manage Subscription
+          </button>
         </div>
       </aside>
     </>

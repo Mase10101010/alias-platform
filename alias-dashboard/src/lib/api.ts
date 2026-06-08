@@ -493,3 +493,75 @@ export async function deleteTable(
     throw await parseApiError(response, 'Unable to delete table');
   }
 }
+
+export type BillingStatusResponse = {
+  restaurant_id: string;
+  restaurant_name: string;
+  subscription_status: string;
+  has_used_trial: boolean;
+  trial_start_date?: string | null;
+  trial_end_date?: string | null;
+  subscription_start_date?: string | null;
+  subscription_end_date?: string | null;
+  stripe_customer_id?: string | null;
+  stripe_subscription_id?: string | null;
+};
+
+export async function getBillingStatus(): Promise<BillingStatusResponse> {
+  const token = getAuthToken();
+
+  const response = await fetch(`${API_BASE_URL}/api/v1/billing/status`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw await parseApiError(response, 'Unable to load billing status');
+  }
+
+  return response.json();
+}
+
+export async function createCheckoutSession(): Promise<{ checkout_url: string; session_id: string }> {
+  const token = getAuthToken();
+
+  const response = await fetch(`${API_BASE_URL}/api/v1/billing/create-checkout-session`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      success_url: `${window.location.origin}/settings`,
+      cancel_url: `${window.location.origin}/settings`,
+    }),
+  });
+
+  if (!response.ok) {
+    throw await parseApiError(response, 'Unable to create checkout session');
+  }
+
+  return response.json();
+}
+
+export async function createCustomerPortal(): Promise<{ portal_url: string }> {
+  const token = getAuthToken();
+
+  const response = await fetch(`${API_BASE_URL}/api/v1/billing/customer-portal`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      return_url: `${window.location.origin}/settings`,
+    }),
+  });
+
+  if (!response.ok) {
+    throw await parseApiError(response, 'Unable to open customer portal');
+  }
+
+  return response.json();
+}
