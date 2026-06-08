@@ -220,7 +220,11 @@ export default function App() {
 
   
 
-  if (authed && !hasRestaurant && !welcomeCompleted) {
+  if (
+    authed && 
+    !hasRestaurant && 
+    !localStorage.getItem('alias_language')
+  ) {
     return (
       <WelcomeFlow
         onComplete={() => setWelcomeCompleted(true)}

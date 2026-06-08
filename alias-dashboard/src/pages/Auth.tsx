@@ -132,7 +132,6 @@ export function Auth({ onEnter }: { onEnter: () => void }) {
 
       onEnter();
 
-      onEnter();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Authentication failed.');
     } finally {
