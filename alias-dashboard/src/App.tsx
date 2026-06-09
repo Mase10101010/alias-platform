@@ -12,6 +12,8 @@ import { VerifyEmail } from '@/pages/VerifyEmail';
 import { Privacy } from '@/pages/Privacy';
 import { Terms } from '@/pages/Terms';
 import { Billing } from '@/pages/Billing';
+import { TrialGate } from '@/pages/TrialGate';
+import { getBillingStatus } from '@/lib/api';
 
 import { Sidebar } from '@/components/Sidebar';
 import { AliasMark } from '@/components/Brand';
@@ -63,6 +65,7 @@ export default function App() {
   const isVerifyEmail = window.location.pathname === '/verify-email';
   const isPrivacy = window.location.pathname === '/privacy';
   const isTerms = window.location.pathname === '/terms';
+  const [hasActiveBilling, setHasActiveBilling] = useState(false);
   
 
   if (isPublicConcierge) {
@@ -136,6 +139,17 @@ export default function App() {
       if (restaurantResponse.ok) {
         const restaurantData = await restaurantResponse.json();
         setHasRestaurant(restaurantData.length > 0);
+      }
+      
+      try {
+        const billingStatus = await getBillingStatus();
+
+        setHasActiveBilling(
+          billingStatus.subscription_status === 'active' ||
+            billingStatus.subscription_status === 'lifetime',
+        );
+      } catch {
+        setHasActiveBilling(false);
       }
     } finally {
       setCheckingWorkspace(false);
@@ -232,7 +246,11 @@ export default function App() {
     );
   }
 
-  if (authed && !hasRestaurant && hasSelectedLanguage) {
+  if (authed && !hasRestaurant && hasSelectedLanguage && !hasActiveBilling) {
+    return <TrialGate />;
+  }
+
+  if (authed && !hasRestaurant && hasSelectedLanguage && hasActiveBilling) {
     return (
       <Onboarding 
         onComplete={() => {

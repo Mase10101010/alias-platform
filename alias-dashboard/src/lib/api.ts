@@ -533,8 +533,8 @@ export async function createCheckoutSession(): Promise<{ checkout_url: string; s
       Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({
-      success_url: `${window.location.origin}/settings`,
-      cancel_url: `${window.location.origin}/settings`,
+      success_url: `${window.location.origin}`,
+      cancel_url: `${window.location.origin}`,
     }),
   });
 
