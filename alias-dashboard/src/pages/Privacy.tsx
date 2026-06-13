@@ -10,38 +10,72 @@ import {
 const privacyContent = {
   en: {
     title: 'Privacy Policy',
-    updated: 'Last updated: June 2026',
-    p1: 'Alias collects and processes information required to provide restaurant concierge and reservation services.',
-    p2: 'Information may include account details, reservation data, restaurant settings, and customer communications.',
-    p3: 'Alias does not sell personal data to third parties.',
+    sections: [
+      'Alias collects and processes information necessary to provide AI concierge, reservation management, customer communication, and hospitality automation services.',
+      'Information may include account details, email addresses, restaurant settings, reservation information, guest details, customer communications, and usage data generated while using the platform.',
+      'Payment information is processed securely by Stripe. Alias does not store full credit card information on its servers.',
+      'Alias may use trusted third-party providers, including hosting, email delivery, artificial intelligence, analytics, and payment processing services, solely for the purpose of operating and improving the platform.',
+      'Alias does not sell personal information or customer data to third parties.',
+      'Users may request access, correction, export, or deletion of their personal data by contacting Alias support, subject to legal and operational requirements.',
+      'Reasonable technical and organizational measures are implemented to protect information against unauthorized access, disclosure, alteration, or destruction.',
+      'Contact: support@aliasconcierge.com',
+    ],
   },
   it: {
     title: 'Privacy Policy',
     updated: 'Ultimo aggiornamento: giugno 2026',
-    p1: 'Alias raccoglie e tratta le informazioni necessarie per fornire servizi di concierge e gestione prenotazioni per ristoranti.',
-    p2: 'Le informazioni possono includere dati dell’account, dati di prenotazione, impostazioni del ristorante e comunicazioni con i clienti.',
-    p3: 'Alias non vende dati personali a terze parti.',
+    sections: [
+      'Alias raccoglie e tratta le informazioni necessarie per fornire servizi di concierge AI, gestione prenotazioni, comunicazione con i clienti e automazione per il settore hospitality.',
+      'Le informazioni possono includere dati dell’account, indirizzi email, impostazioni del ristorante, dati di prenotazione, dati degli ospiti, comunicazioni con i clienti e dati di utilizzo della piattaforma.',
+      'I pagamenti vengono elaborati in modo sicuro tramite Stripe. Alias non memorizza i dati completi delle carte di pagamento sui propri server.',
+      'Alias può utilizzare fornitori terzi affidabili, inclusi servizi di hosting, invio email, intelligenza artificiale, analytics e gestione pagamenti, esclusivamente per fornire e migliorare la piattaforma.',
+      'Alias non vende dati personali o dati dei clienti a terze parti.',
+      'Gli utenti possono richiedere l’accesso, la correzione, l’esportazione o la cancellazione dei propri dati personali contattando il supporto Alias, nei limiti consentiti dalla legge.',
+      'Vengono adottate misure tecniche e organizzative ragionevoli per proteggere le informazioni da accessi non autorizzati, divulgazione, modifica o distruzione.',
+      'Contatto: support@aliasconcierge.com',
+    ],
   },
   es: {
     title: 'Política de Privacidad',
     updated: 'Última actualización: junio de 2026',
-    p1: 'Alias recopila y procesa la información necesaria para ofrecer servicios de concierge y gestión de reservas para restaurantes.',
-    p2: 'La información puede incluir datos de cuenta, datos de reserva, ajustes del restaurante y comunicaciones con clientes.',
-    p3: 'Alias no vende datos personales a terceros.',
+    sections: [
+      'Alias recopila y procesa la información necesaria para proporcionar servicios de conserjería con IA, gestión de reservas y automatización para restaurantes y negocios de hostelería.',
+      'La información puede incluir datos de cuenta, direcciones de correo electrónico, configuraciones del restaurante, reservas, información de clientes y datos de uso.',
+      'Los pagos son procesados de forma segura por Stripe. Alias no almacena información completa de tarjetas de pago.',
+      'Alias puede utilizar proveedores externos de confianza para alojamiento, correo electrónico, inteligencia artificial, análisis y procesamiento de pagos.',
+      'Alias no vende información personal ni datos de clientes a terceros.',
+      'Los usuarios pueden solicitar acceso, corrección, exportación o eliminación de sus datos personales.',
+      'Se implementan medidas técnicas y organizativas razonables para proteger la información.',
+      'Contacto: support@aliasconcierge.com',
+    ],
   },
   fr: {
     title: 'Politique de Confidentialité',
     updated: 'Dernière mise à jour : juin 2026',
-    p1: 'Alias collecte et traite les informations nécessaires pour fournir des services de concierge et de gestion des réservations pour les restaurants.',
-    p2: 'Les informations peuvent inclure les données de compte, les données de réservation, les paramètres du restaurant et les communications avec les clients.',
-    p3: 'Alias ne vend pas de données personnelles à des tiers.',
+    sections: [
+      'Alias collecte et traite les informations nécessaires pour fournir des services de conciergerie IA, de gestion des réservations et d’automatisation pour le secteur de l’hôtellerie.',
+      'Les informations peuvent inclure les données de compte, les adresses e-mail, les paramètres du restaurant, les réservations, les informations sur les clients et les données d’utilisation.',
+      'Les paiements sont traités de manière sécurisée par Stripe. Alias ne stocke pas les informations complètes de carte bancaire.',
+      'Alias peut faire appel à des prestataires tiers de confiance pour l’hébergement, l’envoi d’e-mails, l’intelligence artificielle, l’analyse et le traitement des paiements.',
+      'Alias ne vend pas les données personnelles ou les données clients à des tiers.',
+      'Les utilisateurs peuvent demander l’accès, la correction, l’exportation ou la suppression de leurs données personnelles.',
+      'Des mesures techniques et organisationnelles raisonnables sont mises en œuvre pour protéger les informations.',
+      'Contact : support@aliasconcierge.com',
+    ],
   },
   de: {
     title: 'Datenschutzerklärung',
     updated: 'Zuletzt aktualisiert: Juni 2026',
-    p1: 'Alias erhebt und verarbeitet Informationen, die erforderlich sind, um Concierge- und Reservierungsdienste für Restaurants bereitzustellen.',
-    p2: 'Informationen können Kontodaten, Reservierungsdaten, Restauranteinstellungen und Kundenkommunikation umfassen.',
-    p3: 'Alias verkauft keine personenbezogenen Daten an Dritte.',
+    sections: [
+      'Alias erhebt und verarbeitet Informationen, die für die Bereitstellung von KI-Concierge-, Reservierungs- und Automatisierungsdiensten erforderlich sind.',
+      'Die Informationen können Kontodaten, E-Mail-Adressen, Restauranteinstellungen, Reservierungsdaten, Gästedaten, Kundenkommunikation und Nutzungsdaten umfassen.',
+      'Zahlungen werden sicher über Stripe verarbeitet. Alias speichert keine vollständigen Kreditkartendaten.',
+      'Alias kann vertrauenswürdige Drittanbieter für Hosting, E-Mail-Versand, künstliche Intelligenz, Analysen und Zahlungsabwicklung nutzen.',
+      'Alias verkauft keine personenbezogenen Daten oder Kundendaten an Dritte.',
+      'Benutzer können Zugriff, Berichtigung, Export oder Löschung ihrer personenbezogenen Daten beantragen.',
+      'Es werden angemessene technische und organisatorische Maßnahmen zum Schutz der Daten getroffen.',
+      'Kontakt: support@aliasconcierge.com',
+    ],
   },
 };
 
@@ -79,21 +113,12 @@ export function Privacy() {
         {content.title}
       </h1>
 
-      <p className="mb-4 text-white/70">
-        {content.updated}
-      </p>
 
       <p className="text-white/70 leading-8">
-        {content.p1}
+        {content.sections}
       </p>
 
-      <p className="mt-6 text-white/70 leading-8">
-        {content.p2}
-      </p>
-
-      <p className="mt-6 text-white/70 leading-8">
-        {content.p3}
-      </p>
+      
     </div>
   );
 }
