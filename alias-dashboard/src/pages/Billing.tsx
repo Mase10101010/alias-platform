@@ -100,7 +100,7 @@ export function Billing() {
                 </h2>
 
                 <p className="mt-4 text-sm leading-7 text-white/45">
-                  Restaurant: {billing?.restaurant_name || 'Restaurant'}
+                  Account: {billing?.email || 'Account'}
                 </p>
               </div>
 

@@ -495,8 +495,8 @@ export async function deleteTable(
 }
 
 export type BillingStatusResponse = {
-  restaurant_id: string;
-  restaurant_name: string;
+  user_id: string;
+  email: string;
   subscription_status: string;
   has_used_trial: boolean;
   trial_start_date?: string | null;
