@@ -6,7 +6,7 @@ import {
   detectDefaultLanguage,
   translations,
 } from '@/lib/i18n';
-import { createRestaurant } from '@/lib/api';
+import { createRestaurant, createTable } from '@/lib/api';
 import { motion } from 'framer-motion';
 import { Contact } from 'lucide-react';
 
@@ -27,11 +27,11 @@ type FormState = {
   concierge_tone: string;
   opening_days: string[];
 
-  table_count_input: string;
-  seats_per_table_input: string;
+  table_number_input: string;
+  seats_input: string;
 
-  table_setup: {
-    count: number;
+  tables: {
+    table_number: string;
     seats: number;
   }[];
 
@@ -60,10 +60,10 @@ const initialForm: FormState = {
   
 
 
-  table_count_input: '',
-  seats_per_table_input: '',
+  table_number_input: '',
+  seats_input: '2',
 
-  table_setup: [],
+  tables: [],
 
   weekly_schedule: [
     {day: 'Mon', is_open: true, opening_hour: '11', closing_hour: '22'},
@@ -105,18 +105,15 @@ export function Onboarding({
   const t = translations[language];
 
   const totalTables = useMemo(() => {
-  return form.table_setup.reduce(
-    (total, table) => total + table.count,
-    0,
-  );
-}, [form.table_setup]);
+    return form.tables.length;
+  }, [form.tables]);
 
   const estimatedSeats = useMemo(() => {
-  return form.table_setup.reduce(
-    (total, table) => total + table.count * table.seats,
-    0,
-  );
-}, [form.table_setup]);
+    return form.tables.reduce(
+      (total, table) => total + table.seats,
+      0,
+    );
+  }, [form.tables]);
 
   function updateField(field: keyof FormState, value: string) {
     setForm((current) => {
@@ -126,11 +123,20 @@ export function Onboarding({
   }
 
 function addTableSetup() {
-  const count = toNumber(form.table_count_input);
-  const seats = toNumber(form.seats_per_table_input);
+  const tableNumber = form.table_number_input.trim();
+  const seats = toNumber(form.seats_input);
 
-  if (count <= 0 || seats <= 0) {
-    setError('Please enter both the number of tables and seats per table.');
+  if (!tableNumber || seats <= 0) {
+    setError('Please enter a table number and valid seats.');
+    return;
+  }
+
+  const alreadyExists = form.tables.some(
+    (table) => table.table_number.toLowerCase() === tableNumber.toLowerCase(),
+  );
+
+  if (alreadyExists) {
+    setError('This table number already exists.');
     return;
   }
 
@@ -138,27 +144,31 @@ function addTableSetup() {
 
   setForm((current) => ({
     ...current,
-    table_setup: [
-      ...current.table_setup,
+    tables: [
+      ...current.tables,
       {
-        count,
+        table_number: tableNumber,
         seats,
       },
     ],
-    table_count_input: '',
-    seats_per_table_input: '',
-    number_of_tables: String(
-      current.table_setup.reduce((total, table) => total + table.count, 0) +
-        count,
-    ),
+    table_number_input: '',
+    seats_input: '2',
+    number_of_tables: String(current.tables.length + 1),
   }));
 }
 
 function removeTableSetup(index: number) {
-  setForm((current) => ({
-    ...current,
-    table_setup: current.table_setup.filter((_, itemIndex) => itemIndex !== index),
-  }));
+  setForm((current) => {
+    const nextTables = current.tables.filter(
+      (_, itemIndex) => itemIndex !== index,
+    );
+
+    return {
+      ...current,
+      tables: nextTables,
+      number_of_tables: String(nextTables.length),
+    };
+  });
 }
 
 function toggleOpeningDay(day: string) {
@@ -264,11 +274,18 @@ function updateWeeklySchedule(
         opening_hour: Number(form.opening_hour),
         closing_hour: Number(form.closing_hour),
         number_of_tables: totalTables,
-        table_setup: form.table_setup,
+        table_setup: [],
         weekly_schedule: form.weekly_schedule,
         special_closures: [],
         concierge_tone: form.concierge_tone,
       });
+
+      for (const table of form.tables) {
+        await createTable(restaurant.id, {
+          table_number: table.table_number,
+          seats: table.seats,
+        });
+      }
 
       setCreatedRestaurantId(restaurant.id);
     } catch (err) {
@@ -368,6 +385,9 @@ function updateWeeklySchedule(
                   totalTables: t.totalTables,
                   numberOfTables: t.numberOfTables,
                   seatsPerTable: t.seatsPerTable,
+                  tableNumber: t.tableNumberLabel,
+                  tableLabel: t.tableLabel,
+                  seatsLabel: t.seatsLabel,
                   add: t.add,
                   noTableConfigurations: t.noTableConfigurations,
                   totalSeats: t.totalSeats,
@@ -703,15 +723,15 @@ function ServiceStep({
         <div className="mt-8 rounded-2xl border border-white/10 bg-black/20 p-5">
           <div className="grid gap-4 md:grid-cols-[1fr_1fr_auto]">
             <Input
-              placeholder={labels.numberOfTables}
-              value={form.table_count_input}
-              onChange={(value) => updateField('table_count_input', value)}
+              placeholder={labels.tableNumber}
+              value={form.table_number_input}
+              onChange={(value) => updateField('table_number_input', value)}
             />
 
             <Input
               placeholder={labels.seatsPerTable}
-              value={form.seats_per_table_input}
-              onChange={(value) => updateField('seats_per_table_input', value)}
+              value={form.seats_input}
+              onChange={(value) => updateField('seats_input', value)}
             />
 
             <button
@@ -724,23 +744,23 @@ function ServiceStep({
           </div>
 
           <div className="mt-6 space-y-3">
-            {form.table_setup.length === 0 ? (
+            {form.tables.length === 0 ? (
               <p className="text-sm text-white/35">
                 {labels.noTableConfigurations}
               </p>
             ) : (
-              form.table_setup.map((table, index) => (
+              form.tables.map((table, index) => (
                 <div
-                  key={`${table.count}-${table.seats}-${index}`}
+                  key={`${table.table_number}-${table.seats}-${index}`}
                   className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[.03] px-4 py-4"
                 >
                   <div>
                     <p className="font-medium text-white">
-                      {table.count} {labels.tablesLabel} · {table.seats} {labels.seatsEachLabel}
+                      {labels.tableLabel} {table.table_number} · {table.seats} {labels.seatsLabel}
                     </p>
 
                     <p className="mt-1 text-sm text-white/40">
-                      {labels.totalSeats}: {table.count * table.seats}
+                      {labels.totalSeats}: {table.seats}
                     </p>
                   </div>
 
