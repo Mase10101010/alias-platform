@@ -3,10 +3,16 @@ import { CreditCard, ShieldCheck } from 'lucide-react';
 
 import { createCheckoutSession } from '@/lib/api';
 import { cyan } from '@/lib/data';
+import {
+  detectDefaultLanguage,
+  translations,
+} from '@/lib/i18n';
 
 export function TrialGate() {
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const language = detectDefaultLanguage();
+  const t = translations[language];
 
   async function handleStartTrial() {
     try {
@@ -16,7 +22,7 @@ export function TrialGate() {
       const session = await createCheckoutSession();
       window.location.href = session.checkout_url;
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unable to start free trial.');
+      setError(err instanceof Error ? err.message : t.trialError);
       setIsRedirecting(false);
     }
   }
@@ -40,21 +46,21 @@ export function TrialGate() {
           </p>
 
           <h1 className="mt-5 font-display text-5xl font-light tracking-[-.04em]">
-            Start your free trial
+            {t.trialTitle}
           </h1>
 
           <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-white/45">
-            Try Alias free for 7 days. After your trial, your subscription renews automatically at €99/month.
+            {t.trialDescription}
           </p>
         </div>
 
         <div className="mx-auto mt-10 grid max-w-2xl gap-4 text-sm text-white/65 md:grid-cols-2">
-          <p>✓ AI concierge</p>
-          <p>✓ Automatic reservations</p>
-          <p>✓ Table availability</p>
-          <p>✓ Public booking widget</p>
-          <p>✓ Multilingual support</p>
-          <p>✓ Customer email flows</p>
+          <p>✓ {t.trialFeature1}</p>
+          <p>✓ {t.trialFeature2}</p>
+          <p>✓ {t.trialFeature3}</p>
+          <p>✓ {t.trialFeature4}</p>
+          <p>✓ {t.trialFeature5}</p>
+          <p>✓ {t.trialFeature6}</p>
         </div>
 
         {error && (
@@ -71,11 +77,11 @@ export function TrialGate() {
             style={{ background: cyan }}
           >
             <CreditCard size={17} />
-            {isRedirecting ? 'Redirecting...' : 'Start 7-day free trial'}
+            {isRedirecting ? t.trialRedirecting : t.trialButton}
           </button>
 
           <p className="mt-4 text-xs text-white/35">
-            No charge today. Cancel anytime from your billing portal.
+            {t.trialFooter}
           </p>
         </div>
       </div>
