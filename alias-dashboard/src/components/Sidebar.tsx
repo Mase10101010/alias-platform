@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { 
   CalendarDays, 
   LifeBuoy,
@@ -6,6 +7,8 @@ import {
   Settings,  
   Users,
 } from 'lucide-react';
+
+import { getBillingStatus, type BillingStatusResponse } from '@/lib/api';
 
 import { AliasMark } from './Brand';
 import { cyan } from '@/lib/data';
@@ -35,6 +38,66 @@ export function Sidebar({
   restaurantName: string;
 }) {
   const t = translations[language];
+  const [billing, setBilling] = useState<BillingStatusResponse | null>(null);
+
+  useEffect(() => {
+    async function loadBilling() {
+      try {
+        const data = await getBillingStatus();
+        setBilling(data);
+      } catch(error) {
+        console.error('Failed to load billing status', error)
+      }
+    }
+
+    loadBilling();
+  }, []);
+
+  function formatDate(value?: string | null) {
+    if (!value) return '—';
+
+    return new Date(value).toLocaleDateString(undefined, {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
+  }
+
+  function getBillingTitle() {
+    if (!billing) return t.loadingBilling;
+
+    if (billing.subscription_status === 'trialing') {
+      return t.freeTrial;
+    }
+
+    if (billing.subscription_status === 'active') {
+      return t.activeSubscription;
+    }
+
+    if (billing.subscription_status === 'lifetime') {
+      return t.lifetimeSubscription;
+    }
+
+    return t.inactiveSubscription;
+  }
+
+  function getBillingDescription() {
+    if (!billing) return t.loadingBillingDescription;
+
+    if (billing.subscription_status === 'trialing') {
+      return `${t.trialEnds}: ${formatDate(billing.trial_end_date)}`;
+    }
+
+    if (billing.subscription_status === 'active') {
+      return `${t.renewsOn}: ${formatDate(billing.subscription_end_date)}`;
+    }
+
+    if (billing.subscription_status === 'lifetime') {
+      return t.noRenewalRequired;
+    }
+
+    return t.subscriptionRequired;
+  }
 
   return (
     <>
@@ -84,11 +147,11 @@ export function Sidebar({
           </div>
 
           <p className="font-display text-xl font-light text-white">
-            {t.trialDay}
+            {getBillingTitle()}
           </p>
 
           <p className="mt-2 text-sm leading-relaxed text-white/45">
-            {t.liveConcierge}
+            {getBillingDescription()}
           </p>
 
           <button
@@ -99,7 +162,7 @@ export function Sidebar({
             className="mt-4 w-full rounded-xl px-4 py-3 text-sm font-medium text-black transition hover:opacity-90"
             style={{ background: cyan }}
           >
-            Manage Subscription
+            {t.manageSubscription}
           </button>
         </div>
       </aside>
