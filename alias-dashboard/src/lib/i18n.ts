@@ -346,6 +346,8 @@ export const translations = {
     subscriptionRequired: 'Subscription required',
     loadingBilling: 'Loading billing',
     loadingBillingDescription: 'Checking your subscription status...',
+    tableNumberLabel: 'Table number',
+    seatsPerTableLabel: 'Seats',
   },
 
   it: {
@@ -660,6 +662,8 @@ export const translations = {
     subscriptionRequired: 'Abbonamento richiesto',
     loadingBilling: 'Caricamento abbonamento',
     loadingBillingDescription: 'Controllo dello stato dell’abbonamento...',
+    tableNumberLabel: 'Numero tavolo',
+    seatsPerTableLabel: 'Posti',
     },
   es: {
     overview: 'Resumen',
@@ -977,6 +981,8 @@ export const translations = {
     subscriptionRequired: 'Suscripción requerida',
     loadingBilling: 'Cargando suscripción',
     loadingBillingDescription: 'Comprobando el estado de la suscripción...',
+    tableNumberLabel: 'Número de mesa',
+    seatsPerTableLabel: 'Plazas',   
     },
 
   fr: {
@@ -1295,6 +1301,8 @@ export const translations = {
     subscriptionRequired: 'Abonnement requis',
     loadingBilling: 'Chargement de l’abonnement',
     loadingBillingDescription: 'Vérification du statut de l’abonnement...',
+    tableNumberLabel: 'Numéro de table',
+    seatsPerTableLabel: 'Places',
   },
   de: {
     overview: 'Übersicht',
@@ -1612,5 +1620,7 @@ export const translations = {
     subscriptionRequired: 'Abonnement erforderlich',
     loadingBilling: 'Abonnement wird geladen',
     loadingBillingDescription: 'Abonnementstatus wird geprüft...',
+    tableNumberLabel: 'Tischnummer',
+    seatsPerTableLabel: 'Sitzplätze',
   },
 } as const;

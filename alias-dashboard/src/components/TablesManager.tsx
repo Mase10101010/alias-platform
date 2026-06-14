@@ -92,22 +92,34 @@ export function TablesManager({ restaurantId }: { restaurantId: string }) {
         </p>
       </div>
 
-      <div className="mt-6 grid gap-3 md:grid-cols-[1fr_140px_auto]">
-        <input
-          value={tableNumber}
-          onChange={(event) => setTableNumber(event.target.value)}
-          placeholder={t.tableNumberPlaceholder}
-          className="rounded-xl border border-white/10 bg-white/[.03] px-4 py-3 text-white outline-none focus:border-white/25"
-        />
+      <div className="mt-6 grid gap-3 md:grid-cols-[1fr_140px_auto] md:items-end">
+        <label className="space-y-2">
+          <span className="text-xs uppercase tracking-[.18em] text-white/35">
+            {t.tableNumberLabel}
+          </span>
 
-        <input
-          value={seats}
-          onChange={(event) => setSeats(Number(event.target.value))}
-          type="number"
-          min={1}
-          placeholder={t.seatsPlaceholder}
-          className="rounded-xl border border-white/10 bg-white/[.03] px-4 py-3 text-white outline-none focus:border-white/25"
-        />
+          <input
+            value={tableNumber}
+            onChange={(event) => setTableNumber(event.target.value)}
+            placeholder={t.tableNumberPlaceholder}
+            className="w-full rounded-xl border border-white/10 bg-white/[.03] px-4 py-3 text-white outline-none focus:border-white/25"
+          />
+        </label>
+
+        <label className="space-y-2">
+          <span className="text-xs uppercase tracking-[.18em] text-white/35">
+            {t.seatsPerTableLabel}
+          </span>
+
+          <input
+            value={seats}
+            onChange={(event) => setSeats(Number(event.target.value))}
+            type="number"
+            min={1}
+            placeholder={t.seatsPlaceholder}
+            className="w-full rounded-xl border border-white/10 bg-white/[.03] px-4 py-3 text-white outline-none focus:border-white/25"
+          />
+        </label>
 
         <button
           type="button"
