@@ -8,12 +8,18 @@ import {
   type BillingStatusResponse,
 } from '@/lib/api';
 import { cyan } from '@/lib/data';
+import {
+  detectDefaultLanguage,
+  translations,
+} from '@/lib/i18n';
 
 export function Billing() {
   const [billing, setBilling] = useState<BillingStatusResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const language = detectDefaultLanguage();
+  const t = translations[language];
 
   async function loadBilling() {
     try {
@@ -67,20 +73,20 @@ export function Billing() {
         className="text-[11px] uppercase tracking-[0.28em]"
         style={{ color: cyan }}
       >
-        Billing
+        {t.billing}
       </p>
 
       <h1 className="mt-4 font-display text-5xl font-light tracking-[-.04em]">
-        Subscription
+        {t.subscription}
       </h1>
 
       <p className="mt-4 max-w-2xl text-sm leading-7 text-white/45">
-        Manage your Alias subscription, trial, payment method and customer portal.
+        {t.billingDescription}
       </p>
 
       {isLoading ? (
         <div className="glass mt-10 rounded-3xl p-8 text-white/50">
-          Loading billing status...
+          {t.loadingBillingStatus}
         </div>
       ) : (
         <div className="mt-10 grid gap-6 lg:grid-cols-[1.2fr_.8fr]">
@@ -88,19 +94,19 @@ export function Billing() {
             <div className="flex items-start justify-between gap-6">
               <div>
                 <p className="text-xs uppercase tracking-[.22em] text-white/35">
-                  Current plan
+                  {t.currentPlan}
                 </p>
 
                 <h2 className="mt-3 font-display text-4xl font-light">
                   {isLifetime
-                    ? 'Lifetime'
+                    ? t.lifetime
                     : isActive
-                      ? 'Active subscription'
-                      : 'Inactive'}
+                      ? t.activeSubscription
+                      : t.inactive}
                 </h2>
 
                 <p className="mt-4 text-sm leading-7 text-white/45">
-                  Account: {billing?.email || 'Account'}
+                  {t.account}: {billing?.email || 'Account'}
                 </p>
               </div>
 
@@ -116,10 +122,10 @@ export function Billing() {
             </div>
 
             <div className="mt-8 grid gap-4 md:grid-cols-2">
-              <InfoCard label="Trial used" value={billing?.has_used_trial ? 'Yes' : 'No'} />
-              <InfoCard label="Trial ends" value={formatDate(billing?.trial_end_date)} />
-              <InfoCard label="Subscription starts" value={formatDate(billing?.subscription_start_date)} />
-              <InfoCard label="Subscription ends" value={formatDate(billing?.subscription_end_date)} />
+              <InfoCard label={t.trialUsed} value={billing?.has_used_trial ? t.yes : t.no} />
+              <InfoCard label={t.trialEnds} value={formatDate(billing?.trial_end_date)} />
+              <InfoCard label={t.subscriptionStarts} value={formatDate(billing?.subscription_start_date)} />
+              <InfoCard label={t.subscriptionEnds} value={formatDate(billing?.subscription_end_date)} />
             </div>
 
             {error && (
@@ -137,7 +143,7 @@ export function Billing() {
                   style={{ background: cyan }}
                 >
                   <CreditCard size={16} />
-                  {billing?.has_used_trial ? 'Subscribe now' : 'Start free trial'}
+                  {billing?.has_used_trial ? t.subscribeNow : t.startFreeTrial}
                 </button>
               )}
 
@@ -148,7 +154,7 @@ export function Billing() {
                   className="flex items-center gap-2 rounded-full border border-white/10 px-5 py-3 text-sm text-white/70 transition hover:border-white/20 hover:text-white disabled:opacity-60"
                 >
                   <ExternalLink size={16} />
-                  Manage subscription
+                  {t.manageSubscription}
                 </button>
               )}
             </div>
@@ -167,16 +173,16 @@ export function Billing() {
             </h3>
 
             <p className="mt-4 text-sm leading-7 text-white/45">
-              Unlock AI reservations, table management, availability, public concierge and premium automation.
+              {t.aliasProDescription}
             </p>
 
             <div className="mt-7 space-y-3 text-sm text-white/55">
-              <p>✓ AI concierge</p>
-              <p>✓ Public booking widget</p>
-              <p>✓ Reservation management</p>
-              <p>✓ Table availability</p>
-              <p>✓ Customer emails</p>
-              <p>✓ Multilingual support</p>
+              <p>✓ {t.aiConcierge}</p>
+              <p>✓ {t.publicBookingWidget}</p>
+              <p>✓ {t.reservationManagement}</p>
+              <p>✓ {t.tableAvailability}</p>
+              <p>✓ {t.customerEmails}</p>
+              <p>✓ {t.multilingualSupport}</p>
             </div>
           </div>
         </div>
