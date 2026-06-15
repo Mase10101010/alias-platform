@@ -287,7 +287,7 @@ export default function App() {
           restaurantName={restaurantName}
         />
 
-        <main className="min-h-screen min-w-0 flex-1 overflow-x-hidden px-5 py-5 md:px-8 lg:px-10">
+        <main className="min-h-screen min-w-0 flex-1 overflow-x-hidden px-4 py-5 sm:px-5 md:px-8 lg:px-10">
           <header className="mb-8 flex items-center justify-between rounded-2xl border border-white/[.06] bg-white/[.025] px-4 py-3">
             <div className="lg:hidden">
               <AliasMark />
@@ -344,7 +344,7 @@ export default function App() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -18 }}
               transition={{ duration: 0.45 }}
-              className="mx-auto max-w-7xl py-6"
+              className="mx-auto w-full max-w-7xl py-6"
             >
               <Page active={active} />
             </motion.div>

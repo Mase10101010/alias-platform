@@ -89,8 +89,8 @@ export function Billing() {
           {t.loadingBillingStatus}
         </div>
       ) : (
-        <div className="mt-10 grid gap-6 lg:grid-cols-[1.2fr_.8fr]">
-          <div className="glass rounded-3xl p-8">
+        <div className="mt-10 grid w-full gap-6 lg:grid-cols-[1.2fr_.8fr]">
+          <div className="glass rounded-3xl p-5 sm:p-8">
             <div className="flex items-start justify-between gap-6">
               <div>
                 <p className="text-xs uppercase tracking-[.22em] text-white/35">
@@ -160,7 +160,7 @@ export function Billing() {
             </div>
           </div>
 
-          <div className="glass rounded-3xl p-8">
+          <div className="glass rounded-3xl p-5 sm:p-8">
             <div
               className="mb-6 flex h-14 w-14 items-center justify-center rounded-full"
               style={{ background: `${cyan}18`, color: cyan }}
