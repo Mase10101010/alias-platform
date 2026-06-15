@@ -580,43 +580,8 @@ function ServiceStep({
         {labels.serviceStepDescription}
       </p>
 
+
       <div className="mt-7 rounded-3xl border border-white/10 bg-white/[.02] p-5">
-        <p className="text-xs uppercase tracking-[.22em] text-white/35">
-          {labels.openingHours}
-        </p>
-
-        <h3 className="mt-2 font-display text-2xl font-light">
-          {labels.restaurantSchedule}
-        </h3>
-
-        <div className="mt-5 grid gap-4 md:grid-cols-2">
-          <label className="space-y-2">
-            <span className="block text-xs uppercase tracking-[.18em] text-white/40">
-              {labels.openingTime}
-            </span>
-
-            <Input
-              placeholder="Opening hour (e.g. 11)"
-              value={form.opening_hour}
-              onChange={(value) => updateField('opening_hour', value)}
-              />
-            </label>
-
-            <label className="space-y-2">
-              <span className="block text-xs uppercase tracking-[.18em] text-white/40">
-                {labels.closingTime}
-              </span>
-
-              <Input
-                placeholder="Closing hour (e.g. 22)"
-                value={form.closing_hour}
-                onChange={(value) => updateField('closing_hour', value)}
-              />
-            </label>
-        </div>
-      </div>
-
-      <div className="mt-6 rounded-3xl border border-white/10 bg-white/[.02] p-5">
         <p className="text-xs uppercase tracking-[.22em] text-white/35">
           {labels.availabilityTitle}
         </p>
