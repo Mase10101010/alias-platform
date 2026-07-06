@@ -38,38 +38,6 @@ const stagger = {
   },
 };
 
-const features = [
-  {
-    icon: Clock,
-    title: '24/7 Reservations',
-    text: 'Let guests book at any time, even outside opening hours.',
-  },
-  {
-    icon: MessageSquare,
-    title: 'AI Concierge',
-    text: 'A conversational assistant that handles bookings, questions and special requests.',
-  },
-  {
-    icon: Table2,
-    title: 'Smart Table Management',
-    text: 'Manage tables, capacity and availability from one clean workspace.',
-  },
-  {
-    icon: LayoutDashboard,
-    title: 'Restaurant Dashboard',
-    text: 'Track reservations, guests and live activity in real time.',
-  },
-  {
-    icon: Globe2,
-    title: 'Multilingual Support',
-    text: 'Communicate with guests in their preferred language.',
-  },
-  {
-    icon: ShieldCheck,
-    title: 'You Stay in Control',
-    text: 'Alias respects your opening hours, availability and restaurant rules.',
-  },
-];
 
 const steps = [
   {
@@ -118,8 +86,80 @@ export function Landing() {
       noSetup: 'No setup fees',
       trial: '7-day free trial',
       cancel: 'Cancel anytime',
+      liveAi: 'Live AI',
+      overview: 'Overview',
+      welcome: 'Welcome, Restaurant.',
+      overviewDescription:
+        'Live operational overview powered by Alias Concierge AI.',
+      reservations: 'Reservations',
+      confirmed: 'Confirmed',
+      concierge: 'Concierge',
+      live: 'Live',
+      recentActivity: 'Recent activity',
+      newReservation: 'New reservation',
+      reservationConfirmed: 'Reservation confirmed',
+      guestRequestCaptured: 'Guest request captured',
+      table4: 'Table 4 · 08:30 PM',
+      table2: 'Table 2 · 07:30 PM',
+      aiLiveTitle: 'Your AI concierge is live',
+      aiLiveDescription:
+        'Guests can book, ask questions, and make requests 24/7.',
+      whatAliasDoes: 'What Alias does',
+      digitalFrontDesk: 'Your digital front desk, working for you.',
+      features: [
+        {
+            title: '24/7 Reservations',
+            text: 'Let guests book at any time, even outside opening hours.',
+        },
+        {
+            title: 'AI Concierge',
+            text: 'A conversational assistant that handles bookings, questions and special requests.',
+        },
+        {
+            title: 'Smart Table Management',
+            text: 'Manage tables, capacity and availability from one clean workspace.',
+        },
+        {
+            title: 'Restaurant Dashboard',
+            text: 'Track reservations, guests and live activity in real time.',
+        },
+        {
+            title: 'Multilingual Support',
+            text: 'Communicate with guests in their preferred language.',
+        },
+        {
+            title: 'You Stay in Control',
+            text: 'Alias respects your opening hours, availability and restaurant rules.',
+        },
+        ],
     },
     it: {
+      features: [
+        {
+            title: 'Prenotazioni 24/7',
+            text: 'Permetti agli ospiti di prenotare in qualsiasi momento, anche fuori dall’orario di apertura.',
+        },
+        {
+            title: 'AI Concierge',
+            text: 'Un assistente AI che gestisce prenotazioni, domande e richieste speciali.',
+        },
+        {
+            title: 'Gestione intelligente dei tavoli',
+            text: "Gestisci tavoli, capienza e disponibilità da un'unica dashboard.",
+        },
+        {
+            title: 'Dashboard del ristorante',
+            text: 'Controlla prenotazioni, clienti e attività in tempo reale.',
+        },
+        {
+            title: 'Supporto multilingua',
+            text: 'Comunica con gli ospiti nella loro lingua.',
+        },
+        {
+            title: 'Hai sempre il controllo',
+            text: 'Alias rispetta orari, disponibilità e regole del tuo ristorante.',
+        },
+        ],
       login: 'Accedi',
       startTrial: 'Inizia la prova gratuita',
       badge: 'Prenotazioni AI per ristoranti moderni',
@@ -130,6 +170,26 @@ export function Landing() {
       noSetup: 'Nessun costo di setup',
       trial: 'Prova gratuita di 7 giorni',
       cancel: 'Cancella quando vuoi',
+      liveAi:'AI attiva',
+      overview: 'Panoramica',
+      welcome: 'Benvenuto, Ristorante.',
+      overviewDescription:
+        'Panoramica operativa in tempo reale alimentata da Alias Concierge AI.',
+      reservations: 'Prenotazioni',
+      confirmed: 'Confermate',
+      concierge: 'Concierge',
+      live: 'Attivo',
+      recentActivity: 'Attività recenti',
+      newReservation: 'Nuova prenotazione',
+      reservationConfirmed: 'Prenotazione confermata',
+      guestRequestCaptured: 'Richiesta cliente ricevuta',
+      table4: 'Tavolo 4 · 20:30',
+      table2: 'Tavolo 2 · 19:30',
+      aiLiveTitle: 'Il tuo AI Concierge è attivo',
+      aiLiveDescription:
+        'Gli ospiti possono prenotare, fare domande e inviare richieste 24 ore su 24.',
+      whatAliasDoes: 'Cosa fa Alias',
+      digitalFrontDesk: 'La tua reception digitale, sempre al lavoro.',
     },
     fr: {
       login: 'Connexion',
@@ -142,6 +202,34 @@ export function Landing() {
       noSetup: 'Aucun frais d’installation',
       trial: 'Essai gratuit de 7 jours',
       cancel: 'Annulez à tout moment',
+      liveAi: 'IA active',
+      overview: 'Aperçu',
+      welcome: 'Bienvenue, Restaurant.',
+      overviewDescription:
+        "Vue d'ensemble opérationnelle en temps réel alimentée par Alias Concierge AI.",
+      reservations: 'Réservations',
+      confirmed: 'Confirmées',
+      concierge: 'Concierge',
+      live: 'Actif',
+      recentActivity: 'Activité récente',
+      newReservation: 'Nouvelle réservation',
+      reservationConfirmed: 'Réservation confirmée',
+      guestRequestCaptured: 'Demande du client reçue',
+      table4: 'Table 4 · 20:30',
+      table2: 'Table 2 · 19:30',
+      aiLiveTitle: 'Votre Concierge IA est actif',
+      aiLiveDescription:
+        'Les clients peuvent réserver, poser des questions et faire des demandes 24h/24.',
+      whatAliasDoes: 'Ce que fait Alias',
+      digitalFrontDesk: 'Votre réception numérique, toujours active.',
+      features: [
+        { title: 'Réservations 24/7', text: 'Permettez aux clients de réserver à tout moment, même en dehors des horaires d’ouverture.' },
+        { title: 'Concierge IA', text: 'Un assistant conversationnel qui gère les réservations, les questions et les demandes spéciales.' },
+        { title: 'Gestion intelligente des tables', text: 'Gérez les tables, la capacité et les disponibilités depuis un seul espace clair.' },
+        { title: 'Dashboard restaurant', text: 'Suivez les réservations, les clients et l’activité en temps réel.' },
+        { title: 'Support multilingue', text: 'Communiquez avec les clients dans leur langue préférée.' },
+        { title: 'Vous gardez le contrôle', text: 'Alias respecte vos horaires, vos disponibilités et les règles de votre restaurant.' },
+      ],
     },
     es: {
       login: 'Iniciar sesión',
@@ -154,6 +242,34 @@ export function Landing() {
       noSetup: 'Sin costes de instalación',
       trial: 'Prueba gratuita de 7 días',
       cancel: 'Cancela cuando quieras',
+      liveAi: 'IA activa',
+      overview: 'Resumen',
+      welcome: 'Bienvenido, Restaurante.',
+      overviewDescription:
+        'Resumen operativo en tiempo real impulsado por Alias Concierge AI.',
+      reservations: 'Reservas',
+      confirmed: 'Confirmadas',
+      concierge: 'Conserje',
+      live: 'Activo',
+      recentActivity: 'Actividad reciente',
+      newReservation: 'Nueva reserva',
+      reservationConfirmed: 'Reserva confirmada',
+      guestRequestCaptured: 'Solicitud del cliente recibida',
+      table4: 'Mesa 4 · 20:30',
+      table2: 'Mesa 2 · 19:30',
+      aiLiveTitle: 'Tu AI Concierge está activo',
+      aiLiveDescription:
+        'Los clientes pueden reservar, hacer preguntas y enviar solicitudes las 24 horas.',
+      whatAliasDoes: 'Qué hace Alias',
+      digitalFrontDesk: 'Tu recepción digital, siempre trabajando.',
+      features: [
+        { title: 'Reservas 24/7', text: 'Permite que los clientes reserven en cualquier momento, incluso fuera del horario de apertura.' },
+        { title: 'AI Concierge', text: 'Un asistente conversacional que gestiona reservas, preguntas y solicitudes especiales.' },
+        { title: 'Gestión inteligente de mesas', text: 'Gestiona mesas, capacidad y disponibilidad desde un único espacio limpio.' },
+        { title: 'Dashboard del restaurante', text: 'Controla reservas, clientes y actividad en tiempo real.' },
+        { title: 'Soporte multilingüe', text: 'Comunícate con los clientes en su idioma preferido.' },
+        { title: 'Mantienes el control', text: 'Alias respeta tus horarios, disponibilidad y reglas del restaurante.' },
+      ],
     },
     de: {
       login: 'Einloggen',
@@ -166,6 +282,34 @@ export function Landing() {
       noSetup: 'Keine Einrichtungsgebühren',
       trial: '7 Tage kostenlos testen',
       cancel: 'Jederzeit kündbar',
+      liveAi: 'KI aktiv',
+      overview: 'Übersicht',
+      welcome: 'Willkommen, Restaurant.',
+      overviewDescription:
+        'Live-Übersicht über den Betrieb mit Alias Concierge AI.',
+      reservations: 'Reservierungen',
+      confirmed: 'Bestätigt',
+      concierge: 'Concierge',
+      live: 'Aktiv',
+      recentActivity: 'Letzte Aktivitäten',
+      newReservation: 'Neue Reservierung',
+      reservationConfirmed: 'Reservierung bestätigt',
+      guestRequestCaptured: 'Gästeanfrage erhalten',
+      table4: 'Tisch 4 · 20:30',
+      table2: 'Tisch 2 · 19:30',
+      aiLiveTitle: 'Ihr KI-Concierge ist aktiv',
+      aiLiveDescription:
+       'Gäste können rund um die Uhr reservieren, Fragen stellen und Anfragen senden.',
+      whatAliasDoes: 'Was Alias macht',
+      digitalFrontDesk: 'Ihre digitale Rezeption, immer im Einsatz',
+      features: [
+        { title: 'Intelligente Tischverwaltung', text: 'Verwalten Sie Tische, Kapazität und Verfügbarkeit in einem klaren Workspace.' },
+        { title: 'Reservierungen 24/7', text: 'Gäste können jederzeit reservieren, auch außerhalb der Öffnungszeiten.' },
+        { title: 'KI-Concierge', text: 'Ein Gesprächsassistent, der Reservierungen, Fragen und Sonderwünsche verwaltet.' },
+        { title: 'Restaurant-Dashboard', text: 'Verfolgen Sie Reservierungen, Gäste und Aktivitäten in Echtzeit.' },
+        { title: 'Mehrsprachiger Support', text: 'Kommunizieren Sie mit Gästen in ihrer bevorzugten Sprache.' },
+        { title: 'Sie behalten die Kontrolle', text: 'Alias respektiert Öffnungszeiten, Verfügbarkeiten und Restaurantregeln.' },
+      ],
     },
   }[language];
   function goToAuth() {
@@ -297,7 +441,7 @@ export function Landing() {
               className="group flex items-center justify-center gap-3 rounded-full px-7 py-4 text-sm font-medium text-black shadow-[0_0_35px_rgba(92,242,255,0.18)] transition hover:shadow-[0_0_60px_rgba(92,242,255,0.38)]"
               style={{ background: cyan }}
             >
-              Start Your 7-Day Free Trial
+              {landingText.startTrial}
               <ArrowRight
                 size={17}
                 className="transition group-hover:translate-x-1"
@@ -351,27 +495,27 @@ export function Landing() {
                 className="rounded-full px-3 py-1 text-xs font-medium text-black"
                 style={{ background: cyan }}
               >
-                Live AI
+                {landingText.liveAi}
               </motion.span>
             </div>
 
             <p className="text-xs uppercase tracking-[.28em] text-white/35">
-              Overview
+              {landingText.overview}
             </p>
 
             <h2 className="mt-3 font-display text-4xl font-light text-white">
-              Welcome, Restaurant.
+              {landingText.welcome}
             </h2>
 
             <p className="mt-2 text-sm text-white/40">
-              Live operational overview powered by Alias Concierge AI.
+              {landingText.overviewDescription}
             </p>
 
             <div className="mt-8 grid grid-cols-3 gap-3">
               {[
-                ['Reservations', '14'],
-                ['Confirmed', '12'],
-                ['Concierge', 'Live'],
+                [landingText.reservations, '14'],
+                [landingText.confirmed, '12'],
+                [landingText.concierge, landingText.live],
               ].map(([label, value], index) => (
                 <motion.div
                   key={label}
@@ -391,13 +535,13 @@ export function Landing() {
             </div>
 
             <div className="mt-5 rounded-2xl border border-white/8 bg-white/[.025] p-4">
-              <p className="text-sm text-white/70">Recent activity</p>
+              <p className="text-sm text-white/70">{landingText.recentActivity}</p>
 
               <div className="mt-4 space-y-3 text-sm text-white/45">
                 {[
-                  ['New reservation', 'Table 4 · 08:30 PM'],
-                  ['Reservation confirmed', 'Table 2 · 07:30 PM'],
-                  ['Guest request captured', 'AI Concierge'],
+                  [landingText.newReservation, landingText.table4],
+                  [landingText.reservationConfirmed, landingText.table2],
+                  [landingText.guestRequestCaptured, 'AI Concierge'],
                 ].map(([left, right], index) => (
                   <motion.div
                     key={left}
@@ -427,10 +571,10 @@ export function Landing() {
 
                 <div>
                   <p className="text-sm text-white/75">
-                    Your AI concierge is live
+                    {landingText.aiLiveTitle}
                   </p>
                   <p className="mt-1 text-sm leading-relaxed text-white/38">
-                    Guests can book, ask questions, and make requests 24/7.
+                    {landingText.aiLiveDescription}
                   </p>
                 </div>
               </div>
@@ -449,11 +593,11 @@ export function Landing() {
           className="max-w-3xl"
         >
           <p className="text-xs uppercase tracking-[.34em] text-white/35">
-            What Alias does
+            {landingText.whatAliasDoes}
           </p>
 
           <h2 className="mt-5 font-display text-4xl font-light tracking-[-.03em] text-white md:text-6xl">
-            Your digital front desk, working for you.
+            {landingText.digitalFrontDesk}
           </h2>
         </motion.div>
 
@@ -464,8 +608,17 @@ export function Landing() {
           viewport={{ once: true, amount: 0.2 }}
           className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-3"
         >
-          {features.map((feature) => {
-            const Icon = feature.icon;
+          {landingText.features.map((feature, index) => {
+            const icons = [
+                Clock,
+                MessageSquare,
+                Table2,
+                LayoutDashboard,
+                Globe2,
+                ShieldCheck,
+            ];
+
+            const Icon = icons[index];
 
             return (
               <motion.div
