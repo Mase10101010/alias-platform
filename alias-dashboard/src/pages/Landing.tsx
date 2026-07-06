@@ -1030,7 +1030,7 @@ export function Landing() {
 
             <div className="mt-6 flex items-center gap-3 text-white/60">
               <CalendarCheck size={22} style={{ color: cyan }} />
-              <span>7-day free trial</span>
+              <span>{landingText.trial}</span>
             </div>
 
             <div className="mt-8">
@@ -1057,7 +1057,7 @@ export function Landing() {
               className="mt-8 w-full rounded-full px-5 py-3 text-sm font-medium text-black shadow-[0_0_35px_rgba(92,242,255,0.18)] transition hover:shadow-[0_0_55px_rgba(92,242,255,0.34)]"
               style={{ background: cyan }}
             >
-              Start Your Free Trial
+              {landingText.startTrial}
             </motion.button>
 
             <p className="mt-4 text-center text-xs text-white/35">
@@ -1096,7 +1096,7 @@ export function Landing() {
             className="mt-10 rounded-full px-8 py-4 text-sm font-medium text-black shadow-[0_0_35px_rgba(92,242,255,0.18)] transition hover:shadow-[0_0_60px_rgba(92,242,255,0.38)]"
             style={{ background: cyan }}
           >
-            Start Your Free Trial
+            {landingText.startTrial}
           </motion.button>
         </motion.div>
       </section>
