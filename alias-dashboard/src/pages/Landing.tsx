@@ -59,7 +59,18 @@ export function Landing() {
   const landingText = {
     en: {
       login: 'Login',
+      footerTagline: "AI Reservations for Modern Restaurants",
+      finalTitle: "Transform the way your restaurant manages reservations.",
+      finalDescription:
+        "Give your guests a better booking experience while your team stays in control.",
       startTrial: 'Start Free Trial',
+      pricing: "Pricing",
+      pricePeriod: "/month",
+      unlimitedReservations: "Unlimited reservations",
+      unlimitedGuests: "Unlimited guests",
+      unlimitedConversations: "Unlimited AI conversations",
+      emailSupport: "Direct email support",
+      pricingFooter: "No setup fees. Cancel anytime.",
       badge: 'AI Reservations for Modern Restaurants',
       title: 'Never miss a reservation again',
       description:
@@ -193,6 +204,17 @@ export function Landing() {
             },
         ],
       login: 'Accedi',
+      pricing: "Prezzi",
+      pricePeriod: "/mese",
+      footerTagline: "Prenotazioni AI per ristoranti moderni",
+      finalTitle: "Trasforma il modo in cui il tuo ristorante gestisce le prenotazioni.",
+      finalDescription:
+        "Offri ai tuoi ospiti un'esperienza di prenotazione migliore mantenendo sempre il pieno controllo.",
+      unlimitedReservations: "Prenotazioni illimitate",
+      unlimitedGuests: "Ospiti illimitati",
+      unlimitedConversations: "Conversazioni AI illimitate",
+      emailSupport: "Supporto via email",
+      pricingFooter: "Nessun costo di setup. Cancella quando vuoi.",
       startTrial: 'Inizia la prova gratuita',
       conversation: [
         "Ciao! Sono il tuo AI Concierge. Come posso aiutarti oggi?",
@@ -257,7 +279,15 @@ export function Landing() {
       confirmed: 'Confirmées',
       liveConversation: 'Conversation en direct',
       concierge: 'Concierge',
+      pricing: "Tarifs",
+      pricePeriod: "/mois",
+      unlimitedReservations: "Réservations illimitées",
+      unlimitedGuests: "Clients illimités",
+      unlimitedConversations: "Conversations IA illimitées",
+      emailSupport: "Support par e-mail",
+      pricingFooter: "Aucun frais d'installation. Annulez à tout moment.",
       live: 'Actif',
+      footerTagline: "Réservations IA pour restaurants modernes",
       conversation: [
         "Bonjour ! Je suis votre Concierge IA. Comment puis-je vous aider ?",
         "Je voudrais une table pour 4 personnes ce vendredi vers 19h30.",
@@ -271,6 +301,9 @@ export function Landing() {
       guestRequestCaptured: 'Demande du client reçue',
       table4: 'Table 4 · 20:30',
       table2: 'Table 2 · 19:30',
+      finalTitle: "Transformez la façon dont votre restaurant gère les réservations.",
+      finalDescription:
+        "Offrez à vos clients une meilleure expérience de réservation tout en gardant le contrôle.",
       aiLiveTitle: 'Votre Concierge IA est actif',
       aiLiveDescription:
         'Les clients peuvent réserver, poser des questions et faire des demandes 24h/24.',
@@ -343,6 +376,17 @@ export function Landing() {
       guestRequestCaptured: 'Solicitud del cliente recibida',
       table4: 'Mesa 4 · 20:30',
       table2: 'Mesa 2 · 19:30',
+      pricing: "Precios",
+      pricePeriod: "/mes",
+      footerTagline: "Reservas con IA para restaurantes modernos",
+      finalTitle: "Transforma la forma en que tu restaurante gestiona las reservas.",
+      finalDescription:
+        "Ofrece a tus clientes una mejor experiencia de reserva mientras tu equipo mantiene el control.",
+      unlimitedReservations: "Reservas ilimitadas",
+      unlimitedGuests: "Clientes ilimitados",
+      unlimitedConversations: "Conversaciones IA ilimitadas",
+      emailSupport: "Soporte por correo electrónico",
+      pricingFooter: "Sin costes de instalación. Cancela cuando quieras.",
       aiLiveTitle: 'Tu AI Concierge está activo',
       aiLiveDescription:
         'Los clientes pueden reservar, hacer preguntas y enviar solicitudes las 24 horas.',
@@ -396,6 +440,16 @@ export function Landing() {
       liveAi: 'KI aktiv',
       overview: 'Übersicht',
       welcome: 'Willkommen, Restaurant.',
+      pricing: "Preise",
+      pricePeriod: "/Monat",
+      finalTitle: "Verändern Sie die Art und Weise, wie Ihr Restaurant Reservierungen verwaltet.",
+      finalDescription:
+        "Bieten Sie Ihren Gästen ein besseres Buchungserlebnis und behalten Sie gleichzeitig die volle Kontrolle.",
+      unlimitedReservations: "Unbegrenzte Reservierungen",
+      unlimitedGuests: "Unbegrenzte Gäste",
+      unlimitedConversations: "Unbegrenzte KI-Gespräche",
+      emailSupport: "E-Mail-Support",
+      pricingFooter: "Keine Einrichtungsgebühren. Jederzeit kündbar.",
       overviewDescription:
         'Live-Übersicht über den Betrieb mit Alias Concierge AI.',
       reservations: 'Reservierungen',
@@ -419,6 +473,7 @@ export function Landing() {
       aiLiveDescription:
        'Gäste können rund um die Uhr reservieren, Fragen stellen und Anfragen senden.',
       whatAliasDoes: 'Was Alias macht',
+      footerTagline: "KI-Reservierungen für moderne Restaurants",
       steps: [
         {
             title: 'Erstellen Sie Ihr Konto',
@@ -970,7 +1025,7 @@ export function Landing() {
             className="glass rounded-[2rem] p-8 md:p-10"
           >
             <p className="text-xs uppercase tracking-[.34em] text-white/35">
-              Pricing
+              {landingText.pricing}
             </p>
 
             <div className="mt-6 flex items-center gap-3 text-white/60">
@@ -985,14 +1040,14 @@ export function Landing() {
               >
                 €99
               </span>
-              <span className="ml-2 text-white/40">/month</span>
+              <span className="ml-2 text-white/40">{landingText.pricePeriod}</span>
             </div>
 
             <ul className="mt-7 space-y-3 text-sm text-white/55">
-              <li>✓ Unlimited reservations</li>
-              <li>✓ Unlimited guests</li>
-              <li>✓ Unlimited AI conversations</li>
-              <li>✓ Direct email support</li>
+              <li>✓ {landingText.unlimitedReservations}</li>
+              <li>✓ {landingText.unlimitedGuests}</li>
+              <li>✓ {landingText.unlimitedConversations}</li>
+              <li>✓ {landingText.emailSupport}</li>
             </ul>
 
             <motion.button
@@ -1006,7 +1061,7 @@ export function Landing() {
             </motion.button>
 
             <p className="mt-4 text-center text-xs text-white/35">
-              No setup fees. Cancel anytime.
+              {landingText.pricingFooter}
             </p>
           </motion.div>
         </div>
@@ -1027,12 +1082,11 @@ export function Landing() {
           </motion.div>
 
           <h2 className="mt-6 font-display text-4xl font-light tracking-[-.03em] text-white md:text-6xl">
-            Transform the way your restaurant manages reservations.
+            {landingText.finalTitle}
           </h2>
 
           <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-white/50">
-            Give your guests a better booking experience while your team stays
-            in control.
+            {landingText.finalDescription}
           </p>
 
           <motion.button
@@ -1049,7 +1103,7 @@ export function Landing() {
 
       <footer className="relative z-10 mx-auto flex max-w-7xl flex-col gap-4 border-t border-white/10 px-6 py-8 text-sm text-white/35 md:flex-row md:items-center md:justify-between">
         <span>Alias Concierge</span>
-        <span>AI Reservations for Modern Restaurants</span>
+        <span>{landingText.footerTagline}</span>
 
         <a
           href="mailto:hello@aliasconcierge.com"
