@@ -16,6 +16,13 @@ import {
 
 import { AliasMark } from '@/components/Brand';
 import { cyan } from '@/lib/data';
+import { useState } from 'react';
+import {
+  detectDefaultLanguage,
+  languages,
+  saveLanguage,
+  type LanguageCode,
+} from '@/lib/i18n';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 32 },
@@ -95,6 +102,72 @@ const benefits = [
 ];
 
 export function Landing() {
+  const [language, setLanguage] = useState<LanguageCode>(
+    detectDefaultLanguage(),
+  );
+
+  const landingText = {
+    en: {
+      login: 'Login',
+      startTrial: 'Start Free Trial',
+      badge: 'AI Reservations for Modern Restaurants',
+      title: 'Never miss a reservation again',
+      description:
+        'Alias helps restaurants automate bookings, manage availability, and provide guests with a modern AI-powered reservation experience. All from a single workspace.',
+      contact: 'Contact Us',
+      noSetup: 'No setup fees',
+      trial: '7-day free trial',
+      cancel: 'Cancel anytime',
+    },
+    it: {
+      login: 'Accedi',
+      startTrial: 'Inizia la prova gratuita',
+      badge: 'Prenotazioni AI per ristoranti moderni',
+      title: 'Non perdere mai più una prenotazione',
+      description:
+        'Alias aiuta i ristoranti ad automatizzare le prenotazioni, gestire la disponibilità e offrire agli ospiti un’esperienza moderna basata sull’AI. Tutto da un unico spazio di lavoro.',
+      contact: 'Contattaci',
+      noSetup: 'Nessun costo di setup',
+      trial: 'Prova gratuita di 7 giorni',
+      cancel: 'Cancella quando vuoi',
+    },
+    fr: {
+      login: 'Connexion',
+      startTrial: 'Essai gratuit',
+      badge: 'Réservations IA pour restaurants modernes',
+      title: 'Ne manquez plus jamais une réservation',
+      description:
+        'Alias aide les restaurants à automatiser les réservations, gérer les disponibilités et offrir aux clients une expérience moderne grâce à l’IA. Le tout depuis un seul espace de travail.',
+      contact: 'Nous contacter',
+      noSetup: 'Aucun frais d’installation',
+      trial: 'Essai gratuit de 7 jours',
+      cancel: 'Annulez à tout moment',
+    },
+    es: {
+      login: 'Iniciar sesión',
+      startTrial: 'Prueba gratuita',
+      badge: 'Reservas con IA para restaurantes modernos',
+      title: 'No pierdas nunca más una reserva',
+      description:
+        'Alias ayuda a los restaurantes a automatizar reservas, gestionar disponibilidad y ofrecer a los clientes una experiencia moderna impulsada por IA. Todo desde un único espacio de trabajo.',
+      contact: 'Contáctanos',
+      noSetup: 'Sin costes de instalación',
+      trial: 'Prueba gratuita de 7 días',
+      cancel: 'Cancela cuando quieras',
+    },
+    de: {
+      login: 'Einloggen',
+      startTrial: 'Kostenlos testen',
+      badge: 'KI-Reservierungen für moderne Restaurants',
+      title: 'Verpassen Sie nie wieder eine Reservierung',
+      description:
+        'Alias hilft Restaurants, Reservierungen zu automatisieren, Verfügbarkeiten zu verwalten und Gästen ein modernes KI-gestütztes Reservierungserlebnis zu bieten. Alles in einem Workspace.',
+      contact: 'Kontakt',
+      noSetup: 'Keine Einrichtungsgebühren',
+      trial: '7 Tage kostenlos testen',
+      cancel: 'Jederzeit kündbar',
+    },
+  }[language];
   function goToAuth() {
     window.location.href = '/auth';
   }
@@ -146,11 +219,30 @@ export function Landing() {
         <AliasMark />
 
         <div className="flex items-center gap-3">
+          <select
+            value={language}
+            onChange={(event) => {
+                const nextLanguage = event.target.value as LanguageCode;
+                setLanguage(nextLanguage);
+                saveLanguage(nextLanguage);
+            }}
+            className="rounded-full border border-white/10 bg-white/[.03] px-3 py-2 text-xs uppercase tracking-[.18em] text-white/70 outline-none"
+            >
+            {languages.map((item) => (
+                <option
+                key={item.code}
+                value={item.code}
+                className="bg-[#050816]"
+                >
+                {item.shortLabel}
+                </option>
+            ))}
+          </select>
           <button
             onClick={goToAuth}
             className="hidden rounded-full border border-white/10 px-5 py-2 text-sm text-white/60 transition hover:border-white/20 hover:text-white sm:block"
           >
-            Login
+            {landingText.login}
           </button>
 
           <motion.button
@@ -160,7 +252,7 @@ export function Landing() {
             className="rounded-full px-5 py-2 text-sm font-medium text-black shadow-[0_0_35px_rgba(92,242,255,0.18)] transition hover:shadow-[0_0_55px_rgba(92,242,255,0.34)]"
             style={{ background: cyan }}
           >
-            Start Free Trial
+            {landingText.startTrial}
           </motion.button>
         </div>
       </header>
@@ -175,7 +267,7 @@ export function Landing() {
             variants={fadeUp}
             className="text-xs uppercase tracking-[.34em] text-white/35"
           >
-            AI Reservations for Modern Restaurants
+            {landingText.badge}
           </motion.p>
 
           <motion.h1
@@ -183,7 +275,7 @@ export function Landing() {
             transition={{ duration: 0.8 }}
             className="mt-8 max-w-4xl font-display text-5xl font-light leading-[1.02] tracking-[-.055em] text-white md:text-7xl"
           >
-            Never miss a reservation again
+            {landingText.title}
             <span style={{ color: cyan }}>.</span>
           </motion.h1>
 
@@ -191,9 +283,7 @@ export function Landing() {
             variants={fadeUp}
             className="mt-7 max-w-2xl text-lg leading-relaxed text-white/55"
           >
-            Alias helps restaurants automate bookings, manage availability,
-            and provide guests with a modern AI-powered reservation experience.
-            All from a single workspace.
+            {landingText.description}
           </motion.p>
 
           <motion.div
@@ -218,7 +308,7 @@ export function Landing() {
               href="mailto:hello@aliasconcierge.com"
               className="flex items-center justify-center rounded-full border border-white/10 px-7 py-4 text-sm text-white/60 transition hover:border-white/20 hover:text-white"
             >
-              Contact Us
+              {landingText.contact}
             </a>
           </motion.div>
 
@@ -226,11 +316,11 @@ export function Landing() {
             variants={fadeUp}
             className="mt-10 flex flex-wrap gap-5 text-sm text-white/40"
           >
-            <span>No setup fees</span>
+            <span>{landingText.noSetup}</span>
             <span>•</span>
-            <span>7-day free trial</span>
+            <span>{landingText.trial}</span>
             <span>•</span>
-            <span>Cancel anytime</span>
+            <span>{landingText.cancel}</span>
           </motion.div>
         </motion.div>
         <motion.div
