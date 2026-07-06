@@ -30,6 +30,7 @@ import { option } from 'framer-motion/client';
 import { getRestaurants } from '@/lib/api';
 import { Support } from './pages/Support';
 import { WelcomeFlow } from '@/pages/WelcomeFlow';
+import { Landing } from '@/pages/Landing';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
@@ -66,6 +67,7 @@ export default function App() {
   const isPrivacy = window.location.pathname === '/privacy';
   const isTerms = window.location.pathname === '/terms';
   const [hasActiveBilling, setHasActiveBilling] = useState(false);
+  const isAuthPage = window.location.pathname === '/auth';
   
 
   if (isPublicConcierge) {
@@ -195,15 +197,19 @@ export default function App() {
     );
   }
 
-  if (!authed) {
-    return (
-      <Auth 
-        onEnter={() => {
-          window.location.reload();
-        }} 
+  if (!authed && !isAuthPage) {
+  return <Landing />;
+}
+
+if (!authed && isAuthPage) {
+  return (
+    <Auth 
+      onEnter={() => {
+        window.location.reload();
+      }} 
     />
-    );
-  }
+  );
+}
 
   const storedUser = localStorage.getItem('alias_user');
   const parsedUser = currentUser ?? (storedUser ? JSON.parse(storedUser) : null);
