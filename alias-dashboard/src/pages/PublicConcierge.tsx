@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef,  useState } from 'react';
-import { CheckCircle2, Send, Sparkles, ShieldCheck } from 'lucide-react';
+import { CheckCircle2, Mic, Send, Sparkles, ShieldCheck } from 'lucide-react';
 import {
   detectDefaultLanguage,
   translations,
@@ -45,6 +45,7 @@ export function PublicConcierge() {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [listening, setListening] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   
 
@@ -147,6 +148,52 @@ export function PublicConcierge() {
     } finally {
       setLoading(false);
     }
+  }
+
+  function handleVoiceInput() {
+    const SpeechRecognition =
+      (window as any).SpeechRecognition ||
+      (window as any).webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      alert('Voice input is not supported on this browser.');
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+
+    recognition.lang =
+      language === 'it'
+        ? 'it-IT'
+        : language === 'fr'
+          ? 'fr-FR'
+          : language === 'es'
+            ? 'es-ES'
+            : language === 'de'
+              ? 'de-DE'
+              : 'en-US';
+
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    setListening(true);
+
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      setInput((current) =>
+        current ? `${current} ${transcript}` : transcript,
+      );
+    };
+
+    recognition.onerror = () => {
+      setListening(false);
+    };
+
+    recognition.onend = () => {
+      setListening(false);
+    };
+
+    recognition.start();
   }
 
   return (
@@ -281,6 +328,15 @@ export function PublicConcierge() {
               placeholder={t.publicPlaceholder}
               className="flex-1 bg-transparent px-3 text-sm text-white outline-none placeholder:text-white/30"
             />
+
+            <button
+              type="button"
+              onClick={handleVoiceInput}
+              disabled={loading || listening}
+              className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[.04] text-white/55 transition hover:text-white disabled:opacity-60"
+            >
+              <Mic size={17} style={{color: listening ? cyan : undefined}} />
+            </button>
 
             <button
               onClick={handleSend}
