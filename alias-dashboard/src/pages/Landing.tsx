@@ -875,10 +875,10 @@ export function Landing() {
         </motion.div>
 
         <motion.div
+          key={`features-${language}`}
           variants={stagger}
           initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.2 }}
+          animate="visible"
           className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-3"
         >
           {landingText.features.map((feature, index) => {
@@ -939,10 +939,10 @@ export function Landing() {
           </motion.div>
 
           <motion.div
+            key={`steps-${language}`}
             variants={stagger}
             initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.25 }}
+            animate="visible"
             className="grid gap-4"
           >
             {landingText.steps.map((step, index) => (
