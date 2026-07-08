@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef,  useState } from 'react';
-import { CheckCircle2, Mic, Send, Sparkles, ShieldCheck } from 'lucide-react';
+import { CheckCircle2, Mic, Send, Sparkles, ShieldCheck, Square, X } from 'lucide-react';
 import {
   detectDefaultLanguage,
   translations,
@@ -47,6 +47,8 @@ export function PublicConcierge() {
   const [loading, setLoading] = useState(false);
   const [listening, setListening] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const recognitionRef = useRef<any>(null);
+  const voiceBaseInputRef = useRef('');
   
 
   const [messages, setMessages] = useState<Message[]>([
@@ -162,6 +164,9 @@ export function PublicConcierge() {
 
     const recognition = new SpeechRecognition();
 
+    recognitionRef.current = recognition;
+    voiceBaseInputRef.current = input.trim();
+
     recognition.lang =
       language === 'it'
         ? 'it-IT'
@@ -173,28 +178,61 @@ export function PublicConcierge() {
               ? 'de-DE'
               : 'en-US';
 
-    recognition.interimResults = false;
+    recognition.interimResults = true;
+    recognition.continuous = true;
     recognition.maxAlternatives = 1;
 
     setListening(true);
 
     recognition.onresult = (event: any) => {
-      const transcript = event.results[0][0].transcript;
-      setInput((current) =>
-        current ? `${current} ${transcript}` : transcript,
+      let transcript = '';
+
+      for (let i = 0; i < event.results.length; i += 1) {
+        transcript += event.results[i][0].transcript;
+      }
+
+      setInput(
+        voiceBaseInputRef.current
+        ? `${voiceBaseInputRef.current} ${transcript}` 
+        : transcript,
       );
     };
 
     recognition.onerror = () => {
       setListening(false);
+      recognitionRef.current = null;
     };
 
     recognition.onend = () => {
       setListening(false);
+      recognitionRef.current = null;
     };
 
     recognition.start();
   }
+
+  function stopVoiceInput() {
+  recognitionRef.current?.stop();
+  recognitionRef.current = null;
+  setListening(false);
+}
+
+function cancelVoiceInput() {
+  recognitionRef.current?.stop();
+  recognitionRef.current = null;
+  setInput(voiceBaseInputRef.current);
+  setListening(false);
+}
+
+function sendWhileListening() {
+  recognitionRef.current?.stop();
+  recognitionRef.current = null;
+  setListening(false);
+
+  setTimeout(() => {
+    handleSend();
+  }, 100);
+}
 
   return (
     <main className="grain relative flex min-h-screen items-center justify-center bg-ink px-4 py-8 text-white">
@@ -326,20 +364,37 @@ export function PublicConcierge() {
                 }
               }}
               placeholder={t.publicPlaceholder}
-              className="flex-1 bg-transparent px-3 text-sm text-white outline-none placeholder:text-white/30"
+              className={`flex-1 bg-transparent px-3 text-sm outline-none placeholder:text-white/30 ${
+                listening ? 'text-white/45' : 'text-white'
+              }`}
             />
+            
+            {listening && (
+              <button
+                type="button"
+                onClick={cancelVoiceInput}
+                className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[.04] text-white/55 transition hover:text-white"
+              >
+                <X size={17} />
+              </button>
+            )}
 
             <button
               type="button"
-              onClick={handleVoiceInput}
-              disabled={loading || listening}
+              onClick={listening ? stopVoiceInput : handleVoiceInput}
+              disabled={loading}
               className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[.04] text-white/55 transition hover:text-white disabled:opacity-60"
             >
-              <Mic size={17} style={{color: listening ? cyan : undefined}} />
+              {listening ? (
+                <Square size={15} style={{ color: cyan }} />
+              ) : (
+                <Mic size={17} />
+              )}
             </button>
 
             <button
-              onClick={handleSend}
+              type="button"
+              onClick={listening ? sendWhileListening : handleSend}
               disabled={loading}
               className="flex h-11 w-11 items-center justify-center rounded-full text-black disabled:opacity-60"
               style={{ background: cyan }}
