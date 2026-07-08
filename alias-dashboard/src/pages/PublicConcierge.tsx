@@ -260,8 +260,7 @@ export function PublicConcierge() {
                 <div className="rounded-3xl bg-white/[.055] px-5 py-4 text-sm">
                   <span>
                     {t.publicChecking}
-                  </span>
-                  
+                  </span> 
                 </div>
               </div>
             )}
