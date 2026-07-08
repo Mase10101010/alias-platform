@@ -258,7 +258,7 @@ export function PublicConcierge() {
             {loading && (
               <div className="flex justify-start">
                 <div className="rounded-3xl bg-white/[.055] px-5 py-4 text-sm">
-                  <span>
+                  <span className="ai-thinking-shimmer">
                     {t.publicChecking}
                   </span> 
                 </div>
