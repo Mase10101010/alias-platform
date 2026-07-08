@@ -40,16 +40,7 @@ const stagger = {
 
 
 
-const benefits = [
-  'AI-powered reservation assistant',
-  'Real-time availability management',
-  'Public booking page',
-  'QR code access for guests',
-  'Reservation dashboard',
-  'Multilingual support',
-  'Direct email support',
-  'Continuous improvements',
-];
+const benefits = [];
 
 export function Landing() {
   const [language, setLanguage] = useState<LanguageCode>(
@@ -59,6 +50,23 @@ export function Landing() {
   const landingText = {
     en: {
       login: 'Login',
+      aiBenefits: [
+        ['Save time', 'Automate repetitive requests'],
+        ['Increase bookings', 'Capture demand 24/7'],
+        ['Happy guests', 'Faster responses'],
+      ],
+      benefitsTitle: 'Everything you need',
+      benefitsSubtitle: 'All in one place.',
+      benefits: [
+       'AI-powered reservation assistant',
+       'Real-time availability management',
+       'Public booking page',
+       'QR code access for guests',
+       'Reservation dashboard',
+        'Multilingual support',
+       'Direct email support',
+       'Continuous improvements',
+      ],
       footerTagline: "AI Reservations for Modern Restaurants",
       finalTitle: "Transform the way your restaurant manages reservations.",
       finalDescription:
@@ -205,6 +213,23 @@ export function Landing() {
         ],
       login: 'Accedi',
       pricing: "Prezzi",
+      aiBenefits: [
+        ['Risparmia tempo', 'Automatizza le richieste ripetitive'],
+        ['Aumenta le prenotazioni', 'Raccogli domanda 24/7'],
+        ['Ospiti più soddisfatti', 'Risposte più rapide'],
+      ],
+      benefitsTitle: 'Tutto ciò di cui hai bisogno',
+      benefitsSubtitle: 'Tutto in un unico posto.',
+      benefits: [
+        'Assistente prenotazioni basato su AI',
+        'Gestione disponibilità in tempo reale',
+        'Pagina pubblica di prenotazione',
+        'Accesso tramite QR code per gli ospiti',
+        'Dashboard prenotazioni',
+        'Supporto multilingua',
+        'Supporto email diretto',
+        'Miglioramenti continui',
+      ],
       pricePeriod: "/mese",
       footerTagline: "Prenotazioni AI per ristoranti moderni",
       finalTitle: "Trasforma il modo in cui il tuo ristorante gestisce le prenotazioni.",
@@ -262,6 +287,11 @@ export function Landing() {
     fr: {
       login: 'Connexion',
       startTrial: 'Essai gratuit',
+      aiBenefits: [
+        ['Gagnez du temps', 'Automatisez les demandes répétitives'],
+        ['Augmentez les réservations', 'Captez la demande 24/7'],
+        ['Clients satisfaits', 'Réponses plus rapides'],
+      ],
       badge: 'Réservations IA pour restaurants modernes',
       title: 'Ne manquez plus jamais une réservation',
       description:
@@ -285,6 +315,18 @@ export function Landing() {
       unlimitedGuests: "Clients illimités",
       unlimitedConversations: "Conversations IA illimitées",
       emailSupport: "Support par e-mail",
+      benefitsTitle: 'Tout ce dont vous avez besoin',
+      benefitsSubtitle: 'Tout en un seul endroit.',
+      benefits: [
+        'Assistant de réservation alimenté par l’IA',
+        'Gestion des disponibilités en temps réel',
+        'Page publique de réservation',
+        'Accès par QR code pour les clients',
+        'Tableau de bord des réservations',
+        'Support multilingue',
+        'Support par e-mail',
+        'Améliorations continues',
+      ],
       pricingFooter: "Aucun frais d'installation. Annulez à tout moment.",
       live: 'Actif',
       footerTagline: "Réservations IA pour restaurants modernes",
@@ -371,6 +413,18 @@ export function Landing() {
       ],
       live: 'Activo',
       recentActivity: 'Actividad reciente',
+      benefitsTitle: 'Todo lo que necesitas',
+      benefitsSubtitle: 'Todo en un solo lugar.',
+      benefits: [
+        'Asistente de reservas con IA',
+        'Gestión de disponibilidad en tiempo real',
+        'Página pública de reservas',
+        'Acceso mediante código QR para los clientes',
+        'Panel de reservas',
+        'Soporte multilingüe',
+        'Soporte por correo electrónico',
+        'Mejoras continuas',
+      ],
       newReservation: 'Nueva reserva',
       reservationConfirmed: 'Reserva confirmada',
       guestRequestCaptured: 'Solicitud del cliente recibida',
@@ -378,6 +432,11 @@ export function Landing() {
       table2: 'Mesa 2 · 19:30',
       pricing: "Precios",
       pricePeriod: "/mes",
+      aiBenefits: [
+        ['Ahorra tiempo', 'Automatiza solicitudes repetitivas'],
+        ['Aumenta las reservas', 'Captura demanda 24/7'],
+        ['Clientes satisfechos', 'Respuestas más rápidas'],
+      ],
       footerTagline: "Reservas con IA para restaurantes modernos",
       finalTitle: "Transforma la forma en que tu restaurante gestiona las reservas.",
       finalDescription:
@@ -456,12 +515,29 @@ export function Landing() {
       confirmed: 'Bestätigt',
       concierge: 'Concierge',
       live: 'Aktiv',
+      aiBenefits: [
+        ['Zeit sparen', 'Wiederkehrende Anfragen automatisieren'],
+        ['Mehr Reservierungen', 'Nachfrage rund um die Uhr erfassen'],
+        ['Zufriedene Gäste', 'Schnellere Antworten'],
+      ],
       recentActivity: 'Letzte Aktivitäten',
       newReservation: 'Neue Reservierung',
       reservationConfirmed: 'Reservierung bestätigt',
       guestRequestCaptured: 'Gästeanfrage erhalten',
       table4: 'Tisch 4 · 20:30',
       table2: 'Tisch 2 · 19:30',
+      benefitsTitle: 'Alles, was Sie brauchen',
+      benefitsSubtitle: 'Alles an einem Ort.',
+      benefits: [
+        'KI-gestützter Reservierungsassistent',
+        'Echtzeit-Verfügbarkeitsverwaltung',
+        'Öffentliche Reservierungsseite',
+        'QR-Code-Zugang für Gäste',
+        'Reservierungs-Dashboard',
+        'Mehrsprachiger Support',
+        'E-Mail-Support',
+        'Kontinuierliche Verbesserungen',
+      ],
       aiLiveTitle: 'Ihr KI-Concierge ist aktiv',
       conversation: [
         "Hallo! Ich bin Ihr KI-Concierge. Wie kann ich Ihnen helfen?",
@@ -915,11 +991,7 @@ export function Landing() {
               </p>
 
               <div className="mt-8 grid gap-3 sm:grid-cols-3">
-                {[
-                  ['Save time', 'Automate repetitive requests'],
-                  ['Increase bookings', 'Capture demand 24/7'],
-                  ['Happy guests', 'Faster responses'],
-                ].map(([title, text]) => (
+                {landingText.aiBenefits.map(([title, text]) => (
                   <div
                     key={title}
                     className="rounded-2xl border border-white/8 bg-white/[.025] p-4"
@@ -995,15 +1067,15 @@ export function Landing() {
             className="glass rounded-[2rem] p-8 md:p-10"
           >
             <p className="text-xs uppercase tracking-[.34em] text-white/35">
-              Everything you need
+              {landingText.benefitsTitle}
             </p>
 
             <h2 className="mt-5 font-display text-4xl font-light tracking-[-.03em] text-white md:text-5xl">
-              All in one place.
+              {landingText.benefitsSubtitle}
             </h2>
 
             <div className="mt-8 grid gap-4 sm:grid-cols-2">
-              {benefits.map((benefit) => (
+              {landingText.benefits.map((benefit) => (
                 <div key={benefit} className="flex items-center gap-3">
                   <div
                     className="flex h-6 w-6 items-center justify-center rounded-full text-black"
