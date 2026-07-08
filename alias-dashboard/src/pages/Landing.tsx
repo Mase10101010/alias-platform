@@ -784,7 +784,7 @@ export function Landing() {
               {landingText.overviewDescription}
             </p>
 
-            <div className="mt-8 grid grid-cols-3 gap-3">
+            <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-3">
               {[
                 [landingText.reservations, '14'],
                 [landingText.confirmed, '12'],
@@ -797,10 +797,10 @@ export function Landing() {
                   transition={{ delay: 0.5 + index * 0.12 }}
                   className="rounded-2xl border border-white/8 bg-white/[.035] p-4"
                 >
-                  <p className="text-[10px] uppercase tracking-[.22em] text-white/35">
+                  <p className="break-words text-[10px] uppercase tracking-[.14em] text-white/35 sm:tracking-[.22em]">
                     {label}
                   </p>
-                  <p className="mt-3 font-display text-3xl text-white">
+                  <p className="mt-3 break-words font-display text-2xl text-white sm:text-3xl">
                     {value}
                   </p>
                 </motion.div>
