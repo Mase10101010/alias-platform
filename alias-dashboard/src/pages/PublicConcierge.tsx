@@ -46,6 +46,7 @@ export function PublicConcierge() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [listening, setListening] = useState(false);
+  const [voiceClosing, setVoiceClosing] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const recognitionRef = useRef<any>(null);
   const voiceBaseInputRef = useRef('');
@@ -234,28 +235,43 @@ export function PublicConcierge() {
     recognition.start();
   }
 
+  function finishVoiceUi(callback?: () => void) {
+    setVoiceClosing(true);
+    setListening(false);
+
+    window.setTimeout(() => {
+      setVoiceClosing(false);
+      callback?.();
+    }, 260);
+  }
+
   function stopVoiceInput() {
-  recognitionRef.current?.stop();
-  recognitionRef.current = null;
-  setListening(false);
+    recognitionRef.current?.stop();
+    recognitionRef.current = null;
+
+    finishVoiceUi();
+  }
+
+  function cancelVoiceInput() {
+    recognitionRef.current?.stop();
+    recognitionRef.current = null;
+
+    finishVoiceUi(() => {
+      setInput(voiceBaseInputRef.current);
+    });
+  }
+
+  function sendWhileListening() {
+    recognitionRef.current?.stop();
+    recognitionRef.current = null;
+
+    finishVoiceUi(() => {
+      handleSend();
+    });
 }
 
-function cancelVoiceInput() {
-  recognitionRef.current?.stop();
-  recognitionRef.current = null;
-  setInput(voiceBaseInputRef.current);
-  setListening(false);
-}
 
-function sendWhileListening() {
-  recognitionRef.current?.stop();
-  recognitionRef.current = null;
-  setListening(false);
-
-  setTimeout(() => {
-    handleSend();
-  }, 100);
-}
+  const voiceActive = listening || voiceClosing;
 
   return (
     <main className="grain relative flex min-h-screen items-center justify-center bg-ink px-4 py-8 text-white">
@@ -375,7 +391,7 @@ function sendWhileListening() {
             <div ref={messagesEndRef} />
           </div>
           
-          {listening && (
+          {voiceActive && (
             <div className="mb-3 flex items-center gap-3 rounded-2xl border border-cyanAlias/20 bg-cyanAlias/10 px-4 py-3 text-xs text-white/55">
               <AudioLines size={16} style={{ color: cyan }} />
 
@@ -400,7 +416,7 @@ function sendWhileListening() {
 
           <div 
             className={`mt-5 flex items-end gap-3 rounded-2xl border p-3 transition-all duration-300 ${
-              listening
+              voiceActive
                 ? 'border-cyanAlias/30 bg-white/[.045] shadow-[0_0_35px_rgba(92,242,255,0.12)]'
                 : 'border-white/10 bg-white/[.03]'
             }`}
@@ -428,7 +444,7 @@ function sendWhileListening() {
                 }`}
               />
 
-              {listening && (
+              {voiceActive && (
                 <div className="pointer-events-none absolute inset-0 max-h-[120px] overflow-y-auto px-3 py-3 text-sm leading-5 text-white/55">
                   {input || t.publicPlaceholder}
                   <span className="voice-inline-caret">|</span>
@@ -437,7 +453,7 @@ function sendWhileListening() {
             </div>
 
             
-            {listening && (
+            {voiceActive && (
               <button
                 type="button"
                 onClick={cancelVoiceInput}
@@ -452,17 +468,17 @@ function sendWhileListening() {
               onClick={listening ? stopVoiceInput : handleVoiceInput}
               disabled={loading}
               className={`relative flex h-11 w-11 items-center justify-center rounded-full border transition disabled:opacity-60 ${
-                listening
+                voiceActive
                   ? 'border-cyanAlias/30 bg-cyanAlias/10 text-white shadow-[0_0_28px_rgba(92,242,255,0.22)]'
                   : 'border-white/10 bg-white/[.04] text-white/55 hover:text-white'
               }`}
             >
-              {listening && (
+              {voiceActive && (
                 <span className="absolute inset-0 rounded-full animate-ping bg-cyanAlias/20" />
               )}
 
               <span className="relative z-10">
-                {listening ? (
+                {voiceActive ? (
                   <Square size={15} style={{ color: cyan }} />
                 ) : (
                   <Mic size={17} />
