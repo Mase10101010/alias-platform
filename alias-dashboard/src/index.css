@@ -37,3 +37,22 @@ body { margin: 0; min-height: 100vh; background: #050607; color: white; font-fam
     background-position: -220% center;
   }
 }
+
+.voice-wave-bar {
+  width: 3px;
+  border-radius: 999px;
+  background: rgba(92, 242, 255, 0.75);
+  animation: voice-wave 0.9s ease-in-out infinite;
+}
+
+@keyframes voice-wave {
+  0%, 100% {
+    transform: scaleY(0.45);
+    opacity: 0.45;
+  }
+
+  50% {
+    transform: scaleY(1.25);
+    opacity: 1;
+  }
+}

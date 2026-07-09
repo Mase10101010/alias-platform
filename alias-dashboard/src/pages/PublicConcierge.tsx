@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef,  useState } from 'react';
-import { CheckCircle2, Mic, Send, Sparkles, ShieldCheck, Square, X } from 'lucide-react';
+import { AudioLines, CheckCircle2, Mic, Send, Sparkles, ShieldCheck, Square, X } from 'lucide-react';
 import {
   detectDefaultLanguage,
   translations,
@@ -373,6 +373,29 @@ function sendWhileListening() {
             )}
             <div ref={messagesEndRef} />
           </div>
+          
+          {listening && (
+            <div className="mb-3 flex items-center gap-3 rounded-2xl border border-cyanAlias/20 bg-cyanAlias/10 px-4 py-3 text-xs text-white/55">
+              <AudioLines size={16} style={{ color: cyan }} />
+
+              <span className="uppercase tracking-[.22em]">
+                Listening
+              </span>
+
+              <div className="ml-auto flex items-end gap-1">
+                {[10, 16, 22, 14, 18].map((height, index) => (
+                  <span
+                    key={index}
+                    className="voice-wave-bar"
+                    style={{
+                      height,
+                      animationDelay: `${index * 0.12}s`,
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
 
           <div 
             className={`mt-5 flex items-end gap-3 rounded-2xl border p-3 transition-all duration-300 ${
