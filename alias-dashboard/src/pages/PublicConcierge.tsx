@@ -49,6 +49,8 @@ export function PublicConcierge() {
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const recognitionRef = useRef<any>(null);
   const voiceBaseInputRef = useRef('');
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const finalTranscriptRef = useRef('')
   
 
   const [messages, setMessages] = useState<Message[]>([
@@ -94,6 +96,15 @@ export function PublicConcierge() {
       block: 'end',
     });
   }, [messages, loading]);
+
+  useEffect(() => {
+    const textarea = textareaRef.current;
+
+    if (!textarea) return;
+
+    textarea.style.height = '0px';
+    textarea.style.height = `${Math.min(textarea.scrollHeight, 120)}px`;
+  }, [input]);
 
   async function handleSend() {
     if (!input.trim() || loading) return;
@@ -166,6 +177,7 @@ export function PublicConcierge() {
 
     recognitionRef.current = recognition;
     voiceBaseInputRef.current = input.trim();
+    finalTranscriptRef.current = '';
 
     recognition.lang =
       language === 'it'
@@ -185,16 +197,26 @@ export function PublicConcierge() {
     setListening(true);
 
     recognition.onresult = (event: any) => {
-      let transcript = '';
+      let interimTranscript = '';
 
-      for (let i = 0; i < event.results.length; i += 1) {
-        transcript += event.results[i][0].transcript;
+      for (let i = event.resultIndex; i < event.results.length; i += 1) {
+        const transcriptPart = event.results[i][0].transcript;
+
+        if (event.results[i].isFinal) {
+          finalTranscriptRef.current += ` ${transcriptPart}`;
+        } else {
+          interimTranscript += transcriptPart;
+        }
       }
+
+      const fullTranscript = `${finalTranscriptRef.current} ${interimTranscript}`
+        .replace(/\s+/g, ' ')
+        .trim();
 
       setInput(
         voiceBaseInputRef.current
-        ? `${voiceBaseInputRef.current} ${transcript}` 
-        : transcript,
+          ? `${voiceBaseInputRef.current} ${fullTranscript}`.trim()
+          : fullTranscript,
       );
     };
 
@@ -353,18 +375,21 @@ function sendWhileListening() {
           </div>
 
           <div 
-            className="mt-5 flex gap-3 rounded-2xl border border-white/10 bg-white/[.03] p-3"
+            className="mt-5 flex items-end gap-3 rounded-2xl border border-white/10 bg-white/[.03] p-3"
           >
-            <input
+            <textarea
+              ref={textareaRef}
               value={input}
+              rows={1}
               onChange={(event) => setInput(event.target.value)}
               onKeyDown={(event) => {
-                if (event.key === 'Enter') {
+                if (event.key === 'Enter' && !event.shiftKey) {
+                  event.preventDefault();
                   handleSend();
                 }
               }}
               placeholder={t.publicPlaceholder}
-              className={`flex-1 bg-transparent px-3 text-sm outline-none placeholder:text-white/30 ${
+              className={`max-h-[120px] min-h-[44px] flex-1 resize-none bg-transparent px-3 py-3 text-sm leading-5 outline-none placeholder:text-white/30 ${
                 listening ? 'text-white/45' : 'text-white'
               }`}
             />
