@@ -195,6 +195,7 @@ export function PublicConcierge() {
     recognition.maxAlternatives = 1;
 
     setListening(true);
+    
 
     recognition.onresult = (event: any) => {
       let interimTranscript = '';
@@ -404,22 +405,37 @@ function sendWhileListening() {
                 : 'border-white/10 bg-white/[.03]'
             }`}
           >
-            <textarea
-              ref={textareaRef}
-              value={input}
-              rows={1}
-              onChange={(event) => setInput(event.target.value)}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter' && !event.shiftKey) {
-                  event.preventDefault();
-                  handleSend();
-                }
-              }}
-              placeholder={t.publicPlaceholder}
-              className={`max-h-[120px] min-h-[44px] flex-1 resize-none bg-transparent px-3 py-3 text-sm leading-5 outline-none transition-all duration-200 placeholder:text-white/30 ${
-              listening ? 'text-white/55 tracking-[0.01em]' : 'text-white'
-            }`}
-            />
+            <div className="relative min-h-[44px] flex-1">
+              <textarea
+                ref={textareaRef}
+                value={input}
+                rows={1}
+                onChange={(event) => setInput(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' && !event.shiftKey) {
+                    event.preventDefault();
+
+                    if (listening) {
+                      sendWhileListening();
+                    } else {
+                      handleSend();
+                    }
+                  }
+                }}
+                placeholder={t.publicPlaceholder}
+                className={`max-h-[120px] min-h-[44px] w-full resize-none bg-transparent px-3 py-3 text-sm leading-5 outline-none transition-all duration-200 placeholder:text-white/30 ${
+                  listening ? 'opacity-0' : 'text-white'
+                }`}
+              />
+
+              {listening && (
+                <div className="pointer-events-none absolute inset-0 max-h-[120px] overflow-y-auto px-3 py-3 text-sm leading-5 text-white/55">
+                  {input || t.publicPlaceholder}
+                  <span className="voice-inline-caret">|</span>
+                </div>
+              )}
+            </div>
+
             
             {listening && (
               <button
