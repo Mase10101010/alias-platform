@@ -375,7 +375,11 @@ function sendWhileListening() {
           </div>
 
           <div 
-            className="mt-5 flex items-end gap-3 rounded-2xl border border-white/10 bg-white/[.03] p-3"
+            className={`mt-5 flex items-end gap-3 rounded-2xl border p-3 transition-all duration-300 ${
+              listening
+                ? 'border-cyanAlias/30 bg-white/[.045] shadow-[0_0_35px_rgba(92,242,255,0.12)]'
+                : 'border-white/10 bg-white/[.03]'
+            }`}
           >
             <textarea
               ref={textareaRef}
@@ -389,16 +393,16 @@ function sendWhileListening() {
                 }
               }}
               placeholder={t.publicPlaceholder}
-              className={`max-h-[120px] min-h-[44px] flex-1 resize-none bg-transparent px-3 py-3 text-sm leading-5 outline-none placeholder:text-white/30 ${
-                listening ? 'text-white/45' : 'text-white'
-              }`}
+              className={`max-h-[120px] min-h-[44px] flex-1 resize-none bg-transparent px-3 py-3 text-sm leading-5 outline-none transition-all duration-200 placeholder:text-white/30 ${
+              listening ? 'text-white/55 tracking-[0.01em]' : 'text-white'
+            }`}
             />
             
             {listening && (
               <button
                 type="button"
                 onClick={cancelVoiceInput}
-                className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[.04] text-white/55 transition hover:text-white"
+                className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[.04] text-white/45 transition hover:border-red-400/30 hover:bg-red-400/10 hover:text-red-200"
               >
                 <X size={17} />
               </button>
@@ -408,13 +412,23 @@ function sendWhileListening() {
               type="button"
               onClick={listening ? stopVoiceInput : handleVoiceInput}
               disabled={loading}
-              className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[.04] text-white/55 transition hover:text-white disabled:opacity-60"
+              className={`relative flex h-11 w-11 items-center justify-center rounded-full border transition disabled:opacity-60 ${
+                listening
+                  ? 'border-cyanAlias/30 bg-cyanAlias/10 text-white shadow-[0_0_28px_rgba(92,242,255,0.22)]'
+                  : 'border-white/10 bg-white/[.04] text-white/55 hover:text-white'
+              }`}
             >
-              {listening ? (
-                <Square size={15} style={{ color: cyan }} />
-              ) : (
-                <Mic size={17} />
+              {listening && (
+                <span className="absolute inset-0 rounded-full animate-ping bg-cyanAlias/20" />
               )}
+
+              <span className="relative z-10">
+                {listening ? (
+                  <Square size={15} style={{ color: cyan }} />
+                ) : (
+                  <Mic size={17} />
+                )}
+              </span>
             </button>
 
             <button
