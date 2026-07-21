@@ -8,6 +8,7 @@ import {
 
 import {
   createTable,
+  deleteTable,
   getRestaurants,
   getTables,
   updateTable,
@@ -417,6 +418,43 @@ export function Tables() {
     }
   }
 
+  async function handleDeleteSelectedTable() {
+    if (!selectedTable || !restaurantId || deletingTable) {
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Delete table ${selectedTable.table_number}? This action cannot be undone.`,
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      setDeletingTable(true);
+      setError('');
+
+      await deleteTable(restaurantId, selectedTable.id);
+
+      setTables((current) =>
+        current.filter((table) => table.id !== selectedTable.id),
+      );
+
+      setSelectedTableId(null);
+    } catch (deleteError) {
+      console.error('Failed to delete table', deleteError);
+
+      setError(
+        deleteError instanceof Error
+          ? deleteError.message
+          : 'Unable to delete table.',
+      );
+    } finally {
+      setDeletingTable(false);
+    }
+  }
+
   function handleToolChange(tool: EditorTool) {
     setActiveTool(tool);
     setPendingTable(null);
@@ -515,7 +553,7 @@ export function Tables() {
           onRotationChange={setPropertyRotation}
           onClose={() => setSelectedTableId(null)}
           onSave={() => {}}
-          onDelete={() => {}}
+          onDelete={handleDeleteSelectedTable}
         />
 
       </div>
