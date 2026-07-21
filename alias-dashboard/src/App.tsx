@@ -31,6 +31,7 @@ import { getRestaurants } from '@/lib/api';
 import { Support } from './pages/Support';
 import { WelcomeFlow } from '@/pages/WelcomeFlow';
 import { Landing } from '@/pages/Landing';
+import { Tables } from '@/pages/Tables';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
@@ -41,6 +42,7 @@ function Page({ active }: { active: string }) {
   if (active === 'billing') return <Billing />
   if (active === 'support') return <Support />;
   if (active === 'settings') return <Settings />;
+  if (active === 'tables') return <Tables />;
   return <Overview />;
 }
 

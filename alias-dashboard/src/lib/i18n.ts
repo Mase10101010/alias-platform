@@ -248,6 +248,7 @@ export const translations = {
     phoneNumberLabel: 'Phone number',
     tablesLabel: 'tables',
     seatsEachLabel: 'seats each',
+    floorPlan: 'Floor Plan',
     support: 'Support',
     supportTitle: 'Support',
     supportHeading: 'Need help?',
@@ -427,6 +428,7 @@ export const translations = {
     launching: 'Avvio…',
     launchConcierge: 'Avvia concierge',
     continue: 'Continua',
+    floorPlan: 'Mappa Tavoli',
     businessStepTitle: 'Raccontaci il tuo locale',
     businessStepDescription:
       'Questi dettagli aiutano Alias a configurare il workspace e personalizzare l’esperienza del concierge AI per i tuoi ospiti.',
@@ -764,6 +766,7 @@ export const translations = {
     launching: 'Lanzando…',
     launchConcierge: 'Lanzar concierge',
     continue: 'Continuar',
+    floorPlan: 'Plano de Mesas',
     businessStepTitle: 'Cuéntanos sobre tu establecimiento',
     businessStepDescription:
       'Estos detalles ayudan a Alias a configurar tu workspace y personalizar la experiencia del concierge AI para tus clientes.',
@@ -1118,6 +1121,7 @@ export const translations = {
     closingTime: 'Heure de fermeture',
     availabilityPageTitle: 'Disponibilité',
     openingDays: 'Jours d’ouverture',
+    floorPlan: 'Plan de Salle',
     openingDaysDescription:
       'Sélectionnez les jours où le restaurant est ouvert.',
     open: 'Ouvert',
@@ -1479,6 +1483,7 @@ export const translations = {
     friday: 'Fr',
     saturday: 'Sa',
     sunday: 'So',
+    floorPlan: 'Tischplan',
     tonePickerTitle: 'Wählen Sie den Concierge-Ton',
     tonePickerDescription: 'Wählen Sie, wie der AI-Concierge mit Ihren Gästen kommunizieren soll.',
     toneCardDescription: 'Premium-Kommunikationsprofil für Gästeinteraktionen.',

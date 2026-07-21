@@ -3,7 +3,8 @@ import {
   CalendarDays, 
   LifeBuoy,
   Clock3,
-  Home, 
+  Home,
+  LayoutGrid, 
   Settings,  
   Users,
 } from 'lucide-react';
@@ -18,6 +19,7 @@ const items = [
   { id: 'home', labelKey: 'overview', icon: Home },
   { id: 'reservations', labelKey: 'reservations', icon: CalendarDays },
   { id: 'availability', labelKey: 'availability', icon: Clock3 },
+  { id: 'tables', labelKey: 'floorPlan', icon: LayoutGrid },
   { id: 'settings', labelKey: 'settings', icon: Settings },
   { id: 'support', labelKey: 'support', icon: LifeBuoy},
 ] as const;
