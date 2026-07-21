@@ -22,6 +22,7 @@ import {
   type TableResponse,
 } from '@/lib/api';
 import { cyan } from '@/lib/data';
+import { CreateTableDialog } from '@/components/floorplan/CreateTableDialog';
 
 type DragState = {
   tableId: string;
@@ -411,62 +412,22 @@ export function Tables() {
           backgroundSize: '32px 32px',
         }}
       >
-        {pendingTable && (
-          <div
-            className="absolute z-50 w-72 rounded-2xl border border-white/10 bg-[#0E1322] p-5 shadow-2xl"
-            style={{
-              left: pendingTable.x,
-              top: pendingTable.y,
-              transform: 'translate(-50%, -50%)',
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 className="mb-4 text-lg font-semibold text-white">
-              Create Table
-            </h3>
+        
+        <CreateTableDialog
+          pendingTable={pendingTable}
+          tableNumber={newTableNumber}
+          seats={newTableSeats}
+          creating={creatingTable}
+          onTableNumberChange={setNewTableNumber}
+          onSeatsChange={setNewTableSeats}
+          onCancel={() => {
+            setPendingTable(null);
+            setNewTableNumber('');
+            setNewTableSeats('4');
+          }}
+          onCreate={handleCreateTable}
+        />
 
-            <label className="mb-2 block text-xs uppercase tracking-wider text-white/40">
-              Table Number
-            </label>
-
-            <input
-              value={newTableNumber}
-              onChange={(e) => setNewTableNumber(e.target.value)}
-              className="mb-4 w-full rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-white outline-none"
-            />
-
-            <label className="mb-2 block text-xs uppercase tracking-wider text-white/40">
-              Seats
-            </label>
-
-            <input
-              type="number"
-              min={1}
-              value={newTableSeats}
-              onChange={(e) => setNewTableSeats(e.target.value)}
-              className="mb-5 w-full rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-white outline-none"
-            />
-
-            <div className="flex justify-end gap-3">
-
-              <button
-                onClick={() => setPendingTable(null)}
-                className="rounded-xl border border-white/10 px-4 py-2 text-white/60 hover:bg-white/5"
-              >
-                Cancel
-              </button>
-
-              <button
-                onClick={handleCreateTable}
-                disabled={creatingTable}
-                className="rounded-xl bg-cyanAlias px-4 py-2 font-medium text-black transition hover:opacity-90 disabled:opacity-50"
-              >
-                {creatingTable ? 'Creating...' : 'Create'}
-              </button>
-
-            </div>
-          </div>
-        )}
         {loading && (
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="flex items-center gap-3 text-sm text-white/45">
