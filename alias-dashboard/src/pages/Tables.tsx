@@ -2,17 +2,9 @@ import {
   useEffect,
   useRef,
   useState,
+  type MouseEvent as ReactMouseEvent,
   type PointerEvent as ReactPointerEvent,
 } from 'react';
-import { 
-  Circle,
-  Grip, 
-  LoaderCircle,
-  MousePointer2,
-Plus,
-RectangleHorizontal,
-Square,
-} from 'lucide-react';
 
 import {
   createTable,
@@ -20,9 +12,19 @@ import {
   getTables,
   updateTable,
   type TableResponse,
+  type TableShape,
 } from '@/lib/api';
-import { cyan } from '@/lib/data';
-import { CreateTableDialog } from '@/components/floorplan/CreateTableDialog';
+
+import {
+  CreateTableDialog,
+  type PendingTable,
+} from '@/components/floorplan/CreateTableDialog';
+import { FloorCanvas } from '@/components/floorplan/FloorCanvas';
+import { TableNode } from '@/components/floorplan/TableNode';
+import {
+  Toolbar,
+  type EditorTool,
+} from '@/components/floorplan/Toolbar';
 
 type DragState = {
   tableId: string;
@@ -31,26 +33,43 @@ type DragState = {
   startPointerY: number;
   startTableX: number;
   startTableY: number;
+  currentX: number;
+  currentY: number;
 };
 
-type EditorTool =
-  | 'select'
-  | 'add-square'
-  | 'add-round'
-  | 'add-rectangle';
+function getTableDimensions(shape: TableShape) {
+  if (shape === 'rectangle') {
+    return {
+      width: 140,
+      height: 80,
+    };
+  }
+
+  return {
+    width: 80,
+    height: 80,
+  };
+}
 
 export function Tables() {
-  const [restaurantId, setRestaurantId] = useState<string | null>(null);
+  const [restaurantId, setRestaurantId] = useState<string | null>(
+    null,
+  );
   const [tables, setTables] = useState<TableResponse[]>([]);
   const [loading, setLoading] = useState(true);
-  const [savingTableId, setSavingTableId] = useState<string | null>(null);
+  const [savingTableId, setSavingTableId] = useState<
+    string | null
+  >(null);
+  const [selectedTableId, setSelectedTableId] = useState<
+    string | null
+  >(null);
   const [error, setError] = useState('');
-  const [activeTool, setActiveTool] = useState<EditorTool>('select');
-  const [pendingTable, setPendingTable] = useState<{
-    x: number;
-    y: number;
-    shape: 'square' | 'round' | 'rectangle';
-  } | null>(null);
+
+  const [activeTool, setActiveTool] =
+    useState<EditorTool>('select');
+
+  const [pendingTable, setPendingTable] =
+    useState<PendingTable | null>(null);
 
   const [newTableNumber, setNewTableNumber] = useState('');
   const [newTableSeats, setNewTableSeats] = useState('4');
@@ -88,28 +107,28 @@ export function Tables() {
     loadFloorPlan();
   }, []);
 
-  function getCanvasBounds(table: TableResponse) {
-    const canvas = canvasRef.current;
-
-    if (!canvas) {
-      return {
-        maxX: Number.MAX_SAFE_INTEGER,
-        maxY: Number.MAX_SAFE_INTEGER,
-      };
-    }
-
-    return {
-      maxX: Math.max(0, canvas.clientWidth - table.width),
-      maxY: Math.max(0, canvas.clientHeight - table.height),
-    };
-  }
-
   function clampPosition(
     table: TableResponse,
     nextX: number,
     nextY: number,
   ) {
-    const { maxX, maxY } = getCanvasBounds(table);
+    const canvas = canvasRef.current;
+
+    if (!canvas) {
+      return {
+        x: Math.max(0, nextX),
+        y: Math.max(0, nextY),
+      };
+    }
+
+    const maxX = Math.max(
+      0,
+      canvas.clientWidth - table.width,
+    );
+    const maxY = Math.max(
+      0,
+      canvas.clientHeight - table.height,
+    );
 
     return {
       x: Math.min(Math.max(0, nextX), maxX),
@@ -121,10 +140,17 @@ export function Tables() {
     event: ReactPointerEvent<HTMLDivElement>,
     table: TableResponse,
   ) {
-    if (savingTableId === table.id) return;
+    if (
+      activeTool !== 'select' ||
+      savingTableId === table.id
+    ) {
+      return;
+    }
 
     event.preventDefault();
     event.currentTarget.setPointerCapture(event.pointerId);
+
+    setSelectedTableId(table.id);
 
     dragRef.current = {
       tableId: table.id,
@@ -133,6 +159,8 @@ export function Tables() {
       startPointerY: event.clientY,
       startTableX: table.x,
       startTableY: table.y,
+      currentX: table.x,
+      currentY: table.y,
     };
   }
 
@@ -159,13 +187,16 @@ export function Tables() {
       drag.startTableY + deltaY,
     );
 
+    drag.currentX = Math.round(position.x);
+    drag.currentY = Math.round(position.y);
+
     setTables((current) =>
       current.map((item) =>
         item.id === table.id
           ? {
               ...item,
-              x: Math.round(position.x),
-              y: Math.round(position.y),
+              x: drag.currentX,
+              y: drag.currentY,
             }
           : item,
       ),
@@ -189,27 +220,31 @@ export function Tables() {
     dragRef.current = null;
 
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-      event.currentTarget.releasePointerCapture(event.pointerId);
+      event.currentTarget.releasePointerCapture(
+        event.pointerId,
+      );
     }
 
-    const currentTable = tables.find((item) => item.id === table.id);
-
-    if (!restaurantId || !currentTable) return;
-
     const hasMoved =
-      currentTable.x !== drag.startTableX ||
-      currentTable.y !== drag.startTableY;
+      drag.currentX !== drag.startTableX ||
+      drag.currentY !== drag.startTableY;
 
-    if (!hasMoved) return;
+    if (!restaurantId || !hasMoved) {
+      return;
+    }
 
     try {
       setSavingTableId(table.id);
       setError('');
 
-      const updated = await updateTable(restaurantId, table.id, {
-        x: currentTable.x,
-        y: currentTable.y,
-      });
+      const updated = await updateTable(
+        restaurantId,
+        table.id,
+        {
+          x: drag.currentX,
+          y: drag.currentY,
+        },
+      );
 
       setTables((current) =>
         current.map((item) =>
@@ -217,7 +252,10 @@ export function Tables() {
         ),
       );
     } catch (saveError) {
-      console.error('Failed to save table position', saveError);
+      console.error(
+        'Failed to save table position',
+        saveError,
+      );
 
       setTables((current) =>
         current.map((item) =>
@@ -237,234 +275,184 @@ export function Tables() {
     }
   }
 
-  function getTableBorderRadius(table: TableResponse) {
-    if (table.shape === 'round') {
-      return '9999px';
+  function getShapeFromTool(): TableShape {
+    if (activeTool === 'add-round') {
+      return 'round';
     }
 
-    if (table.shape === 'rectangle') {
-      return '18px';
+    if (activeTool === 'add-rectangle') {
+      return 'rectangle';
     }
 
-    return '22px';
+    return 'square';
   }
 
   function handleCanvasClick(
-    event: React.MouseEvent<HTMLDivElement>,
+    event: ReactMouseEvent<HTMLDivElement>,
   ) {
     if (activeTool === 'select') {
+      setSelectedTableId(null);
       return;
     }
 
-    if (!canvasRef.current) {
+    const canvas = canvasRef.current;
+
+    if (!canvas) {
       return;
     }
 
-    const rect = canvasRef.current.getBoundingClientRect();
+    const rect = canvas.getBoundingClientRect();
+    const shape = getShapeFromTool();
+    const dimensions = getTableDimensions(shape);
+
+    const rawX =
+      event.clientX - rect.left - dimensions.width / 2;
+    const rawY =
+      event.clientY - rect.top - dimensions.height / 2;
+
+    const x = Math.min(
+      Math.max(0, rawX),
+      Math.max(0, canvas.clientWidth - dimensions.width),
+    );
+
+    const y = Math.min(
+      Math.max(0, rawY),
+      Math.max(0, canvas.clientHeight - dimensions.height),
+    );
 
     setPendingTable({
-      x: Math.round(event.clientX - rect.left),
-      y: Math.round(event.clientY - rect.top),
-      shape:
-        activeTool === 'add-round'
-          ? 'round'
-          : activeTool === 'add-rectangle'
-            ? 'rectangle'
-            : 'square',
+      x: Math.round(x),
+      y: Math.round(y),
+      shape,
     });
 
+    setSelectedTableId(null);
     setNewTableNumber('');
     setNewTableSeats('4');
   }
-  
+
+  function closeCreateDialog() {
+    setPendingTable(null);
+    setNewTableNumber('');
+    setNewTableSeats('4');
+  }
+
   async function handleCreateTable() {
     if (!pendingTable || !restaurantId) {
       return;
     }
 
-    if (!newTableNumber.trim()) {
-      alert('Please enter a table number.');
+    const tableNumber = newTableNumber.trim();
+    const seats = Number(newTableSeats);
+
+    if (
+      !tableNumber ||
+      !Number.isInteger(seats) ||
+      seats < 1
+    ) {
       return;
     }
 
+    const dimensions = getTableDimensions(
+      pendingTable.shape,
+    );
+
     try {
       setCreatingTable(true);
+      setError('');
 
       const created = await createTable(restaurantId, {
-        table_number: newTableNumber.trim(),
-        seats: Number(newTableSeats),
+        table_number: tableNumber,
+        seats,
         x: pendingTable.x,
         y: pendingTable.y,
+        width: dimensions.width,
+        height: dimensions.height,
         shape: pendingTable.shape,
-        width: pendingTable.shape === 'rectangle' ? 140 : 80,
-        height: 80,
         rotation: 0,
       });
 
       setTables((current) => [...current, created]);
+      setSelectedTableId(created.id);
 
-      setPendingTable(null);
-      setNewTableNumber('');
-      setNewTableSeats('4');
+      closeCreateDialog();
       setActiveTool('select');
-    } catch (error) {
-      console.error(error);
-      alert('Unable to create table.');
+    } catch (createError) {
+      console.error(
+        'Failed to create table',
+        createError,
+      );
+
+      setError(
+        createError instanceof Error
+          ? createError.message
+          : 'Unable to create table.',
+      );
     } finally {
       setCreatingTable(false);
     }
   }
 
+  function handleToolChange(tool: EditorTool) {
+    setActiveTool(tool);
+    setPendingTable(null);
+
+    if (tool !== 'select') {
+      setSelectedTableId(null);
+    }
+  }
+
   return (
     <section className="rounded-3xl border border-white/10 bg-white/[.03] p-5 sm:p-8">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <p className="text-xs uppercase tracking-[.28em] text-white/30">
-            Restaurant layout
-          </p>
+      <div>
+        <p className="text-xs uppercase tracking-[.28em] text-white/30">
+          Restaurant layout
+        </p>
 
-          <h1 className="mt-3 font-display text-3xl font-light text-white sm:text-4xl">
-            Floor Plan
-          </h1>
+        <h1 className="mt-3 font-display text-3xl font-light text-white sm:text-4xl">
+          Floor Plan
+        </h1>
 
-          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/45">
-            Drag each table to recreate the layout of your restaurant.
-            Positions are saved automatically when you release a table.
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/[.035] px-4 py-2 text-xs text-white/45">
-          <Grip size={15} style={{ color: cyan }} />
-          {tables.length} tables
-        </div>
+        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/45">
+          Create and arrange the physical tables in your
+          restaurant. Every change is connected to the same
+          tables used by reservations and Alias Concierge AI.
+        </p>
       </div>
 
-      <div className="mt-8 mb-6 flex flex-wrap gap-3 rounded-2xl border border-white/10 bg-white/[.03] p-3">
-
-        <button
-          onClick={() => setActiveTool('select')}
-          className={`flex items-center gap-2 rounded-xl px-4 py-3 transition ${
-            activeTool === 'select'
-              ? 'bg-cyanAlias text-black'
-              : 'bg-white/[.04] text-white/60 hover:bg-white/[.08]'
-          }`}
-        >
-          <MousePointer2 size={18} />
-          Select
-        </button>
-
-        <button
-          onClick={() => setActiveTool('add-square')}
-          className={`flex items-center gap-2 rounded-xl px-4 py-3 transition ${
-            activeTool === 'add-square'
-              ? 'bg-cyanAlias text-black'
-              : 'bg-white/[.04] text-white/60 hover:bg-white/[.08]'
-          }`}
-        >
-          <Square size={18} />
-          Square
-        </button>
-
-        <button
-          onClick={() => setActiveTool('add-round')}
-          className={`flex items-center gap-2 rounded-xl px-4 py-3 transition ${
-            activeTool === 'add-round'
-              ? 'bg-cyanAlias text-black'
-              : 'bg-white/[.04] text-white/60 hover:bg-white/[.08]'
-          }`}
-        >
-          <Circle size={18} />
-          Round
-        </button>
-
-        <button
-          onClick={() => setActiveTool('add-rectangle')}
-          className={`flex items-center gap-2 rounded-xl px-4 py-3 transition ${
-            activeTool === 'add-rectangle'
-              ? 'bg-cyanAlias text-black'
-              : 'bg-white/[.04] text-white/60 hover:bg-white/[.08]'
-          }`}
-        >
-          <RectangleHorizontal size={18} />
-          Rectangle
-        </button>
-
-        <div className="ml-auto flex items-center gap-2 rounded-xl border border-cyanAlias/20 bg-cyanAlias/10 px-4 py-3 text-sm text-cyanAlias">
-          <Plus size={16} />
-          Tool: <strong>{activeTool}</strong>
-        </div>
-
-      </div>
+      <Toolbar
+        activeTool={activeTool}
+        tablesCount={tables.length}
+        onToolChange={handleToolChange}
+      />
 
       {error && (
-        <div className="mt-6 rounded-2xl border border-red-400/20 bg-red-400/10 px-4 py-3 text-sm text-red-200">
+        <div className="mb-6 rounded-2xl border border-red-400/20 bg-red-400/10 px-4 py-3 text-sm text-red-200">
           {error}
         </div>
       )}
 
-      <div
-        ref={canvasRef}
-        onClick={handleCanvasClick}
-        className="relative mt-8 h-[650px] w-full touch-none overflow-hidden rounded-3xl border border-white/10 bg-black/25"
-        style={{
-          backgroundImage:
-            'linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px)',
-          backgroundSize: '32px 32px',
-        }}
-      >
-        
-        <CreateTableDialog
-          pendingTable={pendingTable}
-          tableNumber={newTableNumber}
-          seats={newTableSeats}
-          creating={creatingTable}
-          onTableNumberChange={setNewTableNumber}
-          onSeatsChange={setNewTableSeats}
-          onCancel={() => {
-            setPendingTable(null);
-            setNewTableNumber('');
-            setNewTableSeats('4');
-          }}
-          onCreate={handleCreateTable}
-        />
-
-        {loading && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="flex items-center gap-3 text-sm text-white/45">
-              <LoaderCircle
-                size={18}
-                className="animate-spin"
-                style={{ color: cyan }}
-              />
-              Loading floor plan...
-            </div>
-          </div>
-        )}
-
-        {!loading && tables.length === 0 && (
-          <div className="absolute inset-0 flex items-center justify-center px-6 text-center">
-            <div>
-              <p className="font-display text-2xl font-light text-white/70">
-                No tables available
-              </p>
-
-              <p className="mt-2 text-sm text-white/35">
-                Add tables from your restaurant settings before arranging
-                the floor plan.
-              </p>
-            </div>
-          </div>
-        )}
-
-        {!loading &&
-          tables.map((table) => {
-            const isSaving = savingTableId === table.id;
-
-            return (
-              <div
+      <div className="relative">
+        <FloorCanvas
+          ref={canvasRef}
+          loading={loading}
+          tablesCount={tables.length}
+          activeToolIsSelect={activeTool === 'select'}
+          onCanvasClick={handleCanvasClick}
+        >
+          {!loading &&
+            tables.map((table) => (
+              <TableNode
                 key={table.id}
-                role="button"
-                tabIndex={0}
+                table={table}
+                saving={savingTableId === table.id}
+                selected={selectedTableId === table.id}
+                draggingEnabled={activeTool === 'select'}
+                onClick={() => {
+                  if (activeTool === 'select') {
+                    setSelectedTableId(table.id);
+                  }
+                }}
                 onPointerDown={(event) =>
                   handlePointerDown(event, table)
                 }
@@ -477,54 +465,28 @@ export function Tables() {
                 onPointerCancel={(event) =>
                   finishDrag(event, table)
                 }
-                className="absolute flex cursor-grab select-none items-center justify-center border text-center shadow-lg transition-shadow active:cursor-grabbing"
-                style={{
-                  left: table.x,
-                  top: table.y,
-                  width: table.width,
-                  height: table.height,
-                  borderRadius: getTableBorderRadius(table),
-                  transform: `rotate(${table.rotation}deg)`,
-                  borderColor: `${cyan}45`,
-                  background: `linear-gradient(145deg, ${cyan}22, rgba(255,255,255,.035))`,
-                  boxShadow: `0 12px 35px rgba(0,0,0,.35), 0 0 25px ${cyan}10`,
-                  opacity: isSaving ? 0.7 : 1,
-                  touchAction: 'none',
-                }}
-              >
-                <div
-                  className="flex flex-col items-center"
-                  style={{
-                    transform: `rotate(-${table.rotation}deg)`,
-                  }}
-                >
-                  {isSaving ? (
-                    <LoaderCircle
-                      size={16}
-                      className="animate-spin"
-                      style={{ color: cyan }}
-                    />
-                  ) : (
-                    <>
-                      <span className="font-display text-lg text-white">
-                        {table.table_number}
-                      </span>
+              />
+            ))}
+        </FloorCanvas>
 
-                      <span className="mt-1 text-[10px] uppercase tracking-[.18em] text-white/40">
-                        {table.seats} seats
-                      </span>
-                    </>
-                  )}
-                </div>
-              </div>
-            );
-          })}
+        <CreateTableDialog
+          pendingTable={pendingTable}
+          tableNumber={newTableNumber}
+          seats={newTableSeats}
+          creating={creatingTable}
+          onTableNumberChange={setNewTableNumber}
+          onSeatsChange={setNewTableSeats}
+          onCancel={closeCreateDialog}
+          onCreate={handleCreateTable}
+        />
       </div>
 
       <div className="mt-4 flex flex-wrap items-center gap-5 text-xs text-white/30">
-        <span>Drag tables anywhere inside the room</span>
+        <span>Select a shape and click to create a table</span>
         <span>•</span>
-        <span>Release to save automatically</span>
+        <span>Drag tables to reposition them</span>
+        <span>•</span>
+        <span>Positions save automatically</span>
       </div>
     </section>
   );

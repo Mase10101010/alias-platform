@@ -1,4 +1,4 @@
-type PendingTable = {
+export type PendingTable = {
   x: number;
   y: number;
   shape: 'square' | 'round' | 'rectangle';
@@ -29,20 +29,34 @@ export function CreateTableDialog({
     return null;
   }
 
+  const numericSeats = Number(seats);
+
   const canCreate =
     tableNumber.trim().length > 0 &&
-    Number.isInteger(Number(seats)) &&
-    Number(seats) >= 1;
+    Number.isInteger(numericSeats) &&
+    numericSeats >= 1 &&
+    numericSeats <= 100;
+
+  function handleKeyDown(key: string) {
+    if (key === 'Enter' && canCreate && !creating) {
+      onCreate();
+    }
+
+    if (key === 'Escape' && !creating) {
+      onCancel();
+    }
+  }
 
   return (
     <div
-      className="absolute z-50 w-72 rounded-2xl border border-white/10 bg-[#0e1322] p-5 shadow-2xl"
+      className="absolute z-50 w-72 rounded-2xl border border-white/10 bg-[#0e1322] p-5 shadow-[0_24px_80px_rgba(0,0,0,.65)]"
       style={{
         left: pendingTable.x,
         top: pendingTable.y,
         transform: 'translate(-50%, -50%)',
       }}
       onClick={(event) => event.stopPropagation()}
+      onPointerDown={(event) => event.stopPropagation()}
     >
       <div className="mb-5">
         <p className="text-[10px] uppercase tracking-[.24em] text-white/30">
@@ -54,46 +68,40 @@ export function CreateTableDialog({
         </h3>
       </div>
 
-      <label className="mb-2 block text-xs uppercase tracking-wider text-white/40">
+      <label
+        htmlFor="floor-table-number"
+        className="mb-2 block text-xs uppercase tracking-wider text-white/40"
+      >
         Table number
       </label>
 
       <input
+        id="floor-table-number"
         autoFocus
         value={tableNumber}
-        onChange={(event) => onTableNumberChange(event.target.value)}
-        onKeyDown={(event) => {
-          if (event.key === 'Enter' && canCreate && !creating) {
-            onCreate();
-          }
-
-          if (event.key === 'Escape') {
-            onCancel();
-          }
-        }}
+        onChange={(event) =>
+          onTableNumberChange(event.target.value)
+        }
+        onKeyDown={(event) => handleKeyDown(event.key)}
         placeholder="Example: 12 or Terrace 2"
         className="mb-4 w-full rounded-xl border border-white/10 bg-black/30 px-3 py-2.5 text-sm text-white outline-none transition placeholder:text-white/20 focus:border-cyanAlias/40"
       />
 
-      <label className="mb-2 block text-xs uppercase tracking-wider text-white/40">
+      <label
+        htmlFor="floor-table-seats"
+        className="mb-2 block text-xs uppercase tracking-wider text-white/40"
+      >
         Seats
       </label>
 
       <input
+        id="floor-table-seats"
         type="number"
         min={1}
         max={100}
         value={seats}
         onChange={(event) => onSeatsChange(event.target.value)}
-        onKeyDown={(event) => {
-          if (event.key === 'Enter' && canCreate && !creating) {
-            onCreate();
-          }
-
-          if (event.key === 'Escape') {
-            onCancel();
-          }
-        }}
+        onKeyDown={(event) => handleKeyDown(event.key)}
         className="mb-5 w-full rounded-xl border border-white/10 bg-black/30 px-3 py-2.5 text-sm text-white outline-none transition focus:border-cyanAlias/40"
       />
 

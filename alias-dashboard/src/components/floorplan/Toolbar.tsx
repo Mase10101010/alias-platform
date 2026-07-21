@@ -6,7 +6,7 @@ import {
   Square,
 } from 'lucide-react';
 
-type EditorTool =
+export type EditorTool =
   | 'select'
   | 'add-square'
   | 'add-round'
@@ -14,77 +14,75 @@ type EditorTool =
 
 type ToolbarProps = {
   activeTool: EditorTool;
-  setActiveTool: (tool: EditorTool) => void;
   tablesCount: number;
-  cyan: string;
+  onToolChange: (tool: EditorTool) => void;
 };
+
+const tools: {
+  id: EditorTool;
+  label: string;
+  icon: typeof MousePointer2;
+}[] = [
+  {
+    id: 'select',
+    label: 'Select',
+    icon: MousePointer2,
+  },
+  {
+    id: 'add-square',
+    label: 'Square',
+    icon: Square,
+  },
+  {
+    id: 'add-round',
+    label: 'Round',
+    icon: Circle,
+  },
+  {
+    id: 'add-rectangle',
+    label: 'Rectangle',
+    icon: RectangleHorizontal,
+  },
+];
 
 export function Toolbar({
   activeTool,
-  setActiveTool,
   tablesCount,
-  cyan,
+  onToolChange,
 }: ToolbarProps) {
   return (
-    <div className="mt-8 mb-6 flex flex-wrap gap-3 rounded-2xl border border-white/10 bg-white/[.03] p-3">
+    <div className="mb-6 mt-8 flex flex-wrap items-center gap-3 rounded-2xl border border-white/10 bg-white/[.03] p-3">
+      {tools.map(({ id, label, icon: Icon }) => {
+        const isActive = activeTool === id;
 
-      <button
-        onClick={() => setActiveTool('select')}
-        className={`flex items-center gap-2 rounded-xl px-4 py-3 transition ${
-          activeTool === 'select'
-            ? 'bg-cyanAlias text-black'
-            : 'bg-white/[.04] text-white/60 hover:bg-white/[.08]'
-        }`}
-      >
-        <MousePointer2 size={18} />
-        Select
-      </button>
+        return (
+          <button
+            key={id}
+            type="button"
+            onClick={() => onToolChange(id)}
+            className={`flex items-center gap-2 rounded-xl px-4 py-3 text-sm transition ${
+              isActive
+                ? 'bg-cyanAlias text-black'
+                : 'bg-white/[.04] text-white/60 hover:bg-white/[.08] hover:text-white'
+            }`}
+          >
+            <Icon size={18} />
+            {label}
+          </button>
+        );
+      })}
 
-      <button
-        onClick={() => setActiveTool('add-square')}
-        className={`flex items-center gap-2 rounded-xl px-4 py-3 transition ${
-          activeTool === 'add-square'
-            ? 'bg-cyanAlias text-black'
-            : 'bg-white/[.04] text-white/60 hover:bg-white/[.08]'
-        }`}
-      >
-        <Square size={18} />
-        Square
-      </button>
+      <div className="ml-auto flex flex-wrap items-center gap-3">
+        <div className="flex items-center gap-2 rounded-xl border border-cyanAlias/20 bg-cyanAlias/10 px-4 py-3 text-sm text-cyanAlias">
+          <Plus size={16} />
+          Tool:
+          <strong>{activeTool}</strong>
+        </div>
 
-      <button
-        onClick={() => setActiveTool('add-round')}
-        className={`flex items-center gap-2 rounded-xl px-4 py-3 transition ${
-          activeTool === 'add-round'
-            ? 'bg-cyanAlias text-black'
-            : 'bg-white/[.04] text-white/60 hover:bg-white/[.08]'
-        }`}
-      >
-        <Circle size={18} />
-        Round
-      </button>
-
-      <button
-        onClick={() => setActiveTool('add-rectangle')}
-        className={`flex items-center gap-2 rounded-xl px-4 py-3 transition ${
-          activeTool === 'add-rectangle'
-            ? 'bg-cyanAlias text-black'
-            : 'bg-white/[.04] text-white/60 hover:bg-white/[.08]'
-        }`}
-      >
-        <RectangleHorizontal size={18} />
-        Rectangle
-      </button>
-
-      <div className="ml-auto flex items-center gap-2 rounded-xl border border-cyanAlias/20 bg-cyanAlias/10 px-4 py-3 text-sm text-cyanAlias">
-        <Plus size={16} />
-        Tool: <strong>{activeTool}</strong>
+        <div className="rounded-xl border border-white/10 bg-white/[.035] px-4 py-3 text-xs text-white/45">
+          {tablesCount} {tablesCount === 1 ? 'table' : 'tables'}
+        </div>
       </div>
-
-      <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/[.035] px-4 py-2 text-xs text-white/45">
-        {tablesCount} tables
-      </div>
-
     </div>
   );
 }
