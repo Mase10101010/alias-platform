@@ -418,42 +418,101 @@ export function Tables() {
     }
   }
 
-  async function handleDeleteSelectedTable() {
-    if (!selectedTable || !restaurantId || deletingTable) {
+  async function handleSaveSelectedTable() {
+    if (!selectedTable || !restaurantId || savingProperties) {
       return;
     }
 
-    const confirmed = window.confirm(
-      `Delete table ${selectedTable.table_number}? This action cannot be undone.`,
-    );
+    const tableNumber = propertyTableNumber.trim();
+    const seats = Number(propertySeats);
+    const rotation = Number(propertyRotation);
 
-    if (!confirmed) {
+    if (
+      !tableNumber ||
+      !Number.isInteger(seats) ||
+      seats < 1 ||
+      seats > 100 ||
+      !Number.isInteger(rotation) ||
+      rotation < 0 ||
+      rotation >= 360
+    ) {
+      setError('Please enter valid table details.');
       return;
     }
+
+    const dimensions = getTableDimensions(propertyShape);
 
     try {
-      setDeletingTable(true);
+      setSavingProperties(true);
       setError('');
 
-      await deleteTable(restaurantId, selectedTable.id);
+      const updated = await updateTable(
+        restaurantId,
+        selectedTable.id,
+        {
+          table_number: tableNumber,
+          seats,
+          shape: propertyShape,
+          rotation,
+          width: dimensions.width,
+          height: dimensions.height,
+        },
+      );
 
       setTables((current) =>
-        current.filter((table) => table.id !== selectedTable.id),
+        current.map((table) =>
+          table.id === updated.id ? updated : table,
+        ),
       );
-
-      setSelectedTableId(null);
-    } catch (deleteError) {
-      console.error('Failed to delete table', deleteError);
+    } catch (saveError) {
+      console.error('Failed to update table', saveError);
 
       setError(
-        deleteError instanceof Error
-          ? deleteError.message
-          : 'Unable to delete table.',
+        saveError instanceof Error
+          ? saveError.message
+          : 'Unable to update table.',
       );
     } finally {
-      setDeletingTable(false);
+      setSavingProperties(false);
     }
   }
+
+    async function handleDeleteSelectedTable() {
+      if (!selectedTable || !restaurantId || deletingTable) {
+        return;
+      }
+
+      const confirmed = window.confirm(
+        `Delete table ${selectedTable.table_number}? This action cannot be undone.`,
+      );
+
+      if (!confirmed) {
+        return;
+      }
+
+      try {
+        setDeletingTable(true);
+        setError('');
+
+        await deleteTable(restaurantId, selectedTable.id);
+
+        setTables((current) =>
+          current.filter((table) => table.id !== selectedTable.id),
+        );
+
+        setSelectedTableId(null);
+      } catch (deleteError) {
+        console.error('Failed to delete table', deleteError);
+
+        setError(
+          deleteError instanceof Error
+            ? deleteError.message
+            : 'Unable to delete table.',
+        );
+      } finally {
+        setDeletingTable(false);
+      }
+    }
 
   function handleToolChange(tool: EditorTool) {
     setActiveTool(tool);
@@ -552,7 +611,7 @@ export function Tables() {
           onShapeChange={setPropertyShape}
           onRotationChange={setPropertyRotation}
           onClose={() => setSelectedTableId(null)}
-          onSave={() => {}}
+          onSave={handleSaveSelectedTable}
           onDelete={handleDeleteSelectedTable}
         />
 
