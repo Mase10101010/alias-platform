@@ -15,6 +15,7 @@ Square,
 } from 'lucide-react';
 
 import {
+  createTable,
   getRestaurants,
   getTables,
   updateTable,
@@ -44,6 +45,15 @@ export function Tables() {
   const [savingTableId, setSavingTableId] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [activeTool, setActiveTool] = useState<EditorTool>('select');
+  const [pendingTable, setPendingTable] = useState<{
+    x: number;
+    y: number;
+    shape: 'square' | 'round' | 'rectangle';
+  } | null>(null);
+
+  const [newTableNumber, setNewTableNumber] = useState('');
+  const [newTableSeats, setNewTableSeats] = useState('4');
+  const [creatingTable, setCreatingTable] = useState(false);
 
   const canvasRef = useRef<HTMLDivElement | null>(null);
   const dragRef = useRef<DragState | null>(null);
@@ -238,6 +248,72 @@ export function Tables() {
     return '22px';
   }
 
+  function handleCanvasClick(
+    event: React.MouseEvent<HTMLDivElement>,
+  ) {
+    if (activeTool === 'select') {
+      return;
+    }
+
+    if (!canvasRef.current) {
+      return;
+    }
+
+    const rect = canvasRef.current.getBoundingClientRect();
+
+    setPendingTable({
+      x: Math.round(event.clientX - rect.left),
+      y: Math.round(event.clientY - rect.top),
+      shape:
+        activeTool === 'add-round'
+          ? 'round'
+          : activeTool === 'add-rectangle'
+            ? 'rectangle'
+            : 'square',
+    });
+
+    setNewTableNumber('');
+    setNewTableSeats('4');
+  }
+  
+  async function handleCreateTable() {
+    if (!pendingTable || !restaurantId) {
+      return;
+    }
+
+    if (!newTableNumber.trim()) {
+      alert('Please enter a table number.');
+      return;
+    }
+
+    try {
+      setCreatingTable(true);
+
+      const created = await createTable(restaurantId, {
+        table_number: newTableNumber.trim(),
+        seats: Number(newTableSeats),
+        x: pendingTable.x,
+        y: pendingTable.y,
+        shape: pendingTable.shape,
+        width: pendingTable.shape === 'rectangle' ? 140 : 80,
+        height: 80,
+        rotation: 0,
+      });
+
+      setTables((current) => [...current, created]);
+
+      setPendingTable(null);
+      setNewTableNumber('');
+      setNewTableSeats('4');
+      setActiveTool('select');
+    } catch (error) {
+      console.error(error);
+      alert('Unable to create table.');
+    } finally {
+      setCreatingTable(false);
+    }
+  }
+
   return (
     <section className="rounded-3xl border border-white/10 bg-white/[.03] p-5 sm:p-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -327,6 +403,7 @@ export function Tables() {
 
       <div
         ref={canvasRef}
+        onClick={handleCanvasClick}
         className="relative mt-8 h-[650px] w-full touch-none overflow-hidden rounded-3xl border border-white/10 bg-black/25"
         style={{
           backgroundImage:
@@ -334,6 +411,62 @@ export function Tables() {
           backgroundSize: '32px 32px',
         }}
       >
+        {pendingTable && (
+          <div
+            className="absolute z-50 w-72 rounded-2xl border border-white/10 bg-[#0E1322] p-5 shadow-2xl"
+            style={{
+              left: pendingTable.x,
+              top: pendingTable.y,
+              transform: 'translate(-50%, -50%)',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="mb-4 text-lg font-semibold text-white">
+              Create Table
+            </h3>
+
+            <label className="mb-2 block text-xs uppercase tracking-wider text-white/40">
+              Table Number
+            </label>
+
+            <input
+              value={newTableNumber}
+              onChange={(e) => setNewTableNumber(e.target.value)}
+              className="mb-4 w-full rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-white outline-none"
+            />
+
+            <label className="mb-2 block text-xs uppercase tracking-wider text-white/40">
+              Seats
+            </label>
+
+            <input
+              type="number"
+              min={1}
+              value={newTableSeats}
+              onChange={(e) => setNewTableSeats(e.target.value)}
+              className="mb-5 w-full rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-white outline-none"
+            />
+
+            <div className="flex justify-end gap-3">
+
+              <button
+                onClick={() => setPendingTable(null)}
+                className="rounded-xl border border-white/10 px-4 py-2 text-white/60 hover:bg-white/5"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={handleCreateTable}
+                disabled={creatingTable}
+                className="rounded-xl bg-cyanAlias px-4 py-2 font-medium text-black transition hover:opacity-90 disabled:opacity-50"
+              >
+                {creatingTable ? 'Creating...' : 'Create'}
+              </button>
+
+            </div>
+          </div>
+        )}
         {loading && (
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="flex items-center gap-3 text-sm text-white/45">
