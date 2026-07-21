@@ -19,6 +19,7 @@ import {
   CreateTableDialog,
   type PendingTable,
 } from '@/components/floorplan/CreateTableDialog';
+import { PropertyPanel } from '@/components/floorplan/PropertyPanel';
 import { FloorCanvas } from '@/components/floorplan/FloorCanvas';
 import { TableNode } from '@/components/floorplan/TableNode';
 import {
@@ -63,6 +64,12 @@ export function Tables() {
   const [selectedTableId, setSelectedTableId] = useState<
     string | null
   >(null);
+  const [propertyTableNumber, setPropertyTableNumber] = useState('');
+  const [propertySeats, setPropertySeats] = useState('4');
+  const [propertyShape, setPropertyShape] = useState<TableShape>('square');
+  const [propertyRotation, setPropertyRotation] = useState('0');
+  const [savingProperties, setSavingProperties] = useState(false);
+  const [deletingTable, setDeletingTable] = useState(false);
   const [error, setError] = useState('');
 
   const [activeTool, setActiveTool] =
@@ -77,6 +84,8 @@ export function Tables() {
 
   const canvasRef = useRef<HTMLDivElement | null>(null);
   const dragRef = useRef<DragState | null>(null);
+  const selectedTable = 
+    tables.find((table) => table.id === selectedTableId) ?? null;
 
   useEffect(() => {
     async function loadFloorPlan() {
@@ -106,6 +115,21 @@ export function Tables() {
 
     loadFloorPlan();
   }, []);
+
+  useEffect(() => {
+    if (!selectedTable) {
+      setPropertyTableNumber('');
+      setPropertySeats('4');
+      setPropertyShape('square');
+      setPropertyRotation('0');
+      return;
+    }
+
+    setPropertyTableNumber(selectedTable.table_number);
+    setPropertySeats(String(selectedTable.seats));
+    setPropertyShape(selectedTable.shape);
+    setPropertyRotation(String(selectedTable.rotation));
+  }, [selectedTable]);
 
   function clampPosition(
     table: TableResponse,
@@ -432,53 +456,68 @@ export function Tables() {
         </div>
       )}
 
-      <div className="relative">
-        <FloorCanvas
-          ref={canvasRef}
-          loading={loading}
-          tablesCount={tables.length}
-          activeToolIsSelect={activeTool === 'select'}
-          onCanvasClick={handleCanvasClick}
-        >
-          {!loading &&
-            tables.map((table) => (
-              <TableNode
-                key={table.id}
-                table={table}
-                saving={savingTableId === table.id}
-                selected={selectedTableId === table.id}
-                draggingEnabled={activeTool === 'select'}
-                onClick={() => {
-                  if (activeTool === 'select') {
-                    setSelectedTableId(table.id);
-                  }
-                }}
-                onPointerDown={(event) =>
-                  handlePointerDown(event, table)
-                }
-                onPointerMove={(event) =>
-                  handlePointerMove(event, table)
-                }
-                onPointerUp={(event) =>
-                  finishDrag(event, table)
-                }
-                onPointerCancel={(event) =>
-                  finishDrag(event, table)
-                }
-              />
-            ))}
-        </FloorCanvas>
+      <div className="mt-8 flex gap-6 items-start">
 
-        <CreateTableDialog
-          pendingTable={pendingTable}
-          tableNumber={newTableNumber}
-          seats={newTableSeats}
-          creating={creatingTable}
-          onTableNumberChange={setNewTableNumber}
-          onSeatsChange={setNewTableSeats}
-          onCancel={closeCreateDialog}
-          onCreate={handleCreateTable}
+        <div className="relative flex-1">
+
+          <FloorCanvas
+            ref={canvasRef}
+            loading={loading}
+            tablesCount={tables.length}
+            activeToolIsSelect={activeTool === 'select'}
+            onCanvasClick={handleCanvasClick}
+          >
+            {!loading &&
+              tables.map((table) => (
+                <TableNode
+                  key={table.id}
+                  table={table}
+                  saving={savingTableId === table.id}
+                  selected={selectedTableId === table.id}
+                  draggingEnabled={activeTool === 'select'}
+                  onClick={() => {
+                    if (activeTool === 'select') {
+                      setSelectedTableId(table.id);
+                    }
+                  }}
+                  onPointerDown={(e) => handlePointerDown(e, table)}
+                  onPointerMove={(e) => handlePointerMove(e, table)}
+                  onPointerUp={(e) => finishDrag(e, table)}
+                  onPointerCancel={(e) => finishDrag(e, table)}
+                />
+              ))}
+          </FloorCanvas>
+
+          <CreateTableDialog
+            pendingTable={pendingTable}
+            tableNumber={newTableNumber}
+            seats={newTableSeats}
+            creating={creatingTable}
+            onTableNumberChange={setNewTableNumber}
+            onSeatsChange={setNewTableSeats}
+            onCancel={closeCreateDialog}
+            onCreate={handleCreateTable}
+          />
+
+        </div>
+
+        <PropertyPanel
+          table={selectedTable}
+          tableNumber={propertyTableNumber}
+          seats={propertySeats}
+          shape={propertyShape}
+          rotation={propertyRotation}
+          saving={savingProperties}
+          deleting={deletingTable}
+          onTableNumberChange={setPropertyTableNumber}
+          onSeatsChange={setPropertySeats}
+          onShapeChange={setPropertyShape}
+          onRotationChange={setPropertyRotation}
+          onClose={() => setSelectedTableId(null)}
+          onSave={() => {}}
+          onDelete={() => {}}
         />
+
       </div>
 
       <div className="mt-4 flex flex-wrap items-center gap-5 text-xs text-white/30">
