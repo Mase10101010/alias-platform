@@ -379,15 +379,29 @@ export async function sendVerificationEmail(
   return response.json();
 }
 
+export type TableShape = 'square' | 'round' | 'rectangle';
+
 export type TableCreate = {
   table_number: string;
   seats: number;
+  x?: number;
+  y?: number;
+  width?: number;
+  height?: number;
+  shape?: TableShape;
+  rotation?: number;
 };
 
 export type TableUpdate = {
   table_number?: string;
   seats?: number;
   is_active?: boolean;
+  x?: number;
+  y?: number;
+  width?: number;
+  height?: number;
+  shape?: TableShape;
+  rotation?: number;
 };
 
 export type TableResponse = {
@@ -396,6 +410,12 @@ export type TableResponse = {
   table_code: string;
   table_number: string;
   seats: number;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  shape: TableShape;
+  rotation: number;
   is_active: boolean;
   created_at: string;
   updated_at: string;
