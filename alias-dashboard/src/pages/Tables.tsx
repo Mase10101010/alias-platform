@@ -234,6 +234,138 @@ export function Tables() {
     };
   }
 
+  function handleResizePointerMove(
+    event: ReactPointerEvent<HTMLButtonElement>,
+    table: TableResponse,
+  ) {
+    const resize = resizeRef.current;
+
+    if (
+      !resize ||
+      resize.tableId !== table.id ||
+      resize.pointerId !== event.pointerId
+    ) {
+      return;
+    }
+
+    const deltaX = event.clientX - resize.startPointerX;
+    const deltaY = event.clientY - resize.startPointerY;
+
+    const minSize = 60;
+
+    let nextWidth = Math.max(
+      minSize,
+      resize.startWidth + deltaX,
+    );
+
+    let nextHeight = Math.max(
+      minSize,
+      resize.startHeight + deltaY,
+    );
+
+    if (table.shape === 'round') {
+      const size = Math.max(nextWidth, nextHeight);
+      nextWidth = size;
+      nextHeight = size;
+    }
+
+    const canvas = canvasRef.current;
+
+    if (canvas) {
+      nextWidth = Math.min(
+        nextWidth,
+        canvas.clientWidth - table.x,
+      );
+
+      nextHeight = Math.min(
+        nextHeight,
+        canvas.clientHeight - table.y,
+      );
+    }
+
+    resize.currentWidth = Math.round(nextWidth);
+    resize.currentHeight = Math.round(nextHeight);
+
+    setTables((current) =>
+      current.map((item) =>
+        item.id === table.id
+          ? {
+              ...item,
+              width: resize.currentWidth,
+              height: resize.currentHeight,
+            }
+          : item,
+      ),
+    );
+  }
+
+  async function finishResize(
+    event: ReactPointerEvent<HTMLButtonElement>,
+    table: TableResponse,
+  ) {
+    const resize = resizeRef.current;
+
+    if (
+      !resize ||
+      resize.tableId !== table.id ||
+      resize.pointerId !== event.pointerId
+    ) {
+      return;
+    }
+
+    resizeRef.current = null;
+
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+
+    const hasChanged =
+      resize.currentWidth !== resize.startWidth ||
+      resize.currentHeight !== resize.startHeight;
+
+    if (!restaurantId || !hasChanged) {
+      return;
+    }
+
+    try {
+      setSavingTableId(table.id);
+      setError('');
+
+      const updated = await updateTable(
+        restaurantId,
+        table.id,
+        {
+          width: resize.currentWidth,
+          height: resize.currentHeight,
+        },
+      );
+
+      setTables((current) =>
+        current.map((item) =>
+          item.id === updated.id ? updated : item,
+        ),
+      );
+    } catch (resizeError) {
+      console.error('Failed to resize table', resizeError);
+
+      setTables((current) =>
+        current.map((item) =>
+          item.id === table.id
+            ? {
+                ...item,
+                width: resize.startWidth,
+                height: resize.startHeight,
+              }
+            : item,
+        ),
+      );
+
+      setError('Unable to save the new table size.');
+    } finally {
+      setSavingTableId(null);
+    }
+  }
+
   function handlePointerMove(
     event: ReactPointerEvent<HTMLDivElement>,
     table: TableResponse,
@@ -626,7 +758,16 @@ export function Tables() {
                   onPointerMove={(e) => handlePointerMove(e, table)}
                   onPointerUp={(e) => finishDrag(e, table)}
                   onPointerCancel={(e) => finishDrag(e, table)}
-                  onResizePointerDown={(e) => handleResizePointerDown(e,table)}
+                  onResizePointerDown={(event) => handleResizePointerDown(event, table)}
+                  onResizePointerMove={(event) =>
+                    handleResizePointerMove(event, table)
+                  }
+                  onResizePointerUp={(event) =>
+                    finishResize(event, table)
+                  }
+                  onResizePointerCancel={(event) =>
+                    finishResize(event, table)
+                  }
                 />
               ))}
           </FloorCanvas>
