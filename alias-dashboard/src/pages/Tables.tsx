@@ -16,6 +16,8 @@ import {
   type TableShape,
 } from '@/lib/api';
 
+import { useSelection } from '@/hooks/useSelection';
+
 import {
   CreateTableDialog,
   type PendingTable,
@@ -73,9 +75,7 @@ export function Tables() {
   const [savingTableId, setSavingTableId] = useState<
     string | null
   >(null);
-  const [selectedTableId, setSelectedTableId] = useState<
-    string | null
-  >(null);
+  
   const [propertyTableNumber, setPropertyTableNumber] = useState('');
   const [propertySeats, setPropertySeats] = useState('4');
   const [propertyShape, setPropertyShape] = useState<TableShape>('square');
@@ -83,6 +83,11 @@ export function Tables() {
   const [savingProperties, setSavingProperties] = useState(false);
   const [deletingTable, setDeletingTable] = useState(false);
   const [error, setError] = useState('');
+  const {
+    selectedTable,
+    selectedTableId,
+    setSelectedTableId,
+  } = useSelection(tables);
 
   const [activeTool, setActiveTool] =
     useState<EditorTool>('select');
@@ -97,8 +102,7 @@ export function Tables() {
   const canvasRef = useRef<HTMLDivElement | null>(null);
   const dragRef = useRef<DragState | null>(null);
   const resizeRef = useRef<ResizeState | null>(null);
-  const selectedTable = 
-    tables.find((table) => table.id === selectedTableId) ?? null;
+  
 
   useEffect(() => {
     async function loadFloorPlan() {
