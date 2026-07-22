@@ -115,6 +115,7 @@ export function Tables() {
   const [propertyRotation, setPropertyRotation] = useState('0');
   const [savingProperties, setSavingProperties] = useState(false);
   const [deletingTable, setDeletingTable] = useState(false);
+  const [historySaving, setHistorySaving] = useState(false);
   const [error, setError] = useState('');
   const {
     selectedTable,
@@ -215,6 +216,33 @@ export function Tables() {
         return;
       }
 
+      const modifierPressed =
+        event.ctrlKey || event.metaKey;
+
+      if (
+        modifierPressed &&
+        event.key.toLowerCase() === 'z'
+      ) {
+        event.preventDefault();
+
+        if (event.shiftKey) {
+          void handleRedo();
+        } else {
+          void handleUndo();
+        }
+
+        return;
+      }
+
+      if (
+        modifierPressed &&
+        event.key.toLowerCase() === 'y'
+      ) {
+        event.preventDefault();
+        void handleRedo();
+        return;
+      }
+
       if (
         (event.ctrlKey || event.metaKey) &&
         event.key.toLowerCase() === 'd'
@@ -249,6 +277,11 @@ export function Tables() {
     selectedTables,
     restaurantId,
     deletingTable,
+    canUndo,
+    canRedo,
+    undoEntry,
+    redoEntry,
+    historySaving,
   ]);
 
   function clampPosition(
@@ -1169,7 +1202,107 @@ export function Tables() {
         setError('Unable to duplicate table.');
       }
     }
+  
+  async function applyHistoryChange(
+    change: FloorHistoryChange,
+  ) {
+    if (!restaurantId) {
+      throw new Error('Restaurant not found');
+    }
 
+    if (change.type === 'move') {
+      return updateTable(restaurantId, change.tableId, {
+        x: change.x,
+        y: change.y,
+      });
+    }
+
+    if (change.type === 'resize') {
+      return updateTable(restaurantId, change.tableId, {
+        width: change.width,
+        height: change.height,
+      });
+    }
+
+    return updateTable(restaurantId, change.tableId, {
+      rotation: change.rotation,
+    });
+  }
+
+  async function handleUndo() {
+    if (
+      !undoEntry ||
+      !canUndo ||
+      historySaving
+    ) {
+      return;
+    }
+
+    try {
+      setHistorySaving(true);
+      setError('');
+
+      const updated = await applyHistoryChange(
+        undoEntry.before,
+      );
+
+      setTables((current) =>
+        current.map((table) =>
+          table.id === updated.id ? updated : table,
+        ),
+      );
+
+      commitUndo();
+    } catch (undoError) {
+      console.error('Failed to undo floor-plan change', undoError);
+
+      setError(
+        undoError instanceof Error
+          ? undoError.message
+          : 'Unable to undo the last change.',
+      );
+    } finally {
+      setHistorySaving(false);
+    }
+  }
+
+  async function handleRedo() {
+    if (
+      !redoEntry ||
+      !canRedo ||
+      historySaving
+    ) {
+      return;
+    }
+
+    try {
+      setHistorySaving(true);
+      setError('');
+
+      const updated = await applyHistoryChange(
+        redoEntry.after,
+      );
+
+      setTables((current) =>
+        current.map((table) =>
+          table.id === updated.id ? updated : table,
+        ),
+      );
+
+      commitRedo();
+    } catch (redoError) {
+      console.error('Failed to redo floor-plan change', redoError);
+
+      setError(
+        redoError instanceof Error
+          ? redoError.message
+          : 'Unable to redo the last change.',
+      );
+    } finally {
+      setHistorySaving(false);
+    }
+  }
+    
   function handleToolChange(tool: EditorTool) {
     setActiveTool(tool);
     setPendingTable(null);
