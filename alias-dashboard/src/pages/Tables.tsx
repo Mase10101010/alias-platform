@@ -182,6 +182,15 @@ export function Tables() {
       }
 
       if (
+        (event.ctrlKey || event.metaKey) &&
+        event.key.toLowerCase() === 'd'
+      ) {
+        event.preventDefault();
+        void handleDuplicateSelectedTables();
+        return;
+      }
+
+      if (
         event.key !== 'Delete' &&
         event.key !== 'Backspace'
       ) {
@@ -1038,6 +1047,58 @@ export function Tables() {
         );
       } finally {
         setDeletingTable(false);
+      }
+    }
+
+    function getNextTableNumber() {
+      const numbers = tables
+        .map((table) => Number(table.table_number))
+        .filter((value) => Number.isFinite(value));
+
+      if (numbers.length === 0) {
+        return '1';
+      }
+
+      return String(Math.max(...numbers) + 1);
+    }
+
+    async function handleDuplicateSelectedTables() {
+      if (
+        selectedTables.length === 0 ||
+        !restaurantId
+      ) {
+        return;
+      }
+
+      try {
+        setError('');
+
+        const createdTables: TableResponse[] = [];
+
+        for (const table of selectedTables) {
+          const created = await createTable(restaurantId, {
+            table_number: getNextTableNumber(),
+            seats: table.seats,
+            x: table.x + 40,
+            y: table.y + 40,
+            width: table.width,
+            height: table.height,
+            shape: table.shape,
+            rotation: table.rotation,
+          });
+
+          createdTables.push(created);
+        }
+
+        setTables((current) => [
+          ...current,
+          ...createdTables,
+        ]);
+
+      } catch (error) {
+        console.error(error);
+
+        setError('Unable to duplicate table.');
       }
     }
 
