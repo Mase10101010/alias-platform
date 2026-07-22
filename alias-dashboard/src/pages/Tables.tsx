@@ -185,6 +185,10 @@ export function Tables() {
     };
   }
 
+  function snap(value: number, grid = 20) {
+    return Math.round(value / grid) * grid;
+  }
+
   function handlePointerDown(
     event: ReactPointerEvent<HTMLDivElement>,
     table: TableResponse,
@@ -437,8 +441,8 @@ export function Tables() {
       );
     }
 
-    resize.currentWidth = Math.round(nextWidth);
-    resize.currentHeight = Math.round(nextHeight);
+    resize.currentWidth = snap(nextWidth);
+    resize.currentHeight = snap(nextHeight);
 
     setTables((current) =>
       current.map((item) =>
@@ -543,8 +547,8 @@ export function Tables() {
       drag.startTableY + deltaY,
     );
 
-    drag.currentX = Math.round(position.x);
-    drag.currentY = Math.round(position.y);
+    drag.currentX = snap(position.x);
+    drag.currentY = snap(position.y);
 
     setTables((current) =>
       current.map((item) =>
@@ -677,8 +681,8 @@ export function Tables() {
     );
 
     setPendingTable({
-      x: Math.round(x),
-      y: Math.round(y),
+      x: snap(x),
+      y: snap(y),
       shape,
     });
 
