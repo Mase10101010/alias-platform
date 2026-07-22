@@ -6,6 +6,8 @@ import {
   type PointerEvent as ReactPointerEvent,
 } from 'react';
 
+import { useFloorKeyboard } from '@/hooks/useFloorKeyboard';
+
 import { useHistory } from '@/hooks/useHistory';
 
 import {
@@ -202,88 +204,7 @@ export function Tables() {
     setPropertyRotation(String(selectedTable.rotation));
   }, [selectedTable]);
 
-  useEffect(() => {
-    function handleKeyDown(event: KeyboardEvent) {
-      const target = event.target as HTMLElement | null;
-
-      const isEditing =
-        target?.tagName === 'INPUT' ||
-        target?.tagName === 'TEXTAREA' ||
-        target?.tagName === 'SELECT' ||
-        target?.isContentEditable;
-
-      if (isEditing) {
-        return;
-      }
-
-      const modifierPressed =
-        event.ctrlKey || event.metaKey;
-
-      if (
-        modifierPressed &&
-        event.key.toLowerCase() === 'z'
-      ) {
-        event.preventDefault();
-
-        if (event.shiftKey) {
-          void handleRedo();
-        } else {
-          void handleUndo();
-        }
-
-        return;
-      }
-
-      if (
-        modifierPressed &&
-        event.key.toLowerCase() === 'y'
-      ) {
-        event.preventDefault();
-        void handleRedo();
-        return;
-      }
-
-      if (
-        (event.ctrlKey || event.metaKey) &&
-        event.key.toLowerCase() === 'd'
-      ) {
-        event.preventDefault();
-        void handleDuplicateSelectedTables();
-        return;
-      }
-
-      if (
-        event.key !== 'Delete' &&
-        event.key !== 'Backspace'
-      ) {
-        return;
-      }
-
-      if (selectedTableIds.length === 0) {
-        return;
-      }
-
-      event.preventDefault();
-      void handleDeleteSelectedTables();
-    }
-
-    window.addEventListener('keydown', handleKeyDown);
-
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [
-    selectedTableIds,
-    selectedTables,
-    restaurantId,
-    deletingTable,
-    canUndo,
-    canRedo,
-    undoEntry,
-    redoEntry,
-    historySaving,
-  ]);
-
+  
   function clampPosition(
     table: TableResponse,
     nextX: number,
@@ -1325,6 +1246,21 @@ export function Tables() {
       setSelectedTableId(null);
     }
   }
+
+  useFloorKeyboard({
+    selectedCount: selectedTableIds.length,
+    canUndo,
+    canRedo,
+    disabled:
+      deletingTable ||
+      historySaving ||
+      creatingTable ||
+      savingProperties,
+    onUndo: handleUndo,
+    onRedo: handleRedo,
+    onDuplicate: handleDuplicateSelectedTables,
+    onDelete: handleDeleteSelectedTables,
+  });
 
   return (
     <section className="rounded-3xl border border-white/10 bg-white/[.03] p-5 sm:p-8">
