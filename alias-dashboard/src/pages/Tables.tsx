@@ -9,6 +9,7 @@ import {
 import { useFloorKeyboard } from '@/hooks/useFloorKeyboard';
 
 import { useHistory } from '@/hooks/useHistory';
+import { useFloorDrag } from '@/hooks/useFloorDrag';
 
 import {
   floorRectsOverlap,
@@ -132,6 +133,8 @@ export function Tables() {
   const [activeTool, setActiveTool] =
     useState<EditorTool>('select');
 
+  const { dragRef } = useFloorDrag();
+
   const [pendingTable, setPendingTable] =
     useState<PendingTable | null>(null);
 
@@ -147,7 +150,7 @@ export function Tables() {
   });
 
   const canvasRef = useRef<HTMLDivElement | null>(null);
-  const dragRef = useRef<DragState | null>(null);
+  
   const resizeRef = useRef<ResizeState | null>(null);
   const rotateRef = useRef<RotateState | null>(null);
   const {
