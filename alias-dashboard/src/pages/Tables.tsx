@@ -196,6 +196,29 @@ export function Tables() {
     return Math.round(value / grid) * grid;
   }
 
+  function tablesOverlap(
+    first: {
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+    },
+    second: {
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+    },
+    gap = 8,
+  ) {
+    return !(
+      first.x + first.width + gap <= second.x ||
+      first.x >= second.x + second.width + gap ||
+      first.y + first.height + gap <= second.y ||
+      first.y >= second.y + second.height + gap
+    );
+  }
+
   function handlePointerDown(
     event: ReactPointerEvent<HTMLDivElement>,
     table: TableResponse,
@@ -561,6 +584,26 @@ export function Tables() {
       vertical: drag.currentX,
       horizontal: drag.currentY,
     });
+
+    const collides = tables.some((otherTable) => {
+      if (otherTable.id === table.id) {
+        return false;
+      }
+
+      return tablesOverlap(
+        {
+          x: drag.currentX,
+          y: drag.currentY,
+          width: table.width,
+          height: table.height,
+        },
+        otherTable,
+      );
+    });
+
+    if (collides) {
+      return;
+    }
 
     setTables((current) =>
       current.map((item) =>
