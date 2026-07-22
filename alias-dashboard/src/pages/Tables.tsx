@@ -1032,17 +1032,7 @@ export function Tables() {
       }
     }
 
-    function getNextTableNumber() {
-      const numbers = tables
-        .map((table) => Number(table.table_number))
-        .filter((value) => Number.isFinite(value));
-
-      if (numbers.length === 0) {
-        return '1';
-      }
-
-      return String(Math.max(...numbers) + 1);
-    }
+    
 
     function getNextAvailableTableNumber(
       sourceNumber: string,
@@ -1107,7 +1097,7 @@ export function Tables() {
             usedNumbers,
           );
 
-          usedNumbers.add(newTableNumber);
+          usedNumbers.add(nextTableNumber);
 
           const created = await createTable(restaurantId, {
             table_number: nextTableNumber,
