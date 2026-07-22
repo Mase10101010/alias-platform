@@ -93,6 +93,7 @@ export function Tables() {
   const {
     selectedTable,
     selectedTableId,
+    selectedTables,
     selectedTableIds,
     setSelectedTableId,
     toggleSelection,
@@ -165,6 +166,47 @@ export function Tables() {
     setPropertyShape(selectedTable.shape);
     setPropertyRotation(String(selectedTable.rotation));
   }, [selectedTable]);
+
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      const target = event.target as HTMLElement | null;
+
+      const isEditing =
+        target?.tagName === 'INPUT' ||
+        target?.tagName === 'TEXTAREA' ||
+        target?.tagName === 'SELECT' ||
+        target?.isContentEditable;
+
+      if (isEditing) {
+        return;
+      }
+
+      if (
+        event.key !== 'Delete' &&
+        event.key !== 'Backspace'
+      ) {
+        return;
+      }
+
+      if (selectedTableIds.length === 0) {
+        return;
+      }
+
+      event.preventDefault();
+      void handleDeleteSelectedTables();
+    }
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [
+    selectedTableIds,
+    selectedTables,
+    restaurantId,
+    deletingTable,
+  ]);
 
   function clampPosition(
     table: TableResponse,
@@ -936,6 +978,63 @@ export function Tables() {
           deleteError instanceof Error
             ? deleteError.message
             : 'Unable to delete table.',
+        );
+      } finally {
+        setDeletingTable(false);
+      }
+    }
+
+    async function handleDeleteSelectedTables() {
+      if (
+        selectedTables.length === 0 ||
+        !restaurantId ||
+        deletingTable
+      ) {
+        return;
+      }
+
+      const label =
+        selectedTables.length === 1
+          ? `table ${selectedTables[0].table_number}`
+          : `${selectedTables.length} selected tables`;
+
+      const confirmed = window.confirm(
+        `Delete ${label}? This action cannot be undone.`,
+      );
+
+      if (!confirmed) {
+        return;
+      }
+
+      try {
+        setDeletingTable(true);
+        setError('');
+
+        await Promise.all(
+          selectedTables.map((table) =>
+            deleteTable(restaurantId, table.id),
+          ),
+        );
+
+        const deletedIds = new Set(
+          selectedTables.map((table) => table.id),
+        );
+
+        setTables((current) =>
+          current.filter((table) => !deletedIds.has(table.id)),
+        );
+
+        clearSelection();
+      } catch (deleteError) {
+        console.error(
+          'Failed to delete selected tables',
+          deleteError,
+        );
+
+        setError(
+          deleteError instanceof Error
+            ? deleteError.message
+            : 'Unable to delete the selected tables.',
         );
       } finally {
         setDeletingTable(false);
