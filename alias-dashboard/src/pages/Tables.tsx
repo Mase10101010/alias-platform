@@ -6,6 +6,8 @@ import {
   type PointerEvent as ReactPointerEvent,
 } from 'react';
 
+import { useHistory } from '@/hooks/useHistory';
+
 import {
   floorRectsOverlap,
   snapToGrid,
@@ -63,6 +65,25 @@ type RotateState = {
   startRotation: number;
   currentRotation: number;
 };
+
+type FloorHistoryChange =
+  | {
+      type: 'move';
+      tableId: string;
+      x: number;
+      y: number;
+    }
+  | {
+      type: 'resize';
+      tableId: string;
+      width: number;
+      height: number;
+    }
+  | {
+      type: 'rotate';
+      tableId: string;
+      rotation: number;
+    };
 
 function getTableDimensions(shape: TableShape) {
   if (shape === 'rectangle') {
@@ -126,7 +147,15 @@ export function Tables() {
   const dragRef = useRef<DragState | null>(null);
   const resizeRef = useRef<ResizeState | null>(null);
   const rotateRef = useRef<RotateState | null>(null);
-  
+  const {
+    canUndo,
+    canRedo,
+    undoEntry,
+    redoEntry,
+    record,
+    commitUndo,
+    commitRedo,
+  } = useHistory<FloorHistoryChange>();
 
   useEffect(() => {
     async function loadFloorPlan() {
@@ -737,6 +766,22 @@ export function Tables() {
           item.id === updated.id ? updated : item,
         ),
       );
+
+      record({
+        label: `Move table ${table.table_number}`,
+        before: {
+          type: 'move',
+          tableId: table.id,
+          x: drag.startTableX,
+          y: drag.startTableY,
+        },
+        after: {
+          type: 'move',
+          tableId: table.id,
+          x: updated.x,
+          y: updated.y,
+        },
+      });
     } catch (saveError) {
       console.error(
         'Failed to save table position',
