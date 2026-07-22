@@ -471,8 +471,38 @@ export function Tables() {
       );
     }
 
-    resize.currentWidth = snap(nextWidth);
-    resize.currentHeight = snap(nextHeight);
+    const snappedWidth = Math.max(
+      minSize,
+      snap(nextWidth),
+    );
+
+    const snappedHeight = Math.max(
+      minSize,
+      snap(nextHeight),
+    );
+
+    const collides = tables.some((otherTable) => {
+      if (otherTable.id === table.id) {
+        return false;
+      }
+
+      return tablesOverlap(
+        {
+          x: table.x,
+          y: table.y,
+          width: snappedWidth,
+          height: snappedHeight,
+        },
+        otherTable,
+      );
+    });
+
+    if (collides) {
+      return;
+    }
+
+    resize.currentWidth = snappedWidth;
+    resize.currentHeight = snappedHeight;
 
     setTables((current) =>
       current.map((item) =>
