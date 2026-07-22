@@ -24,6 +24,10 @@ type TableNodeProps = {
   onResizePointerMove?: PointerEventHandler<HTMLButtonElement>;
   onResizePointerUp?: PointerEventHandler<HTMLButtonElement>;
   onResizePointerCancel?: PointerEventHandler<HTMLButtonElement>;
+  onRotatePointerDown?: PointerEventHandler<HTMLButtonElement>;
+  onRotatePointerMove?: PointerEventHandler<HTMLButtonElement>;
+  onRotatePointerUp?: PointerEventHandler<HTMLButtonElement>;
+  onRotatePointerCancel?: PointerEventHandler<HTMLButtonElement>;
 };
 
 function getBorderRadius(table: TableResponse) {
@@ -62,6 +66,10 @@ export function TableNode({
   onResizePointerMove,
   onResizePointerUp,
   onResizePointerCancel,
+  onRotatePointerDown,
+  onRotatePointerMove,
+  onRotatePointerUp,
+  onRotatePointerCancel,
 }: TableNodeProps) {
   return (
     <div
@@ -123,6 +131,33 @@ export function TableNode({
           </>
         )}
       </div>
+      
+      {selected && draggingEnabled && (
+        <button
+          type="button"
+          aria-label={`Rotate table ${table.table_number}`}
+          onPointerDown={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            onRotatePointerDown?.(event);
+          }}
+          onPointerMove={(event) => {
+            event.stopPropagation();
+            onRotatePointerMove?.(event);
+          }}
+          onPointerUp={(event) => {
+            event.stopPropagation();
+            onRotatePointerUp?.(event);
+          }}
+          onPointerCancel={(event) => {
+            event.stopPropagation();
+            onRotatePointerCancel?.(event);
+          }}
+          className="absolute -top-10 left-1/2 z-30 flex h-7 w-7 -translate-x-1/2 cursor-grab items-center justify-center rounded-full border-2 border-[#050607] bg-cyanAlias text-xs font-bold text-black shadow-[0_0_16px_rgba(127,227,230,.45)] active:cursor-grabbing"
+        >
+          ↻
+        </button>
+      )}
 
       {selected && draggingEnabled && (
         <button
