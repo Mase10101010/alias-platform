@@ -93,7 +93,10 @@ export function Tables() {
   const {
     selectedTable,
     selectedTableId,
+    selectedTableIds,
     setSelectedTableId,
+    toggleSelection,
+    clearSelection,
   } = useSelection(tables);
 
   const [activeTool, setActiveTool] =
@@ -741,7 +744,7 @@ export function Tables() {
     event: ReactMouseEvent<HTMLDivElement>,
   ) {
     if (activeTool === 'select') {
-      setSelectedTableId(null);
+      clearSelection();
       return;
     }
 
@@ -1013,12 +1016,19 @@ export function Tables() {
                   key={table.id}
                   table={table}
                   saving={savingTableId === table.id}
-                  selected={selectedTableId === table.id}
+                  selected={selectedTableIds.includes(table.id)}
                   draggingEnabled={activeTool === 'select'}
-                  onClick={() => {
-                    if (activeTool === 'select') {
-                      setSelectedTableId(table.id);
+                  onClick={(event) => {
+                    if (activeTool !== 'select') {
+                      return;
                     }
+
+                    if (event.ctrlKey || event.metaKey) {
+                      toggleSelection(table.id);
+                      return;
+                    }
+
+                    setSelectedTableId(table.id);
                   }}
                   onPointerDown={(e) => handlePointerDown(e, table)}
                   onPointerMove={(e) => handlePointerMove(e, table)}
