@@ -20,6 +20,7 @@ type TableNodeProps = {
   onPointerMove: PointerEventHandler<HTMLDivElement>;
   onPointerUp: PointerEventHandler<HTMLDivElement>;
   onPointerCancel: PointerEventHandler<HTMLDivElement>;
+  onResizePointerDown?: PointerEventHandler<HTMLButtonElement>;
 };
 
 function getBorderRadius(table: TableResponse) {
@@ -54,6 +55,7 @@ export function TableNode({
   onPointerMove,
   onPointerUp,
   onPointerCancel,
+  onResizePointerDown,
 }: TableNodeProps) {
   return (
     <div
@@ -115,6 +117,19 @@ export function TableNode({
           </>
         )}
       </div>
+
+      {selected && draggingEnabled && (
+        <button
+          type="button"
+          aria-label={`Resize table ${table.table_number}`}
+          onPointerDown={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            onResizePointerDown?.(event);
+          }}
+          className="absolute -bottom-2 -right-2 z-30 h-5 w-5 cursor-nwse-resize rounded-full border-2 border-[#050607] bg-cyanAlias shadow-[0_0_16px_rgba(127,227,230,.45)]"
+        />
+      )}
     </div>
   );
 }
