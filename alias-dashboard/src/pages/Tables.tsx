@@ -105,6 +105,13 @@ export function Tables() {
   const [newTableNumber, setNewTableNumber] = useState('');
   const [newTableSeats, setNewTableSeats] = useState('4');
   const [creatingTable, setCreatingTable] = useState(false);
+  const [guideLines, setGuideLines] = useState<{
+    vertical: number | null;
+    horizontal: number | null;
+  }>({
+    vertical: null,
+    horizontal: null,
+  });
 
   const canvasRef = useRef<HTMLDivElement | null>(null);
   const dragRef = useRef<DragState | null>(null);
@@ -550,6 +557,11 @@ export function Tables() {
     drag.currentX = snap(position.x);
     drag.currentY = snap(position.y);
 
+    setGuideLines({
+      vertical: drag.currentX,
+      horizontal: drag.currentY,
+    });
+
     setTables((current) =>
       current.map((item) =>
         item.id === table.id
@@ -578,6 +590,11 @@ export function Tables() {
     }
 
     dragRef.current = null;
+
+    setGuideLines({
+      vertical: null,
+      horizontal: null,
+    });
 
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(
@@ -899,6 +916,24 @@ export function Tables() {
             activeToolIsSelect={activeTool === 'select'}
             onCanvasClick={handleCanvasClick}
           >
+            {guideLines.vertical !== null && (
+              <div
+                className="absolute top-0 bottom-0 w-px bg-cyanAlias/60 pointer-events-none"
+                style={{
+                  left: guideLines.vertical,
+                }}
+                />
+            )}
+
+            {guideLines.horizontal !== null && (
+              <div
+                className="absolute left-0 right-0 h-px bg-cyanAlias/60 pointer-events-none"
+                style={{
+                  top: guideLines.horizontal,
+                }}
+              />
+            )}
+
             {!loading &&
               tables.map((table) => (
                 <TableNode
