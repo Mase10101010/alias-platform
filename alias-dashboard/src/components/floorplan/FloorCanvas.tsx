@@ -40,7 +40,7 @@ export const FloorCanvas = forwardRef<
       style={{
         backgroundImage:
           'linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px)',
-        backgroundSize: '32px 32px',
+        backgroundSize: '20px 20px',
       }}
     >
       {loading && (
