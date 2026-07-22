@@ -7,6 +7,11 @@ import {
 } from 'react';
 
 import {
+  floorRectsOverlap,
+  snapToGrid,
+} from '@/hooks/useFloorGeometry';
+
+import {
   createTable,
   deleteTable,
   getRestaurants,
@@ -246,32 +251,9 @@ export function Tables() {
     };
   }
 
-  function snap(value: number, grid = 20) {
-    return Math.round(value / grid) * grid;
-  }
+  
 
-  function tablesOverlap(
-    first: {
-      x: number;
-      y: number;
-      width: number;
-      height: number;
-    },
-    second: {
-      x: number;
-      y: number;
-      width: number;
-      height: number;
-    },
-    gap = 8,
-  ) {
-    return !(
-      first.x + first.width + gap <= second.x ||
-      first.x >= second.x + second.width + gap ||
-      first.y + first.height + gap <= second.y ||
-      first.y >= second.y + second.height + gap
-    );
-  }
+  
 
   function handlePointerDown(
     event: ReactPointerEvent<HTMLDivElement>,
@@ -527,12 +509,12 @@ export function Tables() {
 
     const snappedWidth = Math.max(
       minSize,
-      snap(nextWidth),
+      snapToGrid(nextWidth),
     );
 
     const snappedHeight = Math.max(
       minSize,
-      snap(nextHeight),
+      snapToGrid(nextHeight),
     );
 
     const collides = tables.some((otherTable) => {
@@ -540,7 +522,7 @@ export function Tables() {
         return false;
       }
 
-      return tablesOverlap(
+      return floorRectsOverlap(
         {
           x: table.x,
           y: table.y,
@@ -661,8 +643,8 @@ export function Tables() {
       drag.startTableY + deltaY,
     );
 
-    drag.currentX = snap(position.x);
-    drag.currentY = snap(position.y);
+    drag.currentX = snapToGrid(position.x);
+    drag.currentY = snapToGrid(position.y);
 
     setGuideLines({
       vertical: drag.currentX,
@@ -674,7 +656,7 @@ export function Tables() {
         return false;
       }
 
-      return tablesOverlap(
+      return floorRectsOverlap(
         {
           x: drag.currentX,
           y: drag.currentY,
@@ -825,8 +807,8 @@ export function Tables() {
     );
 
     setPendingTable({
-      x: snap(x),
-      y: snap(y),
+      x: snapToGrid(x),
+      y: snapToGrid(y),
       shape,
     });
 
