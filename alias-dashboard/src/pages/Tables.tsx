@@ -14,6 +14,7 @@ import { useFloorDrag } from '@/hooks/useFloorDrag';
 import {
   floorRectsOverlap,
   snapToGrid,
+  clampTablePosition,
 } from '@/hooks/useFloorGeometry';
 
 import {
@@ -32,6 +33,7 @@ import {
   CreateTableDialog,
   type PendingTable,
 } from '@/components/floorplan/CreateTableDialog';
+import { useCreateTable } from '@/hooks/useCreateTable';
 import { PropertyPanel } from '@/components/floorplan/PropertyPanel';
 import { FloorCanvas } from '@/components/floorplan/FloorCanvas';
 import { TableNode } from '@/components/floorplan/TableNode';
@@ -130,17 +132,32 @@ export function Tables() {
     clearSelection,
   } = useSelection(tables);
 
+  const {
+    pendingTable,
+    setPendingTable,
+    creatingTable,
+    tableNumber: newTableNumber,
+    setTableNumber: setNewTableNumber,
+    seats: newTableSeats,
+    setSeats: setNewTableSeats,
+    closeDialog: closeCreateDialog,
+    create: handleCreateTable,
+  } = useCreateTable({
+    restaurantId,
+    onCreated(created) {
+      setTables((current) => [...current, created]);
+      setSelectedTableId(created.id);
+      setActiveTool('select');
+    },
+    onError(message) {
+      setError(message);
+    },
+  });
+
   const [activeTool, setActiveTool] =
     useState<EditorTool>('select');
 
   const { dragRef } = useFloorDrag();
-
-  const [pendingTable, setPendingTable] =
-    useState<PendingTable | null>(null);
-
-  const [newTableNumber, setNewTableNumber] = useState('');
-  const [newTableSeats, setNewTableSeats] = useState('4');
-  const [creatingTable, setCreatingTable] = useState(false);
   const [guideLines, setGuideLines] = useState<{
     vertical: number | null;
     horizontal: number | null;
@@ -206,40 +223,6 @@ export function Tables() {
     setPropertyShape(selectedTable.shape);
     setPropertyRotation(String(selectedTable.rotation));
   }, [selectedTable]);
-
-  
-  function clampPosition(
-    table: TableResponse,
-    nextX: number,
-    nextY: number,
-  ) {
-    const canvas = canvasRef.current;
-
-    if (!canvas) {
-      return {
-        x: Math.max(0, nextX),
-        y: Math.max(0, nextY),
-      };
-    }
-
-    const maxX = Math.max(
-      0,
-      canvas.clientWidth - table.width,
-    );
-    const maxY = Math.max(
-      0,
-      canvas.clientHeight - table.height,
-    );
-
-    return {
-      x: Math.min(Math.max(0, nextX), maxX),
-      y: Math.min(Math.max(0, nextY), maxY),
-    };
-  }
-
-  
-
-  
 
   function handlePointerDown(
     event: ReactPointerEvent<HTMLDivElement>,
@@ -637,7 +620,8 @@ export function Tables() {
     const deltaX = event.clientX - drag.startPointerX;
     const deltaY = event.clientY - drag.startPointerY;
 
-    const position = clampPosition(
+    const position = clampTablePosition(
+      canvasRef,
       table,
       drag.startTableX + deltaX,
       drag.startTableY + deltaY,
@@ -831,68 +815,6 @@ export function Tables() {
     setSelectedTableId(null);
     setNewTableNumber('');
     setNewTableSeats('4');
-  }
-
-  function closeCreateDialog() {
-    setPendingTable(null);
-    setNewTableNumber('');
-    setNewTableSeats('4');
-  }
-
-  async function handleCreateTable() {
-    if (!pendingTable || !restaurantId) {
-      return;
-    }
-
-    const tableNumber = newTableNumber.trim();
-    const seats = Number(newTableSeats);
-
-    if (
-      !tableNumber ||
-      !Number.isInteger(seats) ||
-      seats < 1
-    ) {
-      return;
-    }
-
-    const dimensions = getTableDimensions(
-      pendingTable.shape,
-    );
-
-    try {
-      setCreatingTable(true);
-      setError('');
-
-      const created = await createTable(restaurantId, {
-        table_number: tableNumber,
-        seats,
-        x: pendingTable.x,
-        y: pendingTable.y,
-        width: dimensions.width,
-        height: dimensions.height,
-        shape: pendingTable.shape,
-        rotation: 0,
-      });
-
-      setTables((current) => [...current, created]);
-      setSelectedTableId(created.id);
-
-      closeCreateDialog();
-      setActiveTool('select');
-    } catch (createError) {
-      console.error(
-        'Failed to create table',
-        createError,
-      );
-
-      setError(
-        createError instanceof Error
-          ? createError.message
-          : 'Unable to create table.',
-      );
-    } finally {
-      setCreatingTable(false);
-    }
   }
 
   async function handleSaveSelectedTable() {
