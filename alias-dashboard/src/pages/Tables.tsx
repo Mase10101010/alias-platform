@@ -498,6 +498,20 @@ export function Tables() {
         ),
       );
 
+      record({
+        label: `Rotate table ${table.table_number}`,
+        before: {
+          type: 'rotate',
+          tableId: table.id,
+          rotation: rotate.startRotation,
+        },
+        after: {
+          type: 'rotate',
+          tableId: table.id,
+          rotation: updated.rotation,
+        },
+      });
+
       setPropertyRotation(String(updated.rotation));
     } catch (rotateError) {
       console.error('Failed to rotate table', rotateError);
