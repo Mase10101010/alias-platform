@@ -39,6 +39,17 @@ type DragState = {
   currentY: number;
 };
 
+type ResizeState = {
+  tableId: string;
+  pointerId: number;
+  startPointerX: number;
+  startPointerY: number;
+  startWidth: number;
+  startHeight: number;
+  currentWidth: number;
+  currentHeight: number;
+};
+
 function getTableDimensions(shape: TableShape) {
   if (shape === 'rectangle') {
     return {
@@ -85,6 +96,7 @@ export function Tables() {
 
   const canvasRef = useRef<HTMLDivElement | null>(null);
   const dragRef = useRef<DragState | null>(null);
+  const resizeRef = useRef<ResizeState | null>(null);
   const selectedTable = 
     tables.find((table) => table.id === selectedTableId) ?? null;
 
@@ -186,6 +198,35 @@ export function Tables() {
       startTableY: table.y,
       currentX: table.x,
       currentY: table.y,
+    };
+  }
+
+  function handleResizePointerDown(
+    event: ReactPointerEvent<HTMLButtonElement>,
+    table: TableResponse,
+  ) {
+    if (
+      activeTool !== 'select' ||
+      savingTableId === table.id
+    ) {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    event.currentTarget.setPointerCapture(event.pointerId);
+    setSelectedTableId(table.id);
+
+    resizeRef.current = {
+      tableId: table.id,
+      pointerId: event.pointerId,
+      startPointerX: event.clientX,
+      startPointerY: event.clientY,
+      startWidth: table.width,
+      startHeight: table.height,
+      currentWidth: table.width,
+      currentHeight: table.height,
     };
   }
 
@@ -581,6 +622,7 @@ export function Tables() {
                   onPointerMove={(e) => handlePointerMove(e, table)}
                   onPointerUp={(e) => finishDrag(e, table)}
                   onPointerCancel={(e) => finishDrag(e, table)}
+                  onResizePointerDown={(e) => handleResizePointerDown(e,table)}
                 />
               ))}
           </FloorCanvas>
