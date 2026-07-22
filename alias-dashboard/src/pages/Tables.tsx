@@ -1062,6 +1062,46 @@ export function Tables() {
       return String(Math.max(...numbers) + 1);
     }
 
+    function getNextAvailableTableNumber(
+      sourceNumber: string,
+      usedNumbers: Set<string>,
+    ) {
+      const trimmed = sourceNumber.trim();
+
+      const match = trimmed.match(/^(.*?)(\d+)$/);
+
+      if (match) {
+        const prefix = match[1];
+        const numericPart = match[2];
+        const padding = numericPart.length;
+
+        let nextValue = Number(numericPart) + 1;
+
+        while (true) {
+          const candidate = `${prefix}${String(nextValue).padStart(
+            padding,
+            '0',
+          )}`;
+
+          if (!usedNumbers.has(candidate)) {
+            return candidate;
+          }
+
+          nextValue += 1;
+        }
+      }
+
+      let copyIndex = 2;
+      let candidate = `${trimmed} 2`;
+
+      while (usedNumbers.has(candidate)) {
+        copyIndex += 1;
+        candidate = `${trimmed} ${copyIndex}`;
+      }
+
+      return candidate;
+    }
+
     async function handleDuplicateSelectedTables() {
       if (
         selectedTables.length === 0 ||
@@ -1075,9 +1115,20 @@ export function Tables() {
 
         const createdTables: TableResponse[] = [];
 
+        const usedNumbers = new Set(
+          tables.map((table) => table.table_number),
+        );
+
         for (const table of selectedTables) {
+          const nextTableNumber = getNextAvailableTableNumber(
+            table.table_number,
+            usedNumbers,
+          );
+
+          usedNumbers.add(newTableNumber);
+
           const created = await createTable(restaurantId, {
-            table_number: getNextTableNumber(),
+            table_number: nextTableNumber,
             seats: table.seats,
             x: table.x + 40,
             y: table.y + 40,
