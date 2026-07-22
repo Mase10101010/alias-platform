@@ -52,6 +52,11 @@ type ResizeState = {
   currentHeight: number;
 };
 
+type RotateState = {
+  tableId: string;
+  pointerId: number;
+};
+
 function getTableDimensions(shape: TableShape) {
   if (shape === 'rectangle') {
     return {
@@ -102,6 +107,7 @@ export function Tables() {
   const canvasRef = useRef<HTMLDivElement | null>(null);
   const dragRef = useRef<DragState | null>(null);
   const resizeRef = useRef<ResizeState | null>(null);
+  const rotateRef = useRef<RotateState | null>(null);
   
 
   useEffect(() => {
@@ -232,6 +238,79 @@ export function Tables() {
       currentWidth: table.width,
       currentHeight: table.height,
     };
+  }
+
+  function handleRotatePointerDown(
+    event: ReactPointerEvent<HTMLButtonElement>,
+    table: TableResponse,
+  ) {
+    if (
+      activeTool !== 'select' ||
+      savingTableId === table.id
+    ) {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    event.currentTarget.setPointerCapture(event.pointerId);
+
+    rotateRef.current = {
+      tableId: table.id,
+      pointerId: event.pointerId,
+    };
+
+    setSelectedTableId(table.id);
+  }
+
+  function handleRotatePointerMove(
+    event: ReactPointerEvent<HTMLButtonElement>,
+    table: TableResponse,
+  ) {
+    const rotate = rotateRef.current;
+
+    if (
+      !rotate ||
+      rotate.tableId !== table.id ||
+      rotate.pointerId !== event.pointerId
+    ) {
+      return;
+    }
+
+    const canvas = canvasRef.current;
+
+    if (!canvas) {
+      return;
+    }
+
+    const rect = canvas.getBoundingClientRect();
+
+    const centerX =
+      rect.left + table.x + table.width / 2;
+
+    const centerY =
+      rect.top + table.y + table.height / 2;
+
+    const angle =
+      Math.atan2(
+        event.clientY - centerY,
+        event.clientX - centerX,
+      ) *
+      (180 / Math.PI);
+
+    const rotation = Math.round(angle + 90);
+
+    setTables((current) =>
+      current.map((item) =>
+        item.id === table.id
+          ? {
+              ...item,
+              rotation,
+            }
+          : item,
+      ),
+    );
   }
 
   function handleResizePointerMove(
