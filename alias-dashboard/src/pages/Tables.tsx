@@ -55,6 +55,8 @@ type ResizeState = {
 type RotateState = {
   tableId: string;
   pointerId: number;
+  startRotation: number;
+  currentRotation: number;
 };
 
 function getTableDimensions(shape: TableShape) {
@@ -259,6 +261,8 @@ export function Tables() {
     rotateRef.current = {
       tableId: table.id,
       pointerId: event.pointerId,
+      startRotation: table.rotation,
+      currentRotation: table.rotation,
     };
 
     setSelectedTableId(table.id);
@@ -301,16 +305,87 @@ export function Tables() {
 
     const rotation = Math.round(angle + 90);
 
+    const normalizedRotation = ((rotation % 360) + 360) % 360;
+
+    rotate.currentRotation = normalizedRotation;
+
     setTables((current) =>
       current.map((item) =>
         item.id === table.id
           ? {
               ...item,
-              rotation,
+              rotation: rotate.currentRotation,
             }
           : item,
       ),
     );
+  }
+
+  async function finishRotate(
+    event: ReactPointerEvent<HTMLButtonElement>,
+    table: TableResponse,
+  ) {
+    const rotate = rotateRef.current;
+
+    if (
+      !rotate ||
+      rotate.tableId !== table.id ||
+      rotate.pointerId !== event.pointerId
+    ) {
+      return;
+    }
+
+    rotateRef.current = null;
+
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+
+    const hasChanged =
+      rotate.currentRotation !== rotate.startRotation;
+
+    if (!restaurantId || !hasChanged) {
+      return;
+    }
+
+    try {
+      setSavingTableId(table.id);
+      setError('');
+
+      const updated = await updateTable(
+        restaurantId,
+        table.id,
+        {
+          rotation: rotate.currentRotation,
+        },
+      );
+
+      setTables((current) =>
+        current.map((item) =>
+          item.id === updated.id ? updated : item,
+        ),
+      );
+
+      setPropertyRotation(String(updated.rotation));
+    } catch (rotateError) {
+      console.error('Failed to rotate table', rotateError);
+
+      setTables((current) =>
+        current.map((item) =>
+          item.id === table.id
+            ? {
+                ...item,
+                rotation: rotate.startRotation,
+              }
+            : item,
+        ),
+      );
+
+      setPropertyRotation(String(rotate.startRotation));
+      setError('Unable to save the new table rotation.');
+    } finally {
+      setSavingTableId(null);
+    }
   }
 
   function handleResizePointerMove(
@@ -852,6 +927,12 @@ export function Tables() {
                   }
                   onRotatePointerMove={(event) =>
                     handleRotatePointerMove(event, table)
+                  }
+                  onRotatePointerUp={(event) =>
+                    finishRotate(event, table)
+                  }
+                  onRotatePointerCancel={(event) =>
+                    finishRotate(event, table)
                   }
                 />
               ))}
