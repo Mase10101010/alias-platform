@@ -847,6 +847,12 @@ export function Tables() {
                   onResizePointerCancel={(event) =>
                     finishResize(event, table)
                   }
+                  onRotatePointerDown={(event) =>
+                    handleRotatePointerDown(event, table)
+                  }
+                  onRotatePointerMove={(event) =>
+                    handleRotatePointerMove(event, table)
+                  }
                 />
               ))}
           </FloorCanvas>
