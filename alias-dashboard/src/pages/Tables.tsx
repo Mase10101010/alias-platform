@@ -7,6 +7,8 @@ import {
 } from 'react';
 
 import { useFloorKeyboard } from '@/hooks/useFloorKeyboard';
+import { useFloorResize } from '@/hooks/useFloorResize';
+import { useFloorPlanLoader } from '@/hooks/useFloorPlanLoader';
 
 import {
   useFloorDrag,
@@ -14,6 +16,8 @@ import {
 } from '@/hooks/useFloorDrag';
 
 import { useHistory } from '@/hooks/useHistory';
+
+import { useFloorRotate } from '@/hooks/useFloorRotate';
 
 import {
   floorRectsOverlap,
@@ -24,8 +28,6 @@ import {
 import {
   createTable,
   deleteTable,
-  getRestaurants,
-  getTables,
   updateTable,
   type TableResponse,
   type TableShape,
@@ -45,25 +47,6 @@ import {
   Toolbar,
   type EditorTool,
 } from '@/components/floorplan/Toolbar';
-
-
-type ResizeState = {
-  tableId: string;
-  pointerId: number;
-  startPointerX: number;
-  startPointerY: number;
-  startWidth: number;
-  startHeight: number;
-  currentWidth: number;
-  currentHeight: number;
-};
-
-type RotateState = {
-  tableId: string;
-  pointerId: number;
-  startRotation: number;
-  currentRotation: number;
-};
 
 type FloorHistoryChange =
   | {
@@ -99,11 +82,6 @@ function getTableDimensions(shape: TableShape) {
 }
 
 export function Tables() {
-  const [restaurantId, setRestaurantId] = useState<string | null>(
-    null,
-  );
-  const [tables, setTables] = useState<TableResponse[]>([]);
-  const [loading, setLoading] = useState(true);
   const [savingTableId, setSavingTableId] = useState<
     string | null
   >(null);
@@ -116,6 +94,14 @@ export function Tables() {
   const [deletingTable, setDeletingTable] = useState(false);
   const [historySaving, setHistorySaving] = useState(false);
   const [error, setError] = useState('');
+  const {
+    restaurantId,
+    tables,
+    setTables,
+    loading,
+  } = useFloorPlanLoader({
+    onError: setError,
+  });
   const {
     selectedTable,
     selectedTableId,
@@ -159,8 +145,6 @@ export function Tables() {
 
   const canvasRef = useRef<HTMLDivElement | null>(null);
   
-  const resizeRef = useRef<ResizeState | null>(null);
-  const rotateRef = useRef<RotateState | null>(null);
   const {
     canUndo,
     canRedo,
@@ -206,35 +190,6 @@ export function Tables() {
   });
 
   useEffect(() => {
-    async function loadFloorPlan() {
-      try {
-        setLoading(true);
-        setError('');
-
-        const restaurants = await getRestaurants();
-        const restaurant = restaurants[0];
-
-        if (!restaurant) {
-          setError('No restaurant found.');
-          return;
-        }
-
-        setRestaurantId(restaurant.id);
-
-        const restaurantTables = await getTables(restaurant.id);
-        setTables(restaurantTables);
-      } catch (loadError) {
-        console.error('Failed to load floor plan', loadError);
-        setError('Unable to load the floor plan.');
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    loadFloorPlan();
-  }, []);
-
-  useEffect(() => {
     if (!selectedTable) {
       setPropertyTableNumber('');
       setPropertySeats('4');
@@ -249,357 +204,69 @@ export function Tables() {
     setPropertyRotation(String(selectedTable.rotation));
   }, [selectedTable]);
 
-
-  function handleResizePointerDown(
-    event: ReactPointerEvent<HTMLButtonElement>,
-    table: TableResponse,
-  ) {
-    if (
-      activeTool !== 'select' ||
-      savingTableId === table.id
-    ) {
-      return;
-    }
-
-    event.preventDefault();
-    event.stopPropagation();
-
-    event.currentTarget.setPointerCapture(event.pointerId);
-    setSelectedTableId(table.id);
-
-    resizeRef.current = {
-      tableId: table.id,
-      pointerId: event.pointerId,
-      startPointerX: event.clientX,
-      startPointerY: event.clientY,
-      startWidth: table.width,
-      startHeight: table.height,
-      currentWidth: table.width,
-      currentHeight: table.height,
-    };
-  }
-
-  function handleRotatePointerDown(
-    event: ReactPointerEvent<HTMLButtonElement>,
-    table: TableResponse,
-  ) {
-    if (
-      activeTool !== 'select' ||
-      savingTableId === table.id
-    ) {
-      return;
-    }
-
-    event.preventDefault();
-    event.stopPropagation();
-
-    event.currentTarget.setPointerCapture(event.pointerId);
-
-    rotateRef.current = {
-      tableId: table.id,
-      pointerId: event.pointerId,
-      startRotation: table.rotation,
-      currentRotation: table.rotation,
-    };
-
-    setSelectedTableId(table.id);
-  }
-
-  function handleRotatePointerMove(
-    event: ReactPointerEvent<HTMLButtonElement>,
-    table: TableResponse,
-  ) {
-    const rotate = rotateRef.current;
-
-    if (
-      !rotate ||
-      rotate.tableId !== table.id ||
-      rotate.pointerId !== event.pointerId
-    ) {
-      return;
-    }
-
-    const canvas = canvasRef.current;
-
-    if (!canvas) {
-      return;
-    }
-
-    const rect = canvas.getBoundingClientRect();
-
-    const centerX =
-      rect.left + table.x + table.width / 2;
-
-    const centerY =
-      rect.top + table.y + table.height / 2;
-
-    const angle =
-      Math.atan2(
-        event.clientY - centerY,
-        event.clientX - centerX,
-      ) *
-      (180 / Math.PI);
-
-    const rotation = Math.round(angle + 90);
-
-    const normalizedRotation = ((rotation % 360) + 360) % 360;
-
-    rotate.currentRotation = normalizedRotation;
-
-    setTables((current) =>
-      current.map((item) =>
-        item.id === table.id
-          ? {
-              ...item,
-              rotation: rotate.currentRotation,
-            }
-          : item,
-      ),
-    );
-  }
-
-  async function finishRotate(
-    event: ReactPointerEvent<HTMLButtonElement>,
-    table: TableResponse,
-  ) {
-    const rotate = rotateRef.current;
-
-    if (
-      !rotate ||
-      rotate.tableId !== table.id ||
-      rotate.pointerId !== event.pointerId
-    ) {
-      return;
-    }
-
-    rotateRef.current = null;
-
-    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-      event.currentTarget.releasePointerCapture(event.pointerId);
-    }
-
-    const hasChanged =
-      rotate.currentRotation !== rotate.startRotation;
-
-    if (!restaurantId || !hasChanged) {
-      return;
-    }
-
-    try {
-      setSavingTableId(table.id);
-      setError('');
-
-      const updated = await updateTable(
-        restaurantId,
-        table.id,
-        {
-          rotation: rotate.currentRotation,
-        },
-      );
-
-      setTables((current) =>
-        current.map((item) =>
-          item.id === updated.id ? updated : item,
-        ),
-      );
-
+  const {
+    handleRotatePointerDown,
+    handleRotatePointerMove,
+    finishRotate,
+  } = useFloorRotate({
+    restaurantId,
+    canvasRef,
+    savingTableId,
+    setSavingTableId,
+    setTables,
+    setPropertyRotation,
+    selectTable: setSelectedTableId,
+    enabled: activeTool === 'select',
+    onError: setError,
+    onSaved(table, before, after) {
       record({
         label: `Rotate table ${table.table_number}`,
         before: {
           type: 'rotate',
           tableId: table.id,
-          rotation: rotate.startRotation,
+          rotation: before,
         },
         after: {
           type: 'rotate',
           tableId: table.id,
-          rotation: updated.rotation,
+          rotation: after,
         },
       });
+    },
+  });
 
-      setPropertyRotation(String(updated.rotation));
-    } catch (rotateError) {
-      console.error('Failed to rotate table', rotateError);
-
-      setTables((current) =>
-        current.map((item) =>
-          item.id === table.id
-            ? {
-                ...item,
-                rotation: rotate.startRotation,
-              }
-            : item,
-        ),
-      );
-
-      setPropertyRotation(String(rotate.startRotation));
-      setError('Unable to save the new table rotation.');
-    } finally {
-      setSavingTableId(null);
-    }
-  }
-
-  function handleResizePointerMove(
-    event: ReactPointerEvent<HTMLButtonElement>,
-    table: TableResponse,
-  ) {
-    const resize = resizeRef.current;
-
-    if (
-      !resize ||
-      resize.tableId !== table.id ||
-      resize.pointerId !== event.pointerId
-    ) {
-      return;
-    }
-
-    const deltaX = event.clientX - resize.startPointerX;
-    const deltaY = event.clientY - resize.startPointerY;
-
-    const minSize = 60;
-
-    let nextWidth = Math.max(
-      minSize,
-      resize.startWidth + deltaX,
-    );
-
-    let nextHeight = Math.max(
-      minSize,
-      resize.startHeight + deltaY,
-    );
-
-    if (table.shape === 'round') {
-      const size = Math.max(nextWidth, nextHeight);
-      nextWidth = size;
-      nextHeight = size;
-    }
-
-    const canvas = canvasRef.current;
-
-    if (canvas) {
-      nextWidth = Math.min(
-        nextWidth,
-        canvas.clientWidth - table.x,
-      );
-
-      nextHeight = Math.min(
-        nextHeight,
-        canvas.clientHeight - table.y,
-      );
-    }
-
-    const snappedWidth = Math.max(
-      minSize,
-      snapToGrid(nextWidth),
-    );
-
-    const snappedHeight = Math.max(
-      minSize,
-      snapToGrid(nextHeight),
-    );
-
-    const collides = tables.some((otherTable) => {
-      if (otherTable.id === table.id) {
-        return false;
-      }
-
-      return floorRectsOverlap(
-        {
-          x: table.x,
-          y: table.y,
-          width: snappedWidth,
-          height: snappedHeight,
+  const {
+    handleResizePointerDown,
+    handleResizePointerMove,
+    finishResize,
+  } = useFloorResize({
+    restaurantId,
+    tables,
+    canvasRef,
+    enabled: activeTool === 'select',
+    savingTableId,
+    setTables,
+    setSavingTableId,
+    selectTable: setSelectedTableId,
+    onError: setError,
+    onSaved(table, before, after) {
+      record({
+        label: `Resize table ${table.table_number}`,
+        before: {
+          type: 'resize',
+          tableId: table.id,
+          width: before.width,
+          height: before.height,
         },
-        otherTable,
-      );
-    });
-
-    if (collides) {
-      return;
-    }
-
-    resize.currentWidth = snappedWidth;
-    resize.currentHeight = snappedHeight;
-
-    setTables((current) =>
-      current.map((item) =>
-        item.id === table.id
-          ? {
-              ...item,
-              width: resize.currentWidth,
-              height: resize.currentHeight,
-            }
-          : item,
-      ),
-    );
-  }
-
-  async function finishResize(
-    event: ReactPointerEvent<HTMLButtonElement>,
-    table: TableResponse,
-  ) {
-    const resize = resizeRef.current;
-
-    if (
-      !resize ||
-      resize.tableId !== table.id ||
-      resize.pointerId !== event.pointerId
-    ) {
-      return;
-    }
-
-    resizeRef.current = null;
-
-    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-      event.currentTarget.releasePointerCapture(event.pointerId);
-    }
-
-    const hasChanged =
-      resize.currentWidth !== resize.startWidth ||
-      resize.currentHeight !== resize.startHeight;
-
-    if (!restaurantId || !hasChanged) {
-      return;
-    }
-
-    try {
-      setSavingTableId(table.id);
-      setError('');
-
-      const updated = await updateTable(
-        restaurantId,
-        table.id,
-        {
-          width: resize.currentWidth,
-          height: resize.currentHeight,
+        after: {
+          type: 'resize',
+          tableId: table.id,
+          width: after.width,
+          height: after.height,
         },
-      );
-
-      setTables((current) =>
-        current.map((item) =>
-          item.id === updated.id ? updated : item,
-        ),
-      );
-    } catch (resizeError) {
-      console.error('Failed to resize table', resizeError);
-
-      setTables((current) =>
-        current.map((item) =>
-          item.id === table.id
-            ? {
-                ...item,
-                width: resize.startWidth,
-                height: resize.startHeight,
-              }
-            : item,
-        ),
-      );
-
-      setError('Unable to save the new table size.');
-    } finally {
-      setSavingTableId(null);
-    }
-  }
+      });
+    },
+  });
 
   function getShapeFromTool(): TableShape {
     if (activeTool === 'add-round') {
