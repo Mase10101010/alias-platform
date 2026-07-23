@@ -1,43 +1,34 @@
 import {
-  useEffect,
   useRef,
   useState,
   type MouseEvent as ReactMouseEvent,
-  type PointerEvent as ReactPointerEvent,
 } from 'react';
 
 import { useFloorKeyboard } from '@/hooks/useFloorKeyboard';
 import { useFloorResize } from '@/hooks/useFloorResize';
 import { useFloorPlanLoader } from '@/hooks/useFloorPlanLoader';
+import { useTableProperties } from '@/hooks/useTableProperties';
+import { useFloorBulkActions } from '@/hooks/useFloorBulkActions';
+import { useFloorHistory } from '@/hooks/useFloorHistory';
 
 import {
   useFloorDrag,
   type GuideLines,
 } from '@/hooks/useFloorDrag';
 
-import { useHistory } from '@/hooks/useHistory';
 
 import { useFloorRotate } from '@/hooks/useFloorRotate';
 
 import {
-  floorRectsOverlap,
   snapToGrid,
-  clampTablePosition,
 } from '@/hooks/useFloorGeometry';
 
-import {
-  createTable,
-  deleteTable,
-  updateTable,
-  type TableResponse,
-  type TableShape,
-} from '@/lib/api';
+import type { TableShape } from '@/lib/api';
 
 import { useSelection } from '@/hooks/useSelection';
 
 import {
   CreateTableDialog,
-  type PendingTable,
 } from '@/components/floorplan/CreateTableDialog';
 import { useCreateTable } from '@/hooks/useCreateTable';
 import { PropertyPanel } from '@/components/floorplan/PropertyPanel';
@@ -47,25 +38,6 @@ import {
   Toolbar,
   type EditorTool,
 } from '@/components/floorplan/Toolbar';
-
-type FloorHistoryChange =
-  | {
-      type: 'move';
-      tableId: string;
-      x: number;
-      y: number;
-    }
-  | {
-      type: 'resize';
-      tableId: string;
-      width: number;
-      height: number;
-    }
-  | {
-      type: 'rotate';
-      tableId: string;
-      rotation: number;
-    };
 
 function getTableDimensions(shape: TableShape) {
   if (shape === 'rectangle') {
@@ -86,13 +58,7 @@ export function Tables() {
     string | null
   >(null);
   
-  const [propertyTableNumber, setPropertyTableNumber] = useState('');
-  const [propertySeats, setPropertySeats] = useState('4');
-  const [propertyShape, setPropertyShape] = useState<TableShape>('square');
-  const [propertyRotation, setPropertyRotation] = useState('0');
-  const [savingProperties, setSavingProperties] = useState(false);
-  const [deletingTable, setDeletingTable] = useState(false);
-  const [historySaving, setHistorySaving] = useState(false);
+  
   const [error, setError] = useState('');
   const {
     restaurantId,
@@ -111,6 +77,41 @@ export function Tables() {
     toggleSelection,
     clearSelection,
   } = useSelection(tables);
+
+  const {
+    tableNumber: propertyTableNumber,
+    setTableNumber: setPropertyTableNumber,
+    seats: propertySeats,
+    setSeats: setPropertySeats,
+    shape: propertyShape,
+    setShape: setPropertyShape,
+    rotation: propertyRotation,
+    setRotation: setPropertyRotation,
+    saving: savingProperties,
+    deleting: deletingTable,
+    save: handleSaveSelectedTable,
+    remove: handleDeleteSelectedTable,
+  } = useTableProperties({
+    restaurantId,
+    selectedTable,
+    setTables,
+    clearSelection,
+    onError: setError,
+  });
+
+  const {
+    deletingSelectedTables,
+    duplicatingSelectedTables,
+    removeSelectedTables: handleDeleteSelectedTables,
+    duplicateSelectedTables: handleDuplicateSelectedTables,
+  } = useFloorBulkActions({
+    restaurantId,
+    tables,
+    selectedTables,
+    setTables,
+    clearSelection,
+    onError: setError,
+  });
 
   const {
     pendingTable,
@@ -146,14 +147,17 @@ export function Tables() {
   const canvasRef = useRef<HTMLDivElement | null>(null);
   
   const {
+    record,
+    undo: handleUndo,
+    redo: handleRedo,
     canUndo,
     canRedo,
-    undoEntry,
-    redoEntry,
-    record,
-    commitUndo,
-    commitRedo,
-  } = useHistory<FloorHistoryChange>();
+    historySaving,
+  } = useFloorHistory({
+    restaurantId,
+    setTables,
+    onError: setError,
+  });
 
   const {
     handlePointerDown,
@@ -188,21 +192,6 @@ export function Tables() {
       });
     },
   });
-
-  useEffect(() => {
-    if (!selectedTable) {
-      setPropertyTableNumber('');
-      setPropertySeats('4');
-      setPropertyShape('square');
-      setPropertyRotation('0');
-      return;
-    }
-
-    setPropertyTableNumber(selectedTable.table_number);
-    setPropertySeats(String(selectedTable.seats));
-    setPropertyShape(selectedTable.shape);
-    setPropertyRotation(String(selectedTable.rotation));
-  }, [selectedTable]);
 
   const {
     handleRotatePointerDown,
@@ -323,352 +312,6 @@ export function Tables() {
     setNewTableNumber('');
     setNewTableSeats('4');
   }
-
-  async function handleSaveSelectedTable() {
-    if (!selectedTable || !restaurantId || savingProperties) {
-      return;
-    }
-
-    const tableNumber = propertyTableNumber.trim();
-    const seats = Number(propertySeats);
-    const rotation = Number(propertyRotation);
-
-    if (
-      !tableNumber ||
-      !Number.isInteger(seats) ||
-      seats < 1 ||
-      seats > 100 ||
-      !Number.isInteger(rotation) ||
-      rotation < 0 ||
-      rotation >= 360
-    ) {
-      setError('Please enter valid table details.');
-      return;
-    }
-
-    const dimensions = getTableDimensions(propertyShape);
-
-    try {
-      setSavingProperties(true);
-      setError('');
-
-      const updated = await updateTable(
-        restaurantId,
-        selectedTable.id,
-        {
-          table_number: tableNumber,
-          seats,
-          shape: propertyShape,
-          rotation,
-          width: dimensions.width,
-          height: dimensions.height,
-        },
-      );
-
-      setTables((current) =>
-        current.map((table) =>
-          table.id === updated.id ? updated : table,
-        ),
-      );
-    } catch (saveError) {
-      console.error('Failed to update table', saveError);
-
-      setError(
-        saveError instanceof Error
-          ? saveError.message
-          : 'Unable to update table.',
-      );
-    } finally {
-      setSavingProperties(false);
-    }
-  }
-
-    async function handleDeleteSelectedTable() {
-      if (!selectedTable || !restaurantId || deletingTable) {
-        return;
-      }
-
-      const confirmed = window.confirm(
-        `Delete table ${selectedTable.table_number}? This action cannot be undone.`,
-      );
-
-      if (!confirmed) {
-        return;
-      }
-
-      try {
-        setDeletingTable(true);
-        setError('');
-
-        await deleteTable(restaurantId, selectedTable.id);
-
-        setTables((current) =>
-          current.filter((table) => table.id !== selectedTable.id),
-        );
-
-        setSelectedTableId(null);
-      } catch (deleteError) {
-        console.error('Failed to delete table', deleteError);
-
-        setError(
-          deleteError instanceof Error
-            ? deleteError.message
-            : 'Unable to delete table.',
-        );
-      } finally {
-        setDeletingTable(false);
-      }
-    }
-
-    async function handleDeleteSelectedTables() {
-      if (
-        selectedTables.length === 0 ||
-        !restaurantId ||
-        deletingTable
-      ) {
-        return;
-      }
-
-      const label =
-        selectedTables.length === 1
-          ? `table ${selectedTables[0].table_number}`
-          : `${selectedTables.length} selected tables`;
-
-      const confirmed = window.confirm(
-        `Delete ${label}? This action cannot be undone.`,
-      );
-
-      if (!confirmed) {
-        return;
-      }
-
-      try {
-        setDeletingTable(true);
-        setError('');
-
-        await Promise.all(
-          selectedTables.map((table) =>
-            deleteTable(restaurantId, table.id),
-          ),
-        );
-
-        const deletedIds = new Set(
-          selectedTables.map((table) => table.id),
-        );
-
-        setTables((current) =>
-          current.filter((table) => !deletedIds.has(table.id)),
-        );
-
-        clearSelection();
-      } catch (deleteError) {
-        console.error(
-          'Failed to delete selected tables',
-          deleteError,
-        );
-
-        setError(
-          deleteError instanceof Error
-            ? deleteError.message
-            : 'Unable to delete the selected tables.',
-        );
-      } finally {
-        setDeletingTable(false);
-      }
-    }
-
-    
-
-    function getNextAvailableTableNumber(
-      sourceNumber: string,
-      usedNumbers: Set<string>,
-    ) {
-      const trimmed = sourceNumber.trim();
-
-      const match = trimmed.match(/^(.*?)(\d+)$/);
-
-      if (match) {
-        const prefix = match[1];
-        const numericPart = match[2];
-        const padding = numericPart.length;
-
-        let nextValue = Number(numericPart) + 1;
-
-        while (true) {
-          const candidate = `${prefix}${String(nextValue).padStart(
-            padding,
-            '0',
-          )}`;
-
-          if (!usedNumbers.has(candidate)) {
-            return candidate;
-          }
-
-          nextValue += 1;
-        }
-      }
-
-      let copyIndex = 2;
-      let candidate = `${trimmed} 2`;
-
-      while (usedNumbers.has(candidate)) {
-        copyIndex += 1;
-        candidate = `${trimmed} ${copyIndex}`;
-      }
-
-      return candidate;
-    }
-
-    async function handleDuplicateSelectedTables() {
-      if (
-        selectedTables.length === 0 ||
-        !restaurantId
-      ) {
-        return;
-      }
-
-      try {
-        setError('');
-
-        const createdTables: TableResponse[] = [];
-
-        const usedNumbers = new Set(
-          tables.map((table) => table.table_number),
-        );
-
-        for (const table of selectedTables) {
-          const nextTableNumber = getNextAvailableTableNumber(
-            table.table_number,
-            usedNumbers,
-          );
-
-          usedNumbers.add(nextTableNumber);
-
-          const created = await createTable(restaurantId, {
-            table_number: nextTableNumber,
-            seats: table.seats,
-            x: table.x + 40,
-            y: table.y + 40,
-            width: table.width,
-            height: table.height,
-            shape: table.shape,
-            rotation: table.rotation,
-          });
-
-          createdTables.push(created);
-        }
-
-        setTables((current) => [
-          ...current,
-          ...createdTables,
-        ]);
-
-      } catch (error) {
-        console.error(error);
-
-        setError('Unable to duplicate table.');
-      }
-    }
-  
-  async function applyHistoryChange(
-    change: FloorHistoryChange,
-  ) {
-    if (!restaurantId) {
-      throw new Error('Restaurant not found');
-    }
-
-    if (change.type === 'move') {
-      return updateTable(restaurantId, change.tableId, {
-        x: change.x,
-        y: change.y,
-      });
-    }
-
-    if (change.type === 'resize') {
-      return updateTable(restaurantId, change.tableId, {
-        width: change.width,
-        height: change.height,
-      });
-    }
-
-    return updateTable(restaurantId, change.tableId, {
-      rotation: change.rotation,
-    });
-  }
-
-  async function handleUndo() {
-    if (
-      !undoEntry ||
-      !canUndo ||
-      historySaving
-    ) {
-      return;
-    }
-
-    try {
-      setHistorySaving(true);
-      setError('');
-
-      const updated = await applyHistoryChange(
-        undoEntry.before,
-      );
-
-      setTables((current) =>
-        current.map((table) =>
-          table.id === updated.id ? updated : table,
-        ),
-      );
-
-      commitUndo();
-    } catch (undoError) {
-      console.error('Failed to undo floor-plan change', undoError);
-
-      setError(
-        undoError instanceof Error
-          ? undoError.message
-          : 'Unable to undo the last change.',
-      );
-    } finally {
-      setHistorySaving(false);
-    }
-  }
-
-  async function handleRedo() {
-    if (
-      !redoEntry ||
-      !canRedo ||
-      historySaving
-    ) {
-      return;
-    }
-
-    try {
-      setHistorySaving(true);
-      setError('');
-
-      const updated = await applyHistoryChange(
-        redoEntry.after,
-      );
-
-      setTables((current) =>
-        current.map((table) =>
-          table.id === updated.id ? updated : table,
-        ),
-      );
-
-      commitRedo();
-    } catch (redoError) {
-      console.error('Failed to redo floor-plan change', redoError);
-
-      setError(
-        redoError instanceof Error
-          ? redoError.message
-          : 'Unable to redo the last change.',
-      );
-    } finally {
-      setHistorySaving(false);
-    }
-  }
     
   function handleToolChange(tool: EditorTool) {
     setActiveTool(tool);
@@ -685,6 +328,8 @@ export function Tables() {
     canRedo,
     disabled:
       deletingTable ||
+      deletingSelectedTables ||
+      duplicatingSelectedTables ||
       historySaving ||
       creatingTable ||
       savingProperties,
@@ -828,7 +473,7 @@ export function Tables() {
           onSeatsChange={setPropertySeats}
           onShapeChange={setPropertyShape}
           onRotationChange={setPropertyRotation}
-          onClose={() => setSelectedTableId(null)}
+          onClose={clearSelection}
           onSave={handleSaveSelectedTable}
           onDelete={handleDeleteSelectedTable}
         />
