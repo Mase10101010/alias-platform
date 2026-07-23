@@ -3,6 +3,7 @@ import {
   type MouseEventHandler,
   type ReactNode,
   type WheelEventHandler,
+  type PointerEventHandler,
 } from 'react';
 import { LoaderCircle } from 'lucide-react';
 
@@ -16,6 +17,17 @@ type FloorCanvasProps = {
   onCanvasClick: MouseEventHandler<HTMLDivElement>;
   onWheel: WheelEventHandler<HTMLDivElement>;
   children: ReactNode;
+  pan: {
+    x: number;
+    y: number;
+  };
+  isPanning: boolean;
+  spacePressed: boolean;
+  onViewportPointerDown: PointerEventHandler<HTMLDivElement>;
+  onViewportPointerMove: PointerEventHandler<HTMLDivElement>;
+  onViewportPointerUp: PointerEventHandler<HTMLDivElement>;
+  onViewportPointerCancel: PointerEventHandler<HTMLDivElement>;
+  
 };
 
 export const FloorCanvas = forwardRef<
@@ -27,8 +39,15 @@ export const FloorCanvas = forwardRef<
     tablesCount,
     activeToolIsSelect,
     zoom,
+    pan,
+    isPanning,
+    spacePressed,
     onCanvasClick,
     onWheel,
+    onViewportPointerDown,
+    onViewportPointerMove,
+    onViewportPointerUp,
+    onViewportPointerCancel,
     children,
   },
   ref,
@@ -38,16 +57,24 @@ export const FloorCanvas = forwardRef<
       ref={ref}
       onClick={onCanvasClick}
       onWheel={onWheel}
+      onPointerDown={onViewportPointerDown}
+      onPointerMove={onViewportPointerMove}
+      onPointerUp={onViewportPointerUp}
+      onPointerCancel={onViewportPointerCancel}
       className={`relative h-[650px] w-full touch-none overflow-hidden rounded-3xl border border-white/10 bg-black/25 ${
-        activeToolIsSelect
-          ? 'cursor-default'
-          : 'cursor-crosshair'
+        isPanning
+          ? 'cursor-grabbing'
+          : spacePressed
+            ? 'cursor-grab'
+            : activeToolIsSelect
+              ? 'cursor-default'
+              : 'cursor-crosshair'
       }`}
     >
       <div
         className="absolute inset-0 origin-top-left"
         style={{
-          transform: `scale(${zoom})`,
+          transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
           backgroundImage:
             'linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px)',
           backgroundSize: '20px 20px',

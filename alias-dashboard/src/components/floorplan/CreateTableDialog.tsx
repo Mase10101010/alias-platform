@@ -9,6 +9,10 @@ type CreateTableDialogProps = {
   tableNumber: string;
   seats: string;
   zoom: number;
+  pan: {
+    x: number;
+    y: number;
+  };
   creating: boolean;
   onTableNumberChange: (value: string) => void;
   onSeatsChange: (value: string) => void;
@@ -22,6 +26,7 @@ export function CreateTableDialog({
   seats,
   creating,
   zoom,
+  pan,
   onTableNumberChange,
   onSeatsChange,
   onCancel,
@@ -53,8 +58,8 @@ export function CreateTableDialog({
     <div
       className="absolute z-50 w-72 rounded-2xl border border-white/10 bg-[#0e1322] p-5 shadow-[0_24px_80px_rgba(0,0,0,.65)]"
       style={{
-        left: pendingTable.x * zoom,
-        top: pendingTable.y * zoom,
+        left: pan.x + pendingTable.x * zoom,
+        top: pan.y + pendingTable.y * zoom,
         transform: 'translate(-50%, -50%)',
       }}
       onClick={(event) => event.stopPropagation()}

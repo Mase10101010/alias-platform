@@ -21,6 +21,10 @@ type UseFloorRotateOptions = {
   canvasRef: RefObject<HTMLDivElement | null>;
   savingTableId: string | null;
   zoom: number;
+  pan: {
+    x: number;
+    y: number;
+  };
   setSavingTableId: React.Dispatch<
     React.SetStateAction<string | null>
   >;
@@ -42,6 +46,7 @@ export function useFloorRotate({
   restaurantId,
   canvasRef,
   zoom,
+  pan,
   savingTableId,
   setSavingTableId,
   setTables,
@@ -99,11 +104,13 @@ export function useFloorRotate({
     const rect = canvas.getBoundingClientRect();
 
     const centerX =
-      rect.left + 
+      rect.left +
+      pan.x + 
       (table.x + table.width / 2) * zoom;
 
     const centerY =
-      rect.top + 
+      rect.top +
+      pan.y + 
       (table.y + table.height / 2) * zoom;
 
     const angle =

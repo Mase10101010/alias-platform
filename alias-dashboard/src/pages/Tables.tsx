@@ -106,10 +106,16 @@ export function Tables() {
     zoomPercentage,
     canZoomIn,
     canZoomOut,
+    pan,
+    isPanning,
+    spacePressed,
     zoomIn,
     zoomOut,
-    resetZoom,
+    resetViewport,
     handleWheel,
+    handleViewportPointerDown,
+    handleViewportPointerMove,
+    finishViewportPan,
   } = useFloorViewport();
 
   const {
@@ -138,6 +144,7 @@ export function Tables() {
     canvasRef,
     activeTool,
     zoom,
+    pan,
     setPendingTable,
     clearSelection,
     resetCreateForm() {
@@ -208,6 +215,7 @@ export function Tables() {
     restaurantId,
     canvasRef,
     zoom,
+    pan,
     savingTableId,
     setSavingTableId,
     setTables,
@@ -332,8 +340,15 @@ export function Tables() {
             tablesCount={tables.length}
             activeToolIsSelect={activeTool === 'select'}
             zoom={zoom}
+            pan={pan}
+            isPanning={isPanning}
+            spacePressed={spacePressed}
             onCanvasClick={handleCanvasClick}
             onWheel={handleWheel}
+            onViewportPointerDown={handleViewportPointerDown}
+            onViewportPointerMove={handleViewportPointerMove}
+            onViewportPointerUp={finishViewportPan}
+            onViewportPointerCancel={finishViewportPan}
           >
             {guideLines.vertical !== null && (
               <div
@@ -409,7 +424,7 @@ export function Tables() {
             canZoomOut={canZoomOut}
             onZoomIn={zoomIn}
             onZoomOut={zoomOut}
-            onReset={resetZoom}
+            onReset={resetViewport}
           />
 
           <CreateTableDialog
@@ -418,6 +433,7 @@ export function Tables() {
             seats={newTableSeats}
             creating={creatingTable}
             zoom={zoom}
+            pan={pan}
             onTableNumberChange={setNewTableNumber}
             onSeatsChange={setNewTableSeats}
             onCancel={closeCreateDialog}
