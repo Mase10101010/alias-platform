@@ -22,6 +22,7 @@ type PanState = {
   startPointerY: number;
   startPanX: number;
   startPanY: number;
+  hasMoved: boolean;
 };
 
 function clampZoom(value: number) {
@@ -43,6 +44,8 @@ export function useFloorViewport() {
   const [spacePressed, setSpacePressed] = useState(false);
 
   const panRef = useRef<PanState | null>(null);
+
+  const suppressNextClickRef = useRef(false);
 
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
@@ -146,6 +149,7 @@ export function useFloorViewport() {
       startPointerY: event.clientY,
       startPanX: pan.x,
       startPanY: pan.y,
+      hasMoved: false,
     };
 
     setIsPanning(true);
@@ -169,6 +173,13 @@ export function useFloorViewport() {
     const deltaY =
       event.clientY - currentPan.startPointerY;
 
+    if (
+      Math.abs(deltaX) >= 3 ||
+      Math.abs(deltaY) >+ 3
+    ) {
+      currentPan.hasMoved = true;
+    }
+
     setPan({
       x: currentPan.startPanX + deltaX,
       y: currentPan.startPanY + deltaY,
@@ -187,6 +198,10 @@ export function useFloorViewport() {
       return;
     }
 
+    if (currentPan.hasMoved) {
+      suppressNextClickRef.current = true
+    }
+
     panRef.current = null;
     setIsPanning(false);
 
@@ -197,6 +212,15 @@ export function useFloorViewport() {
         event.pointerId,
       );
     }
+  }
+
+  function consumeSuppressedClick() {
+    if (!suppressNextClickRef.current) {
+      return false;
+    }
+
+    suppressNextClickRef.current = false;
+    return true;
   }
 
   return {
@@ -217,5 +241,6 @@ export function useFloorViewport() {
     handleViewportPointerDown,
     handleViewportPointerMove,
     finishViewportPan,
+    consumeSuppressedClick,
   };
 }

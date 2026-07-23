@@ -14,6 +14,7 @@ type TableNodeProps = {
   table: TableResponse;
   saving: boolean;
   selected?: boolean;
+  viewPortPanningEnabled?: boolean;
   draggingEnabled: boolean;
   onClick?: MouseEventHandler<HTMLDivElement>;
   onPointerDown: PointerEventHandler<HTMLDivElement>;
@@ -57,6 +58,7 @@ export function TableNode({
   saving,
   selected = false,
   draggingEnabled,
+  viewPortPanningEnabled = false,
   onClick,
   onPointerDown,
   onPointerMove,
@@ -81,6 +83,9 @@ export function TableNode({
         onClick?.(event);
       }}
       onPointerDown={(event) => {
+        if (viewPortPanningEnabled || event.button === 1) {
+          return;
+        }
         event.stopPropagation();
         onPointerDown(event);
       }}

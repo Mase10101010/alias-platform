@@ -116,6 +116,7 @@ export function Tables() {
     handleViewportPointerDown,
     handleViewportPointerMove,
     finishViewportPan,
+    consumeSuppressedClick,
   } = useFloorViewport();
 
   const {
@@ -352,7 +353,14 @@ export function Tables() {
             pan={pan}
             isPanning={isPanning}
             spacePressed={spacePressed}
-            onCanvasClick={handleCanvasClick}
+            onCanvasClick={(event) => {
+              if (consumeSuppressedClick()) {
+                event.preventDefault();
+                return;
+              }
+
+              handleCanvasClick(event);
+            }}
             onWheel={handleWheel}
             onViewportPointerDown={handleViewportPointerDown}
             onViewportPointerMove={handleViewportPointerMove}
@@ -389,6 +397,7 @@ export function Tables() {
                     !spacePressed &&
                     !isPanning
                   }
+                  viewPortPanningEnabled={spacePressed || isPanning} 
                   onClick={(event) => {
                     if (activeTool !== 'select') {
                       return;
