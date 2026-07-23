@@ -11,6 +11,9 @@ import { useFloorBulkActions } from '@/hooks/useFloorBulkActions';
 import { useFloorHistory } from '@/hooks/useFloorHistory';
 import { useFloorPlacement } from '@/hooks/useFloorPlacement';
 
+import { useFloorViewport } from '@/hooks/useFloorViewport';
+import { ZoomControls } from '@/components/floorplan/ZoomControls';
+
 import {
   useFloorDrag,
   type GuideLines,
@@ -103,6 +106,17 @@ export function Tables() {
     useState<EditorTool>('select');
 
   const canvasRef = useRef<HTMLDivElement | null>(null);
+
+  const {
+    zoom,
+    zoomPercentage,
+    canZoomIn,
+    canZoomOut,
+    zoomIn,
+    zoomOut,
+    resetZoom,
+    handleWheel,
+  } = useFloorViewport();
 
   const {
     pendingTable,
@@ -388,6 +402,15 @@ export function Tables() {
                 />
               ))}
           </FloorCanvas>
+
+          <ZoomControls
+            zoomPercentage={zoomPercentage}
+            canZoomIn={canZoomIn}
+            canZoomOut={canZoomOut}
+            onZoomIn={zoomIn}
+            onZoomOut={zoomOut}
+            onReset={resetZoom}
+          />
 
           <CreateTableDialog
             pendingTable={pendingTable}
