@@ -22,12 +22,6 @@ import {
 
 import { useFloorRotate } from '@/hooks/useFloorRotate';
 
-import {
-  snapToGrid,
-} from '@/hooks/useFloorGeometry';
-
-import type { TableShape } from '@/lib/api';
-
 import { useSelection } from '@/hooks/useSelection';
 
 import {
@@ -143,6 +137,7 @@ export function Tables() {
   const { handleCanvasClick } = useFloorPlacement({
     canvasRef,
     activeTool,
+    zoom,
     setPendingTable,
     clearSelection,
     resetCreateForm() {
@@ -179,6 +174,7 @@ export function Tables() {
     tables,
     canvasRef,
     enabled: activeTool === 'select',
+    zoom,
     savingTableId,
     setTables,
     setSavingTableId,
@@ -211,6 +207,7 @@ export function Tables() {
   } = useFloorRotate({
     restaurantId,
     canvasRef,
+    zoom,
     savingTableId,
     setSavingTableId,
     setTables,
@@ -244,6 +241,7 @@ export function Tables() {
     tables,
     canvasRef,
     enabled: activeTool === 'select',
+    zoom,
     savingTableId,
     setTables,
     setSavingTableId,
@@ -333,7 +331,9 @@ export function Tables() {
             loading={loading}
             tablesCount={tables.length}
             activeToolIsSelect={activeTool === 'select'}
+            zoom={zoom}
             onCanvasClick={handleCanvasClick}
+            onWheel={handleWheel}
           >
             {guideLines.vertical !== null && (
               <div
@@ -417,6 +417,7 @@ export function Tables() {
             tableNumber={newTableNumber}
             seats={newTableSeats}
             creating={creatingTable}
+            zoom={zoom}
             onTableNumberChange={setNewTableNumber}
             onSeatsChange={setNewTableSeats}
             onCancel={closeCreateDialog}

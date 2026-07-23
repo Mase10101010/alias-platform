@@ -29,6 +29,7 @@ type UseFloorResizeOptions = {
   tables: TableResponse[];
   canvasRef: RefObject<HTMLDivElement | null>;
   enabled: boolean;
+  zoom: number;
   savingTableId: string | null;
   setTables: React.Dispatch<
     React.SetStateAction<TableResponse[]>
@@ -56,6 +57,7 @@ export function useFloorResize({
   tables,
   canvasRef,
   enabled,
+  zoom,
   savingTableId,
   setTables,
   setSavingTableId,
@@ -105,8 +107,10 @@ export function useFloorResize({
       return;
     }
 
-    const deltaX = event.clientX - resize.startPointerX;
-    const deltaY = event.clientY - resize.startPointerY;
+    const deltaX = 
+        (event.clientX - resize.startPointerX) / zoom;
+    const deltaY = 
+        (event.clientY - resize.startPointerY) / zoom;
     const minSize = 60;
 
     let nextWidth = Math.max(

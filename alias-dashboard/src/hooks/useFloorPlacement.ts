@@ -11,6 +11,7 @@ import { snapToGrid } from '@/hooks/useFloorGeometry';
 type UseFloorPlacementOptions = {
   canvasRef: RefObject<HTMLDivElement | null>;
   activeTool: EditorTool;
+  zoom: number;
   setPendingTable: (
     table: PendingTable | null,
   ) => void;
@@ -52,6 +53,7 @@ export function useFloorPlacement({
   canvasRef,
   activeTool,
   setPendingTable,
+  zoom,
   clearSelection,
   resetCreateForm,
 }: UseFloorPlacementOptions) {
@@ -74,15 +76,17 @@ export function useFloorPlacement({
     const dimensions =
       getDefaultTableDimensions(shape);
 
+    const pointerX =
+      (event.clientX - rect.left) / zoom;
+
+    const pointerY =
+      (event.clientY - rect.top) / zoom;
+    
     const rawX =
-      event.clientX -
-      rect.left -
-      dimensions.width / 2;
+      pointerX - dimensions.width / 2;
 
     const rawY =
-      event.clientY -
-      rect.top -
-      dimensions.height / 2;
+      pointerY - dimensions.height / 2;
 
     const maximumX = Math.max(
       0,

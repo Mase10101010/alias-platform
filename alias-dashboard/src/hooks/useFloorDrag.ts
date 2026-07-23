@@ -32,6 +32,7 @@ type DragState = {
 
 type UseFloorDragOptions = {
   restaurantId: string | null;
+  zoom: number;
   tables: TableResponse[];
   canvasRef: RefObject<HTMLDivElement | null>;
   enabled: boolean;
@@ -65,6 +66,7 @@ export function useFloorDrag({
   tables,
   canvasRef,
   enabled,
+  zoom,
   savingTableId,
   setTables,
   setSavingTableId,
@@ -114,8 +116,11 @@ export function useFloorDrag({
       return;
     }
 
-    const deltaX = event.clientX - drag.startPointerX;
-    const deltaY = event.clientY - drag.startPointerY;
+    const deltaX = 
+      (event.clientX - drag.startPointerX) / zoom;
+
+    const deltaY = 
+    (event.clientY - drag.startPointerY) / zoom;
 
     const position = clampTablePosition(
       canvasRef,
