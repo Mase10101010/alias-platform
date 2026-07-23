@@ -1,7 +1,6 @@
 import {
   useRef,
   useState,
-  type MouseEvent as ReactMouseEvent,
 } from 'react';
 
 import { useFloorKeyboard } from '@/hooks/useFloorKeyboard';
@@ -10,6 +9,7 @@ import { useFloorPlanLoader } from '@/hooks/useFloorPlanLoader';
 import { useTableProperties } from '@/hooks/useTableProperties';
 import { useFloorBulkActions } from '@/hooks/useFloorBulkActions';
 import { useFloorHistory } from '@/hooks/useFloorHistory';
+import { useFloorPlacement } from '@/hooks/useFloorPlacement';
 
 import {
   useFloorDrag,
@@ -38,20 +38,6 @@ import {
   Toolbar,
   type EditorTool,
 } from '@/components/floorplan/Toolbar';
-
-function getTableDimensions(shape: TableShape) {
-  if (shape === 'rectangle') {
-    return {
-      width: 140,
-      height: 80,
-    };
-  }
-
-  return {
-    width: 80,
-    height: 80,
-  };
-}
 
 export function Tables() {
   const [savingTableId, setSavingTableId] = useState<
@@ -113,6 +99,11 @@ export function Tables() {
     onError: setError,
   });
 
+  const [activeTool, setActiveTool] =
+    useState<EditorTool>('select');
+
+  const canvasRef = useRef<HTMLDivElement | null>(null);
+
   const {
     pendingTable,
     setPendingTable,
@@ -135,16 +126,22 @@ export function Tables() {
     },
   });
 
-  const [activeTool, setActiveTool] =
-    useState<EditorTool>('select');
+  const { handleCanvasClick } = useFloorPlacement({
+    canvasRef,
+    activeTool,
+    setPendingTable,
+    clearSelection,
+    resetCreateForm() {
+      setNewTableNumber('');
+      setNewTableSeats('4');
+    },
+  });
 
   const [guideLines, setGuideLines] = 
     useState<GuideLines>({
       vertical: null,
       horizontal: null,
     });
-
-  const canvasRef = useRef<HTMLDivElement | null>(null);
   
   const {
     record,
@@ -256,62 +253,6 @@ export function Tables() {
       });
     },
   });
-
-  function getShapeFromTool(): TableShape {
-    if (activeTool === 'add-round') {
-      return 'round';
-    }
-
-    if (activeTool === 'add-rectangle') {
-      return 'rectangle';
-    }
-
-    return 'square';
-  }
-
-  function handleCanvasClick(
-    event: ReactMouseEvent<HTMLDivElement>,
-  ) {
-    if (activeTool === 'select') {
-      clearSelection();
-      return;
-    }
-
-    const canvas = canvasRef.current;
-
-    if (!canvas) {
-      return;
-    }
-
-    const rect = canvas.getBoundingClientRect();
-    const shape = getShapeFromTool();
-    const dimensions = getTableDimensions(shape);
-
-    const rawX =
-      event.clientX - rect.left - dimensions.width / 2;
-    const rawY =
-      event.clientY - rect.top - dimensions.height / 2;
-
-    const x = Math.min(
-      Math.max(0, rawX),
-      Math.max(0, canvas.clientWidth - dimensions.width),
-    );
-
-    const y = Math.min(
-      Math.max(0, rawY),
-      Math.max(0, canvas.clientHeight - dimensions.height),
-    );
-
-    setPendingTable({
-      x: snapToGrid(x),
-      y: snapToGrid(y),
-      shape,
-    });
-
-    setSelectedTableId(null);
-    setNewTableNumber('');
-    setNewTableSeats('4');
-  }
     
   function handleToolChange(tool: EditorTool) {
     setActiveTool(tool);
