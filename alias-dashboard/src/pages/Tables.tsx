@@ -8,8 +8,12 @@ import {
 
 import { useFloorKeyboard } from '@/hooks/useFloorKeyboard';
 
+import {
+  useFloorDrag,
+  type GuideLines,
+} from '@/hooks/useFloorDrag';
+
 import { useHistory } from '@/hooks/useHistory';
-import { useFloorDrag } from '@/hooks/useFloorDrag';
 
 import {
   floorRectsOverlap,
@@ -42,16 +46,6 @@ import {
   type EditorTool,
 } from '@/components/floorplan/Toolbar';
 
-type DragState = {
-  tableId: string;
-  pointerId: number;
-  startPointerX: number;
-  startPointerY: number;
-  startTableX: number;
-  startTableY: number;
-  currentX: number;
-  currentY: number;
-};
 
 type ResizeState = {
   tableId: string;
@@ -157,14 +151,11 @@ export function Tables() {
   const [activeTool, setActiveTool] =
     useState<EditorTool>('select');
 
-  const { dragRef } = useFloorDrag();
-  const [guideLines, setGuideLines] = useState<{
-    vertical: number | null;
-    horizontal: number | null;
-  }>({
-    vertical: null,
-    horizontal: null,
-  });
+  const [guideLines, setGuideLines] = 
+    useState<GuideLines>({
+      vertical: null,
+      horizontal: null,
+    });
 
   const canvasRef = useRef<HTMLDivElement | null>(null);
   
@@ -179,6 +170,40 @@ export function Tables() {
     commitUndo,
     commitRedo,
   } = useHistory<FloorHistoryChange>();
+
+  const {
+    handlePointerDown,
+    handlePointerMove,
+    finishDrag,
+  } = useFloorDrag({
+    restaurantId,
+    tables,
+    canvasRef,
+    enabled: activeTool === 'select',
+    savingTableId,
+    setTables,
+    setSavingTableId,
+    setGuideLines,
+    selectTable: setSelectedTableId,
+    onError: setError,
+    onMoveSaved(table, before, after) {
+      record({
+        label: `Move table ${table.table_number}`,
+        before: {
+          type: 'move',
+          tableId: table.id,
+          x: before.x,
+          y: before.y,
+        },
+        after: {
+          type: 'move',
+          tableId: table.id,
+          x: after.x,
+          y: after.y,
+        },
+      });
+    },
+  });
 
   useEffect(() => {
     async function loadFloorPlan() {
@@ -224,33 +249,6 @@ export function Tables() {
     setPropertyRotation(String(selectedTable.rotation));
   }, [selectedTable]);
 
-  function handlePointerDown(
-    event: ReactPointerEvent<HTMLDivElement>,
-    table: TableResponse,
-  ) {
-    if (
-      activeTool !== 'select' ||
-      savingTableId === table.id
-    ) {
-      return;
-    }
-
-    event.preventDefault();
-    event.currentTarget.setPointerCapture(event.pointerId);
-
-    setSelectedTableId(table.id);
-
-    dragRef.current = {
-      tableId: table.id,
-      pointerId: event.pointerId,
-      startPointerX: event.clientX,
-      startPointerY: event.clientY,
-      startTableX: table.x,
-      startTableY: table.y,
-      currentX: table.x,
-      currentY: table.y,
-    };
-  }
 
   function handleResizePointerDown(
     event: ReactPointerEvent<HTMLButtonElement>,
@@ -598,164 +596,6 @@ export function Tables() {
       );
 
       setError('Unable to save the new table size.');
-    } finally {
-      setSavingTableId(null);
-    }
-  }
-
-  function handlePointerMove(
-    event: ReactPointerEvent<HTMLDivElement>,
-    table: TableResponse,
-  ) {
-    const drag = dragRef.current;
-
-    if (
-      !drag ||
-      drag.tableId !== table.id ||
-      drag.pointerId !== event.pointerId
-    ) {
-      return;
-    }
-
-    const deltaX = event.clientX - drag.startPointerX;
-    const deltaY = event.clientY - drag.startPointerY;
-
-    const position = clampTablePosition(
-      canvasRef,
-      table,
-      drag.startTableX + deltaX,
-      drag.startTableY + deltaY,
-    );
-
-    drag.currentX = snapToGrid(position.x);
-    drag.currentY = snapToGrid(position.y);
-
-    setGuideLines({
-      vertical: drag.currentX,
-      horizontal: drag.currentY,
-    });
-
-    const collides = tables.some((otherTable) => {
-      if (otherTable.id === table.id) {
-        return false;
-      }
-
-      return floorRectsOverlap(
-        {
-          x: drag.currentX,
-          y: drag.currentY,
-          width: table.width,
-          height: table.height,
-        },
-        otherTable,
-      );
-    });
-
-    if (collides) {
-      return;
-    }
-
-    setTables((current) =>
-      current.map((item) =>
-        item.id === table.id
-          ? {
-              ...item,
-              x: drag.currentX,
-              y: drag.currentY,
-            }
-          : item,
-      ),
-    );
-  }
-
-  async function finishDrag(
-    event: ReactPointerEvent<HTMLDivElement>,
-    table: TableResponse,
-  ) {
-    const drag = dragRef.current;
-
-    if (
-      !drag ||
-      drag.tableId !== table.id ||
-      drag.pointerId !== event.pointerId
-    ) {
-      return;
-    }
-
-    dragRef.current = null;
-
-    setGuideLines({
-      vertical: null,
-      horizontal: null,
-    });
-
-    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-      event.currentTarget.releasePointerCapture(
-        event.pointerId,
-      );
-    }
-
-    const hasMoved =
-      drag.currentX !== drag.startTableX ||
-      drag.currentY !== drag.startTableY;
-
-    if (!restaurantId || !hasMoved) {
-      return;
-    }
-
-    try {
-      setSavingTableId(table.id);
-      setError('');
-
-      const updated = await updateTable(
-        restaurantId,
-        table.id,
-        {
-          x: drag.currentX,
-          y: drag.currentY,
-        },
-      );
-
-      setTables((current) =>
-        current.map((item) =>
-          item.id === updated.id ? updated : item,
-        ),
-      );
-
-      record({
-        label: `Move table ${table.table_number}`,
-        before: {
-          type: 'move',
-          tableId: table.id,
-          x: drag.startTableX,
-          y: drag.startTableY,
-        },
-        after: {
-          type: 'move',
-          tableId: table.id,
-          x: updated.x,
-          y: updated.y,
-        },
-      });
-    } catch (saveError) {
-      console.error(
-        'Failed to save table position',
-        saveError,
-      );
-
-      setTables((current) =>
-        current.map((item) =>
-          item.id === table.id
-            ? {
-                ...item,
-                x: drag.startTableX,
-                y: drag.startTableY,
-              }
-            : item,
-        ),
-      );
-
-      setError('Unable to save the new table position.');
     } finally {
       setSavingTableId(null);
     }
