@@ -32,6 +32,14 @@ function clampZoom(value: number) {
   );
 }
 
+function clampPanValue(
+  value: number,
+  minimum: number,
+  maximum: number,
+) {
+  return Math.min(maximum, Math.max(minimum, value));
+}
+
 export function useFloorViewport() {
   const [zoom, setZoom] = useState(1);
 
@@ -180,9 +188,14 @@ export function useFloorViewport() {
       currentPan.hasMoved = true;
     }
 
+    const nextX = currentPan.startPanX + deltaX;
+    const nextY = currentPan.startPanY + deltaY;
+
+    const panLimit = 1200;
+
     setPan({
-      x: currentPan.startPanX + deltaX,
-      y: currentPan.startPanY + deltaY,
+      x: clampPanValue(nextX, -panLimit, panLimit),
+      y: clampPanValue(nextY, -panLimit, panLimit),
     });
   }
 
