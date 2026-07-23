@@ -180,7 +180,10 @@ export function Tables() {
     restaurantId,
     tables,
     canvasRef,
-    enabled: activeTool === 'select',
+    enabled: 
+      activeTool === 'select' &&
+      !spacePressed &&
+      !isPanning,
     zoom,
     savingTableId,
     setTables,
@@ -221,7 +224,10 @@ export function Tables() {
     setTables,
     setPropertyRotation,
     selectTable: setSelectedTableId,
-    enabled: activeTool === 'select',
+    enabled: 
+      activeTool === 'select' &&
+      !spacePressed &&
+      !isPanning,
     onError: setError,
     onSaved(table, before, after) {
       record({
@@ -248,7 +254,10 @@ export function Tables() {
     restaurantId,
     tables,
     canvasRef,
-    enabled: activeTool === 'select',
+    enabled: 
+      activeTool === 'select' &&
+      !spacePressed &&
+      !isPanning,
     zoom,
     savingTableId,
     setTables,
@@ -375,7 +384,11 @@ export function Tables() {
                   table={table}
                   saving={savingTableId === table.id}
                   selected={selectedTableIds.includes(table.id)}
-                  draggingEnabled={activeTool === 'select'}
+                  draggingEnabled={
+                    activeTool === 'select' &&
+                    !spacePressed &&
+                    !isPanning
+                  }
                   onClick={(event) => {
                     if (activeTool !== 'select') {
                       return;
