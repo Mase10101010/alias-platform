@@ -399,6 +399,11 @@ export function Tables() {
                   }
                   viewPortPanningEnabled={spacePressed || isPanning} 
                   onClick={(event) => {
+                    if (consumeSuppressedClick()) {
+                      event.preventDefault();
+                      return;
+                    }
+
                     if (activeTool !== 'select') {
                       return;
                     }
