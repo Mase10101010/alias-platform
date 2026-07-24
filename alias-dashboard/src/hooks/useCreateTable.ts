@@ -14,6 +14,7 @@ export type PendingTable = {
 
 type CreateTableOptions = {
   restaurantId: string | null;
+  floorPlanId: string | null;
   onCreated: (table: TableResponse) => void;
   onError: (message: string) => void;
 };
@@ -35,6 +36,7 @@ function getDimensions(shape: TableShape) {
 export function useCreateTable({
   restaurantId,
   onCreated,
+  floorPlanId,
   onError,
 }: CreateTableOptions) {
   const [pendingTable, setPendingTable] =
@@ -56,7 +58,11 @@ export function useCreateTable({
   }
 
   async function create() {
-    if (!restaurantId || !pendingTable) {
+    if (
+      !restaurantId ||
+      !floorPlanId || 
+      !pendingTable
+    ) {
       return;
     }
 
@@ -80,6 +86,7 @@ export function useCreateTable({
       const created = await createTable(
         restaurantId,
         {
+          floor_plan_id: floorPlanId,
           table_number: tableNumber.trim(),
           seats: parsedSeats,
           x: pendingTable.x,

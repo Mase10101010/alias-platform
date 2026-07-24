@@ -14,6 +14,8 @@ import { useFloorPlacement } from '@/hooks/useFloorPlacement';
 import { useFloorViewport } from '@/hooks/useFloorViewport';
 import { ZoomControls } from '@/components/floorplan/ZoomControls';
 
+import { FloorPlanNavigator } from '@/components/floorplan/FloorPlanNavigator';
+
 import {
   useFloorDrag,
   type GuideLines,
@@ -45,6 +47,12 @@ export function Tables() {
   const [error, setError] = useState('');
   const {
     restaurantId,
+    serviceAreas,
+    selectedAreaId,
+    selectArea,
+    floorPlans,
+    selectedFloorPlanId,
+    selectFloorPlan,
     tables,
     setTables,
     loading,
@@ -131,6 +139,7 @@ export function Tables() {
     create: handleCreateTable,
   } = useCreateTable({
     restaurantId,
+    floorPlanId: selectedFloorPlanId,
     onCreated(created) {
       setTables((current) => [...current, created]);
       setSelectedTableId(created.id);
@@ -327,6 +336,34 @@ export function Tables() {
           tables used by reservations and Alias Concierge AI.
         </p>
       </div>
+
+      <FloorPlanNavigator
+        serviceAreas={serviceAreas}
+        selectedAreaId={selectedAreaId}
+        floorPlans={floorPlans}
+        selectedFloorPlanId={selectedFloorPlanId}
+        disabled={
+          loading ||
+          creatingTable ||
+          savingProperties ||
+          deletingTable ||
+          deletingSelectedTables ||
+          duplicatingSelectedTables ||
+          historySaving
+        }
+        onAreaChange={(areaId) => {
+          clearSelection();
+          setPendingTable(null);
+          resetViewport();
+          void selectArea(areaId);
+        }}
+        onFloorPlanChange={(floorPlanId) => {
+          clearSelection();
+          setPendingTable(null);
+          resetViewport();
+          void selectFloorPlan(floorPlanId);
+        }}
+      />
 
       <Toolbar
         activeTool={activeTool}

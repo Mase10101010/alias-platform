@@ -379,9 +379,77 @@ export async function sendVerificationEmail(
   return response.json();
 }
 
+export type ServiceAreaType =
+  | 'indoor'
+  | 'outdoor'
+  | 'terrace'
+  | 'garden'
+  | 'bar'
+  | 'private'
+  | 'rooftop'
+  | 'other';
+
+export type ServiceAreaResponse = {
+  id: string;
+  restaurant_id: string;
+  name: string;
+  area_type: ServiceAreaType;
+  color: string;
+  sort_order: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type ServiceAreaCreate = {
+  name: string;
+  area_type?: ServiceAreaType;
+  color?: string;
+  sort_order?: number;
+};
+
+export type ServiceAreaUpdate = {
+  name?: string;
+  area_type?: ServiceAreaType;
+  color?: string;
+  sort_order?: number;
+  is_active?: boolean;
+};
+
+export type FloorPlanResponse = {
+  id: string;
+  service_area_id: string;
+  name: string;
+  width: number;
+  height: number;
+  sort_order: number;
+  is_default: boolean;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type FloorPlanCreate = {
+  name?: string;
+  width?: number;
+  height?: number;
+  sort_order?: number;
+  is_default?: boolean;
+};
+
+export type FloorPlanUpdate = {
+  name?: string;
+  width?: number;
+  height?: number;
+  sort_order?: number;
+  is_default?: boolean;
+  is_active?: boolean;
+};
+
 export type TableShape = 'square' | 'round' | 'rectangle';
 
 export type TableCreate = {
+  floor_plan_id: string;
   table_number: string;
   seats: number;
   x?: number;
@@ -393,6 +461,7 @@ export type TableCreate = {
 };
 
 export type TableUpdate = {
+  floor_plan_id?: string;
   table_number?: string;
   seats?: number;
   is_active?: boolean;
@@ -406,6 +475,7 @@ export type TableUpdate = {
 
 export type TableResponse = {
   id: string;
+  floor_plan_id: string;
   restaurant_id: string;
   table_code: string;
   table_number: string;
@@ -421,13 +491,18 @@ export type TableResponse = {
   updated_at: string;
 };
 
-export async function getTables(
+export async function getServiceAreas(
   restaurantId: string,
-): Promise<TableResponse[]> {
+  includeInactive = false,
+): Promise<ServiceAreaResponse[]> {
   const token = getAuthToken();
 
+  const query = new URLSearchParams({
+    include_inactive: String(includeInactive),
+  });
+
   const response = await fetch(
-    `${API_BASE_URL}/api/v1/restaurants/${restaurantId}/tables`,
+    `${API_BASE_URL}/api/v1/restaurants/${restaurantId}/service-areas?${query.toString()}`,
     {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -436,7 +511,239 @@ export async function getTables(
   );
 
   if (!response.ok) {
-    throw await parseApiError(response, 'Unable to load tables');
+    throw await parseApiError(
+      response,
+      'Unable to load service areas',
+    );
+  }
+
+  return response.json();
+}
+
+export async function createServiceArea(
+  restaurantId: string,
+  payload: ServiceAreaCreate,
+): Promise<ServiceAreaResponse> {
+  const token = getAuthToken();
+
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/restaurants/${restaurantId}/service-areas`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    },
+  );
+
+  if (!response.ok) {
+    throw await parseApiError(
+      response,
+      'Unable to create service area',
+    );
+  }
+
+  return response.json();
+}
+
+export async function updateServiceArea(
+  restaurantId: string,
+  areaId: string,
+  payload: ServiceAreaUpdate,
+): Promise<ServiceAreaResponse> {
+  const token = getAuthToken();
+
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/restaurants/${restaurantId}/service-areas/${areaId}`,
+    {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    },
+  );
+
+  if (!response.ok) {
+    throw await parseApiError(
+      response,
+      'Unable to update service area',
+    );
+  }
+
+  return response.json();
+}
+
+export async function deactivateServiceArea(
+  restaurantId: string,
+  areaId: string,
+): Promise<ServiceAreaResponse> {
+  const token = getAuthToken();
+
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/restaurants/${restaurantId}/service-areas/${areaId}/deactivate`,
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+
+  if (!response.ok) {
+    throw await parseApiError(
+      response,
+      'Unable to deactivate service area',
+    );
+  }
+
+  return response.json();
+
+}
+
+export async function getFloorPlans(
+  restaurantId: string,
+  areaId: string,
+): Promise<FloorPlanResponse[]> {
+  const token = getAuthToken();
+
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/restaurants/${restaurantId}/service-areas/${areaId}/floor-plans`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+
+  if (!response.ok) {
+    throw await parseApiError(
+      response,
+      'Unable to load floor plans',
+    );
+  }
+
+  return response.json();
+}
+
+export async function createFloorPlan(
+  restaurantId: string,
+  areaId: string,
+  payload: FloorPlanCreate,
+): Promise<FloorPlanResponse> {
+  const token = getAuthToken();
+
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/restaurants/${restaurantId}/service-areas/${areaId}/floor-plans`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    },
+  );
+
+  if (!response.ok) {
+    throw await parseApiError(
+      response,
+      'Unable to create floor plan',
+    );
+  }
+
+  return response.json();
+}
+
+export async function updateFloorPlan(
+  restaurantId: string,
+  areaId: string,
+  floorPlanId: string,
+  payload: FloorPlanUpdate,
+): Promise<FloorPlanResponse> {
+  const token = getAuthToken();
+
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/restaurants/${restaurantId}/service-areas/${areaId}/floor-plans/${floorPlanId}`,
+    {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    },
+  );
+
+  if (!response.ok) {
+    throw await parseApiError(
+      response,
+      'Unable to update floor plan',
+    );
+  }
+
+  return response.json();
+}
+
+export async function deactivateFloorPlan(
+  restaurantId: string,
+  areaId: string,
+  floorPlanId: string,
+): Promise<FloorPlanResponse> {
+  const token = getAuthToken();
+
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/restaurants/${restaurantId}/service-areas/${areaId}/floor-plans/${floorPlanId}/deactivate`,
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+
+  if (!response.ok) {
+    throw await parseApiError(
+      response,
+      'Unable to deactivate floor plan',
+    );
+  }
+
+  return response.json();
+}
+export async function getTables(
+  restaurantId: string,
+  floorPlanId?: string | null,
+): Promise<TableResponse[]> {
+  const token = getAuthToken();
+
+  const query = new URLSearchParams();
+
+  if (floorPlanId) {
+    query.set('floor_plan_id', floorPlanId);
+  }
+
+  const queryString = query.toString();
+
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/restaurants/${restaurantId}/tables${
+      queryString ? `?${queryString}` : ''
+    }`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+
+  if (!response.ok) {
+    throw await parseApiError(
+      response,
+      'Unable to load tables',
+    );
   }
 
   return response.json();
