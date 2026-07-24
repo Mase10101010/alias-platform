@@ -363,6 +363,12 @@ export function Tables() {
           resetViewport();
           void selectFloorPlan(floorPlanId);
         }}
+        onCreateArea={() => {
+          console.log('create area');
+        }}
+        onCreateFloorPlan={() => {
+          console.log('create floor plan');
+        }}
       />
 
       <Toolbar
