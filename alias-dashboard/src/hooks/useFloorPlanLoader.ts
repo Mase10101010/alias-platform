@@ -252,6 +252,28 @@ export function useFloorPlanLoader({
     }
   }
 
+  async function refreshFloorPlans(areaId?: string) {
+    if (!restaurantId) {
+      return [];
+    }
+
+    const targetAreaId =
+      areaId ?? selectedAreaId;
+
+    if (!targetAreaId) {
+      return [];
+    }
+
+    const plans = await getFloorPlans(
+      restaurantId,
+      targetAreaId,
+    );
+
+    setFloorPlans(plans);
+
+    return plans;
+  }
+
   return {
     restaurantId,
 
@@ -263,6 +285,7 @@ export function useFloorPlanLoader({
     floorPlans,
     selectedFloorPlanId,
     selectFloorPlan,
+    refreshFloorPlans,
 
     tables,
     setTables,

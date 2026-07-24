@@ -5,6 +5,7 @@ import {
 
 import {
   createServiceArea,
+  createFloorPlan,
   type ServiceAreaType,
 } from '@/lib/api';
 
@@ -29,6 +30,10 @@ import {
   useFloorDrag,
   type GuideLines,
 } from '@/hooks/useFloorDrag';
+
+import {
+  CreateFloorPlanDialog,
+} from '@/components/floorplan/CreateFloorPlanDialog';
 
 
 import { useFloorRotate } from '@/hooks/useFloorRotate';
@@ -57,6 +62,24 @@ export function Tables() {
   const [createAreaOpen, setCreateAreaOpen] =
     useState(false);
 
+  const [createFloorPlanOpen, setCreateFloorPlanOpen] =
+    useState(false);
+
+  const [newFloorPlanName, setNewFloorPlanName] =
+    useState('');
+
+  const [newFloorPlanWidth, setNewFloorPlanWidth] =
+    useState('1200');
+
+  const [newFloorPlanHeight, setNewFloorPlanHeight] =
+    useState('800');
+
+  const [newFloorPlanDefault, setNewFloorPlanDefault] =
+    useState(false);
+
+  const [creatingFloorPlan, setCreatingFloorPlan] =
+    useState(false);
+
   const [newAreaName, setNewAreaName] =
     useState('');
 
@@ -74,6 +97,7 @@ export function Tables() {
     floorPlans,
     selectedFloorPlanId,
     selectFloorPlan,
+    refreshFloorPlans,
     tables,
     setTables,
     loading,
@@ -332,6 +356,7 @@ export function Tables() {
       deletingSelectedTables ||
       duplicatingSelectedTables ||
       historySaving ||
+      creatingArea ||
       creatingTable ||
       savingProperties,
     onUndo: handleUndo,
@@ -405,6 +430,86 @@ export function Tables() {
     }
   }
 
+  function openCreateFloorPlanDialog() {
+    setNewFloorPlanName('');
+    setNewFloorPlanWidth('1200');
+    setNewFloorPlanHeight('800');
+    setNewFloorPlanDefault(false);
+    setCreateFloorPlanOpen(true);
+  }
+
+  function closeCreateFloorPlanDialog() {
+    if (creatingFloorPlan) {
+      return;
+    }
+
+    setCreateFloorPlanOpen(false);
+  }
+
+  async function handleCreateFloorPlan() {
+    if (
+      !restaurantId ||
+      !selectedAreaId ||
+      !newFloorPlanName.trim() ||
+      creatingFloorPlan
+    ) {
+      return;
+    }
+
+    const width = Number(newFloorPlanWidth);
+    const height = Number(newFloorPlanHeight);
+
+    if (
+      !Number.isInteger(width) ||
+      width < 400 ||
+      !Number.isInteger(height) ||
+      height < 400
+    ) {
+      setError('Please enter valid layout dimensions.');
+      return;
+    }
+
+    try {
+      setCreatingFloorPlan(true);
+      setError('');
+
+      const created = await createFloorPlan(
+        restaurantId,
+        selectedAreaId,
+        {
+          name: newFloorPlanName.trim(),
+          width,
+          height,
+          sort_order: floorPlans.length,
+          is_default: newFloorPlanDefault,
+        },
+      );
+
+      await refreshFloorPlans(selectedAreaId);
+
+      clearSelection();
+      setPendingTable(null);
+      resetViewport();
+
+      await selectFloorPlan(created.id);
+
+      setCreateFloorPlanOpen(false);
+    } catch (error) {
+      console.error(
+        'Failed to create floor plan',
+        error,
+      );
+
+      setError(
+        error instanceof Error
+          ? error.message
+          : 'Unable to create floor plan.',
+      );
+    } finally {
+      setCreatingFloorPlan(false);
+    }
+  }
+
   return (
     <section className="rounded-3xl border border-white/10 bg-white/[.03] p-5 sm:p-8">
       <div>
@@ -431,6 +536,7 @@ export function Tables() {
         disabled={
           loading ||
           creatingArea ||
+          creatingFloorPlan ||
           creatingTable ||
           savingProperties ||
           deletingTable ||
@@ -451,9 +557,7 @@ export function Tables() {
           void selectFloorPlan(floorPlanId);
         }}
         onCreateArea={openCreateAreaDialog}
-        onCreateFloorPlan={() => {
-          console.log('create floor plan');
-        }}
+        onCreateFloorPlan={openCreateFloorPlanDialog}
       />
 
       <Toolbar
@@ -634,6 +738,23 @@ export function Tables() {
         onCancel={closeCreateAreaDialog}
         onCreate={() => {
           void handleCreateServiceArea();
+        }}
+      />
+
+      <CreateFloorPlanDialog
+        open={createFloorPlanOpen}
+        name={newFloorPlanName}
+        width={newFloorPlanWidth}
+        height={newFloorPlanHeight}
+        makeDefault={newFloorPlanDefault}
+        creating={creatingFloorPlan}
+        onNameChange={setNewFloorPlanName}
+        onWidthChange={setNewFloorPlanWidth}
+        onHeightChange={setNewFloorPlanHeight}
+        onMakeDefaultChange={setNewFloorPlanDefault}
+        onCancel={closeCreateFloorPlanDialog}
+        onCreate={() => {
+          void handleCreateFloorPlan();
         }}
       />
     </section>
