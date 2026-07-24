@@ -3,6 +3,15 @@ import {
   useState,
 } from 'react';
 
+import {
+  createServiceArea,
+  type ServiceAreaType,
+} from '@/lib/api';
+
+import {
+  CreateServiceAreaDialog,
+} from '@/components/floorplan/CreateServiceAreaDialog';
+
 import { useFloorKeyboard } from '@/hooks/useFloorKeyboard';
 import { useFloorResize } from '@/hooks/useFloorResize';
 import { useFloorPlanLoader } from '@/hooks/useFloorPlanLoader';
@@ -45,11 +54,23 @@ export function Tables() {
   
   
   const [error, setError] = useState('');
+  const [createAreaOpen, setCreateAreaOpen] =
+    useState(false);
+
+  const [newAreaName, setNewAreaName] =
+    useState('');
+
+  const [newAreaType, setNewAreaType] =
+    useState<ServiceAreaType>('indoor');
+
+  const [creatingArea, setCreatingArea] =
+    useState(false);
   const {
     restaurantId,
     serviceAreas,
     selectedAreaId,
     selectArea,
+    refreshServiceAreas,
     floorPlans,
     selectedFloorPlanId,
     selectFloorPlan,
@@ -319,6 +340,71 @@ export function Tables() {
     onDelete: handleDeleteSelectedTables,
   });
 
+  function openCreateAreaDialog() {
+    setNewAreaName('');
+    setNewAreaType('indoor');
+    setCreateAreaOpen(true);
+  }
+
+  function closeCreateAreaDialog() {
+    if (creatingArea) {
+      return;
+    }
+
+    setCreateAreaOpen(false);
+    setNewAreaName('');
+    setNewAreaType('indoor');
+  }
+
+  async function handleCreateServiceArea() {
+    if (
+      !restaurantId ||
+      !newAreaName.trim() ||
+      creatingArea
+    ) {
+      return;
+    }
+
+    try {
+      setCreatingArea(true);
+      setError('');
+
+      const createdArea = await createServiceArea(
+        restaurantId,
+        {
+          name: newAreaName.trim(),
+          area_type: newAreaType,
+          sort_order: serviceAreas.length,
+        },
+      );
+
+      await refreshServiceAreas();
+
+      clearSelection();
+      setPendingTable(null);
+      resetViewport();
+
+      await selectArea(createdArea.id);
+
+      setCreateAreaOpen(false);
+      setNewAreaName('');
+      setNewAreaType('indoor');
+    } catch (error) {
+      console.error(
+        'Failed to create service area',
+        error,
+      );
+
+      setError(
+        error instanceof Error
+          ? error.message
+          : 'Unable to create service area.',
+      );
+    } finally {
+      setCreatingArea(false);
+    }
+  }
+
   return (
     <section className="rounded-3xl border border-white/10 bg-white/[.03] p-5 sm:p-8">
       <div>
@@ -344,6 +430,7 @@ export function Tables() {
         selectedFloorPlanId={selectedFloorPlanId}
         disabled={
           loading ||
+          creatingArea ||
           creatingTable ||
           savingProperties ||
           deletingTable ||
@@ -363,9 +450,7 @@ export function Tables() {
           resetViewport();
           void selectFloorPlan(floorPlanId);
         }}
-        onCreateArea={() => {
-          console.log('create area');
-        }}
+        onCreateArea={openCreateAreaDialog}
         onCreateFloorPlan={() => {
           console.log('create floor plan');
         }}
@@ -538,6 +623,19 @@ export function Tables() {
         <span>•</span>
         <span>Positions save automatically</span>
       </div>
+
+      <CreateServiceAreaDialog
+        open={createAreaOpen}
+        name={newAreaName}
+        areaType={newAreaType}
+        creating={creatingArea}
+        onNameChange={setNewAreaName}
+        onAreaTypeChange={setNewAreaType}
+        onCancel={closeCreateAreaDialog}
+        onCreate={() => {
+          void handleCreateServiceArea();
+        }}
+      />
     </section>
   );
 }

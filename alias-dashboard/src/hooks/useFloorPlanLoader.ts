@@ -159,6 +159,17 @@ export function useFloorPlanLoader({
     };
   }, [loadTablesForFloorPlan, onError]);
 
+  async function refreshServiceAreas() {
+    if (!restaurantId) {
+      return [];
+    }
+
+    const areas = await getServiceAreas(restaurantId);
+    setServiceAreas(areas);
+
+    return areas
+  }
+
   async function selectArea(areaId: string) {
     if (!restaurantId || areaId === selectedAreaId) {
       return;
@@ -247,6 +258,7 @@ export function useFloorPlanLoader({
     serviceAreas,
     selectedAreaId,
     selectArea,
+    refreshServiceAreas,
 
     floorPlans,
     selectedFloorPlanId,
