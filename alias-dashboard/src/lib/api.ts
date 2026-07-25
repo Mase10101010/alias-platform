@@ -491,6 +491,27 @@ export type TableResponse = {
   updated_at: string;
 };
 
+export type TablePlacementUpdate = {
+  x?: number;
+  y?: number;
+  width?: number;
+  height?: number;
+  rotation?: number;
+  is_visible?: boolean;
+};
+
+export type TablePlacementResponse = {
+  id: string;
+  floor_plan_id: string;
+  table_id: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  rotation: number;
+  is_visible: boolean;
+};
+
 export async function getServiceAreas(
   restaurantId: string,
   includeInactive = false,
@@ -795,6 +816,36 @@ export async function updateTable(
 
   if (!response.ok) {
     throw await parseApiError(response, 'Unable to update table');
+  }
+
+  return response.json();
+}
+
+export async function updateTablePlacement(
+  restaurantId: string,
+  floorPlanId: string,
+  tableId: string,
+  payload: TablePlacementUpdate,
+): Promise<TablePlacementResponse> {
+  const token = getAuthToken();
+
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/restaurants/${restaurantId}/floor-plans/${floorPlanId}/tables/${tableId}/placement`,
+    {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    },
+  );
+
+  if (!response.ok) {
+    throw await parseApiError(
+      response,
+      'Unable to update table placement',
+    );
   }
 
   return response.json();

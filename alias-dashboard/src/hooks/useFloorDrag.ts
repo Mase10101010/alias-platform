@@ -5,7 +5,7 @@ import {
 } from 'react';
 
 import {
-  updateTable,
+  updateTablePlacement,
   type TableResponse,
 } from '@/lib/api';
 import {
@@ -33,6 +33,7 @@ type DragState = {
 type UseFloorDragOptions = {
   restaurantId: string | null;
   zoom: number;
+  floorPlanId: string | null;
   tables: TableResponse[];
   canvasRef: RefObject<HTMLDivElement | null>;
   enabled: boolean;
@@ -63,6 +64,7 @@ type UseFloorDragOptions = {
 
 export function useFloorDrag({
   restaurantId,
+  floorPlanId,
   tables,
   canvasRef,
   enabled,
@@ -202,7 +204,11 @@ export function useFloorDrag({
       drag.currentX !== drag.startTableX ||
       drag.currentY !== drag.startTableY;
 
-    if (!restaurantId || !hasMoved) {
+    if (
+      !restaurantId || 
+      !floorPlanId ||
+      !hasMoved
+    ) {
       return;
     }
 
@@ -210,8 +216,9 @@ export function useFloorDrag({
       setSavingTableId(table.id);
       onError('');
 
-      const updated = await updateTable(
+      const updated = await updateTablePlacement(
         restaurantId,
+        floorPlanId,
         table.id,
         {
           x: drag.currentX,
@@ -221,7 +228,13 @@ export function useFloorDrag({
 
       setTables((current) =>
         current.map((item) =>
-          item.id === updated.id ? updated : item,
+          item.id === table.id
+              ? {
+                    ...item,
+                    x: updated.x,
+                    y: updated.y,
+              }
+            : item,
         ),
       );
 
@@ -232,8 +245,8 @@ export function useFloorDrag({
           y: drag.startTableY,
         },
         {
-          x: updated.x,
-          y: updated.y,
+          x: drag.currentX,
+          y: drag.currentY,
         },
       );
     } catch (error) {

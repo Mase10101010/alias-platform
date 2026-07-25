@@ -233,6 +233,7 @@ export function Tables() {
     finishDrag,
   } = useFloorDrag({
     restaurantId,
+    floorPlanId: selectedFloorPlanId,
     tables,
     canvasRef,
     enabled: 
