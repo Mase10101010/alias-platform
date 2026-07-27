@@ -5,7 +5,7 @@ import {
 } from 'react';
 
 import {
-  updateTable,
+  updateTablePlacement,
   type TableResponse,
 } from '@/lib/api';
 
@@ -18,6 +18,7 @@ type RotateState = {
 
 type UseFloorRotateOptions = {
   restaurantId: string | null;
+  floorPlanId: string | null;
   canvasRef: RefObject<HTMLDivElement | null>;
   savingTableId: string | null;
   zoom: number;
@@ -44,6 +45,7 @@ type UseFloorRotateOptions = {
 
 export function useFloorRotate({
   restaurantId,
+  floorPlanId,
   canvasRef,
   zoom,
   pan,
@@ -163,6 +165,7 @@ export function useFloorRotate({
 
     if (
       !restaurantId ||
+      !floorPlanId ||
       rotate.currentRotation === rotate.startRotation
     ) {
       return;
@@ -171,8 +174,9 @@ export function useFloorRotate({
     try {
       setSavingTableId(table.id);
 
-      const updated = await updateTable(
+      const updated = await updateTablePlacement(
         restaurantId,
+        floorPlanId,
         table.id,
         {
           rotation: rotate.currentRotation,
@@ -181,7 +185,12 @@ export function useFloorRotate({
 
       setTables((current) =>
         current.map((item) =>
-          item.id === updated.id ? updated : item,
+          item.id === table.id
+            ? {
+              ...item,
+              rotation: updated.rotation,
+            }
+          : item,
         ),
       );
 

@@ -272,6 +272,7 @@ export function Tables() {
     finishRotate,
   } = useFloorRotate({
     restaurantId,
+    floorPlanId: selectedFloorPlanId,
     canvasRef,
     zoom,
     pan,
@@ -308,6 +309,7 @@ export function Tables() {
     finishResize,
   } = useFloorResize({
     restaurantId,
+    floorPlanId: selectedFloorPlanId,
     tables,
     canvasRef,
     enabled: 

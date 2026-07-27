@@ -5,7 +5,7 @@ import {
 } from 'react';
 
 import {
-  updateTable,
+  updateTablePlacement,
   type TableResponse,
 } from '@/lib/api';
 import {
@@ -26,6 +26,7 @@ type ResizeState = {
 
 type UseFloorResizeOptions = {
   restaurantId: string | null;
+  floorPlanId: string | null;
   tables: TableResponse[];
   canvasRef: RefObject<HTMLDivElement | null>;
   enabled: boolean;
@@ -54,6 +55,7 @@ type UseFloorResizeOptions = {
 
 export function useFloorResize({
   restaurantId,
+  floorPlanId,
   tables,
   canvasRef,
   enabled,
@@ -219,7 +221,11 @@ export function useFloorResize({
       resize.currentWidth !== resize.startWidth ||
       resize.currentHeight !== resize.startHeight;
 
-    if (!restaurantId || !hasChanged) {
+    if (
+      !restaurantId || 
+      !floorPlanId ||
+      !hasChanged
+    ) {
       return;
     }
 
@@ -227,8 +233,9 @@ export function useFloorResize({
       setSavingTableId(table.id);
       onError('');
 
-      const updated = await updateTable(
+      const updated = await updateTablePlacement(
         restaurantId,
+        floorPlanId,
         table.id,
         {
           width: resize.currentWidth,
@@ -238,7 +245,13 @@ export function useFloorResize({
 
       setTables((current) =>
         current.map((item) =>
-          item.id === updated.id ? updated : item,
+          item.id === table.id
+            ? {
+                ...item,
+                width: updated.width,
+                height: updated.height,
+            }
+          : item,
         ),
       );
 
