@@ -10,6 +10,7 @@ import {
 type UseTablePropertiesOptions = {
   restaurantId: string | null;
   selectedTable: TableResponse | null;
+  floorPlanId: string | null;
   setTables: React.Dispatch<
     React.SetStateAction<TableResponse[]>
   >;
@@ -19,6 +20,7 @@ type UseTablePropertiesOptions = {
 
 export function useTableProperties({
   restaurantId,
+  floorPlanId,
   selectedTable,
   setTables,
   clearSelection,
@@ -46,7 +48,12 @@ export function useTableProperties({
   }, [selectedTable]);
 
   async function save() {
-    if (!selectedTable || !restaurantId || saving) {
+    if (
+      !selectedTable || 
+      !restaurantId || 
+      !floorPlanId ||
+      saving
+    ) {
       return;
     }
 
@@ -69,6 +76,7 @@ export function useTableProperties({
 
       const updated = await updateTable(
         restaurantId,
+        floorPlanId,
         selectedTable.id,
         {
           table_number: normalizedTableNumber,

@@ -127,6 +127,7 @@ export function Tables() {
     remove: handleDeleteSelectedTable,
   } = useTableProperties({
     restaurantId,
+    floorPlanId: selectedFloorPlanId,
     selectedTable,
     setTables,
     clearSelection,

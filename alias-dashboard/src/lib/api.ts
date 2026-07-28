@@ -797,13 +797,14 @@ export async function createTable(
 
 export async function updateTable(
   restaurantId: string,
+  floorPlanid: string,
   tableId: string,
   payload: TableUpdate,
 ): Promise<TableResponse> {
   const token = getAuthToken();
 
   const response = await fetch(
-    `${API_BASE_URL}/api/v1/restaurants/${restaurantId}/tables/${tableId}`,
+    `${API_BASE_URL}/api/v1/restaurants/${restaurantId}/tables/${tableId}?floor_plan_id=${encodeURIComponent(floorPlanid)}`,
     {
       method: 'PATCH',
       headers: {
