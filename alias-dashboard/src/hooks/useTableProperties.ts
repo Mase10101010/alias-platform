@@ -17,20 +17,6 @@ type UseTablePropertiesOptions = {
   onError: (message: string) => void;
 };
 
-function getTableDimensions(shape: TableShape) {
-  if (shape === 'rectangle') {
-    return {
-      width: 140,
-      height: 80,
-    };
-  }
-
-  return {
-    width: 80,
-    height: 80,
-  };
-}
-
 export function useTableProperties({
   restaurantId,
   selectedTable,
@@ -40,8 +26,9 @@ export function useTableProperties({
 }: UseTablePropertiesOptions) {
   const [tableNumber, setTableNumber] = useState('');
   const [seats, setSeats] = useState('4');
-  const [shape, setShape] = useState<TableShape>('square');
-  const [rotation, setRotation] = useState('0');
+  const [shape, setShape] =
+    useState<TableShape>('square');
+
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
@@ -50,14 +37,12 @@ export function useTableProperties({
       setTableNumber('');
       setSeats('4');
       setShape('square');
-      setRotation('0');
       return;
     }
 
     setTableNumber(selectedTable.table_number);
     setSeats(String(selectedTable.seats));
     setShape(selectedTable.shape);
-    setRotation(String(selectedTable.rotation));
   }, [selectedTable]);
 
   async function save() {
@@ -67,22 +52,16 @@ export function useTableProperties({
 
     const normalizedTableNumber = tableNumber.trim();
     const parsedSeats = Number(seats);
-    const parsedRotation = Number(rotation);
 
     if (
       !normalizedTableNumber ||
       !Number.isInteger(parsedSeats) ||
       parsedSeats < 1 ||
-      parsedSeats > 100 ||
-      !Number.isInteger(parsedRotation) ||
-      parsedRotation < 0 ||
-      parsedRotation >= 360
+      parsedSeats > 100
     ) {
       onError('Please enter valid table details.');
       return;
     }
-
-    const dimensions = getTableDimensions(shape);
 
     try {
       setSaving(true);
@@ -95,19 +74,29 @@ export function useTableProperties({
           table_number: normalizedTableNumber,
           seats: parsedSeats,
           shape,
-          rotation: parsedRotation,
-          width: dimensions.width,
-          height: dimensions.height,
         },
       );
 
       setTables((current) =>
         current.map((table) =>
-          table.id === updated.id ? updated : table,
+          table.id === updated.id
+            ? {
+                ...table,
+                table_number: updated.table_number,
+                table_code: updated.table_code,
+                seats: updated.seats,
+                shape: updated.shape,
+                is_active: updated.is_active,
+                updated_at: updated.updated_at,
+              }
+            : table,
         ),
       );
     } catch (error) {
-      console.error('Failed to update table', error);
+      console.error(
+        'Failed to update table',
+        error,
+      );
 
       onError(
         error instanceof Error
@@ -143,13 +132,17 @@ export function useTableProperties({
 
       setTables((current) =>
         current.filter(
-          (table) => table.id !== selectedTable.id,
+          (table) =>
+            table.id !== selectedTable.id,
         ),
       );
 
       clearSelection();
     } catch (error) {
-      console.error('Failed to delete table', error);
+      console.error(
+        'Failed to delete table',
+        error,
+      );
 
       onError(
         error instanceof Error
@@ -164,14 +157,16 @@ export function useTableProperties({
   return {
     tableNumber,
     setTableNumber,
+
     seats,
     setSeats,
+
     shape,
     setShape,
-    rotation,
-    setRotation,
+
     saving,
     deleting,
+
     save,
     remove,
   };

@@ -121,8 +121,6 @@ export function Tables() {
     setSeats: setPropertySeats,
     shape: propertyShape,
     setShape: setPropertyShape,
-    rotation: propertyRotation,
-    setRotation: setPropertyRotation,
     saving: savingProperties,
     deleting: deletingTable,
     save: handleSaveSelectedTable,
@@ -223,6 +221,7 @@ export function Tables() {
     historySaving,
   } = useFloorHistory({
     restaurantId,
+    floorPlanId: selectedFloorPlanId,
     setTables,
     onError: setError,
   });
@@ -279,7 +278,6 @@ export function Tables() {
     savingTableId,
     setSavingTableId,
     setTables,
-    setPropertyRotation,
     selectTable: setSelectedTableId,
     enabled: 
       activeTool === 'select' &&
@@ -709,13 +707,11 @@ export function Tables() {
           tableNumber={propertyTableNumber}
           seats={propertySeats}
           shape={propertyShape}
-          rotation={propertyRotation}
           saving={savingProperties}
           deleting={deletingTable}
           onTableNumberChange={setPropertyTableNumber}
           onSeatsChange={setPropertySeats}
           onShapeChange={setPropertyShape}
-          onRotationChange={setPropertyRotation}
           onClose={clearSelection}
           onSave={handleSaveSelectedTable}
           onDelete={handleDeleteSelectedTable}

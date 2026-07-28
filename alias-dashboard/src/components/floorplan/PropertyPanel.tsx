@@ -1,4 +1,4 @@
-import { RotateCcw, Save, Trash2, X } from 'lucide-react';
+import { Save, Trash2, X } from 'lucide-react';
 
 import type {
   TableResponse,
@@ -10,13 +10,11 @@ type PropertyPanelProps = {
   tableNumber: string;
   seats: string;
   shape: TableShape;
-  rotation: string;
   saving: boolean;
   deleting: boolean;
   onTableNumberChange: (value: string) => void;
   onSeatsChange: (value: string) => void;
   onShapeChange: (value: TableShape) => void;
-  onRotationChange: (value: string) => void;
   onClose: () => void;
   onSave: () => void;
   onDelete: () => void;
@@ -27,13 +25,11 @@ export function PropertyPanel({
   tableNumber,
   seats,
   shape,
-  rotation,
   saving,
   deleting,
   onTableNumberChange,
   onSeatsChange,
   onShapeChange,
-  onRotationChange,
   onClose,
   onSave,
   onDelete,
@@ -43,16 +39,12 @@ export function PropertyPanel({
   }
 
   const numericSeats = Number(seats);
-  const numericRotation = Number(rotation);
 
   const canSave =
     tableNumber.trim().length > 0 &&
     Number.isInteger(numericSeats) &&
     numericSeats >= 1 &&
-    numericSeats <= 100 &&
-    Number.isInteger(numericRotation) &&
-    numericRotation >= 0 &&
-    numericRotation < 360;
+    numericSeats <= 100;
 
   return (
     <aside className="w-full rounded-3xl border border-white/10 bg-white/[.035] p-5 lg:w-80">
@@ -133,7 +125,9 @@ export function PropertyPanel({
             id="property-table-shape"
             value={shape}
             onChange={(event) =>
-              onShapeChange(event.target.value as TableShape)
+              onShapeChange(
+                event.target.value as TableShape,
+              )
             }
             className="w-full rounded-xl border border-white/10 bg-[#090d16] px-3 py-2.5 text-sm text-white outline-none transition focus:border-cyanAlias/40"
           >
@@ -141,38 +135,6 @@ export function PropertyPanel({
             <option value="round">Round</option>
             <option value="rectangle">Rectangle</option>
           </select>
-        </div>
-
-        <div>
-          <label
-            htmlFor="property-table-rotation"
-            className="mb-2 block text-xs uppercase tracking-[.18em] text-white/35"
-          >
-            Rotation
-          </label>
-
-          <div className="flex gap-2">
-            <input
-              id="property-table-rotation"
-              type="number"
-              min={0}
-              max={359}
-              value={rotation}
-              onChange={(event) =>
-                onRotationChange(event.target.value)
-              }
-              className="min-w-0 flex-1 rounded-xl border border-white/10 bg-black/25 px-3 py-2.5 text-sm text-white outline-none transition focus:border-cyanAlias/40"
-            />
-
-            <button
-              type="button"
-              onClick={() => onRotationChange('0')}
-              className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-white/[.03] text-white/45 transition hover:text-white"
-              aria-label="Reset rotation"
-            >
-              <RotateCcw size={16} />
-            </button>
-          </div>
         </div>
       </div>
 

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { updateTable } from '@/lib/api';
+import { updateTablePlacement } from '@/lib/api';
 
 export type FloorHistoryChange =
   | {
@@ -29,12 +29,14 @@ type HistoryEntry = {
 
 type UseFloorHistoryOptions = {
   restaurantId: string | null;
+  floorPlanId: string | null;
   setTables: React.Dispatch<React.SetStateAction<any[]>>;
   onError(message: string): void;
 };
 
 export function useFloorHistory({
   restaurantId,
+  floorPlanId,
   setTables,
   onError,
 }: UseFloorHistoryOptions) {
@@ -48,27 +50,42 @@ export function useFloorHistory({
   }
 
   async function apply(change: FloorHistoryChange) {
-    if (!restaurantId) {
-      throw new Error('Restaurant not found');
+    if (!restaurantId || !floorPlanId) {
+      throw new Error('Restaurant or floor plan not found');
     }
 
     if (change.type === 'move') {
-      return updateTable(restaurantId, change.tableId, {
-        x: change.x,
-        y: change.y,
-      });
+        return updateTablePlacement(
+          restaurantId, 
+          floorPlanId,
+          change.tableId, 
+          {
+              x: change.x,
+              y: change.y,
+          },
+      );
     }
 
     if (change.type === 'resize') {
-      return updateTable(restaurantId, change.tableId, {
-        width: change.width,
-        height: change.height,
-      });
+        return updateTablePlacement(
+          restaurantId, 
+          floorPlanId,
+          change.tableId, 
+          {
+            width: change.width,
+            height: change.height,
+          },
+      );
     }
 
-    return updateTable(restaurantId, change.tableId, {
-      rotation: change.rotation,
-    });
+    return updateTablePlacement(
+        restaurantId, 
+        floorPlanId,
+        change.tableId, 
+        {
+          rotation: change.rotation,
+        },
+      );
   }
 
   async function undo() {
@@ -86,7 +103,7 @@ export function useFloorHistory({
 
       setTables((current) =>
         current.map((table: any) =>
-          table.id === updated.id ? updated : table,
+          table.id === entry.before.tableId
         ),
       );
 
@@ -120,7 +137,7 @@ export function useFloorHistory({
 
       setTables((current) =>
         current.map((table: any) =>
-          table.id === updated.id ? updated : table,
+          table.id === entry.after.tableId
         ),
       );
 

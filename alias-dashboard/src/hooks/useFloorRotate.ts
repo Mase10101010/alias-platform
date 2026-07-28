@@ -32,7 +32,6 @@ type UseFloorRotateOptions = {
   setTables: React.Dispatch<
     React.SetStateAction<TableResponse[]>
   >;
-  setPropertyRotation: (value: string) => void;
   selectTable: (id: string) => void;
   enabled: boolean;
   onError: (message: string) => void;
@@ -52,7 +51,6 @@ export function useFloorRotate({
   savingTableId,
   setSavingTableId,
   setTables,
-  setPropertyRotation,
   selectTable,
   enabled,
   onError,
@@ -194,9 +192,6 @@ export function useFloorRotate({
         ),
       );
 
-      setPropertyRotation(
-        String(updated.rotation),
-      );
 
       onSaved(
         table,
@@ -217,9 +212,6 @@ export function useFloorRotate({
         ),
       );
 
-      setPropertyRotation(
-        String(rotate.startRotation),
-      );
 
       onError(
         error instanceof Error
