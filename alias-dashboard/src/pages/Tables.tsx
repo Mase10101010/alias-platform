@@ -10,6 +10,13 @@ import {
 } from '@/lib/api';
 
 import {
+  LiveFloorControls,
+  type FloorMode,
+} from '@/components/floorplan/LiveFloorControls';
+
+import { useLiveFloor } from '@/hooks/useLiveFloor';
+
+import {
   CreateServiceAreaDialog,
 } from '@/components/floorplan/CreateServiceAreaDialog';
 
@@ -53,6 +60,11 @@ import {
 } from '@/components/floorplan/Toolbar';
 
 export function Tables() {
+  const [floorMode, setFloorMode] =
+    useState<FloorMode>('edit');
+
+  const [liveDate, setLiveDate] =
+    useState(() => new Date());
   const [savingTableId, setSavingTableId] = useState<
     string | null
   >(null);
@@ -102,6 +114,18 @@ export function Tables() {
     setTables,
     loading,
   } = useFloorPlanLoader({
+    onError: setError,
+  });
+
+  const {
+    loading: liveLoading,
+    lastUpdatedAt,
+    refresh: refreshLiveFloor,
+    getTableState,
+  } = useLiveFloor({
+    restaurantId,
+    enabled: floorMode === 'live',
+    selectedDate: liveDate,
     onError: setError,
   });
   const {
@@ -237,6 +261,7 @@ export function Tables() {
     tables,
     canvasRef,
     enabled: 
+      floorMode === 'edit' &&
       activeTool === 'select' &&
       !spacePressed &&
       !isPanning,
@@ -281,6 +306,7 @@ export function Tables() {
     setTables,
     selectTable: setSelectedTableId,
     enabled: 
+      floorMode === 'edit' &&
       activeTool === 'select' &&
       !spacePressed &&
       !isPanning,
@@ -312,6 +338,7 @@ export function Tables() {
     tables,
     canvasRef,
     enabled: 
+    floorMode === 'edit' &&
       activeTool === 'select' &&
       !spacePressed &&
       !isPanning,
@@ -354,6 +381,7 @@ export function Tables() {
     canUndo,
     canRedo,
     disabled:
+    floorMode === 'live' ||
       deletingTable ||
       deletingSelectedTables ||
       duplicatingSelectedTables ||
@@ -512,6 +540,13 @@ export function Tables() {
     }
   }
 
+  function handleFloorModeChange(mode: FloorMode) {
+    setFloorMode(mode);
+    setActiveTool('select');
+    setPendingTable(null);
+    clearSelection();
+  }
+
   return (
     <section className="rounded-3xl border border-white/10 bg-white/[.03] p-5 sm:p-8">
       <div>
@@ -530,6 +565,21 @@ export function Tables() {
         </p>
       </div>
 
+      <LiveFloorControls
+        mode={floorMode}
+        selectedDate={liveDate}
+        loading={liveLoading}
+        lastUpdatedAt={lastUpdatedAt}
+        onModeChange={handleFloorModeChange}
+        onDateChange={(date) => {
+          clearSelection();
+          setLiveDate(date);
+        }}
+        onRefresh={() => {
+          void refreshLiveFloor();
+        }}
+      />
+
       <FloorPlanNavigator
         serviceAreas={serviceAreas}
         selectedAreaId={selectedAreaId}
@@ -537,6 +587,7 @@ export function Tables() {
         selectedFloorPlanId={selectedFloorPlanId}
         disabled={
           loading ||
+          liveLoading ||
           creatingArea ||
           creatingFloorPlan ||
           creatingTable ||
@@ -558,15 +609,25 @@ export function Tables() {
           resetViewport();
           void selectFloorPlan(floorPlanId);
         }}
-        onCreateArea={openCreateAreaDialog}
-        onCreateFloorPlan={openCreateFloorPlanDialog}
+        onCreateArea={
+          floorMode === 'edit'
+            ? openCreateAreaDialog
+            : undefined
+        }
+        onCreateFloorPlan={
+          floorMode === 'edit'
+            ? openCreateFloorPlanDialog
+            : undefined
+        }
       />
 
-      <Toolbar
-        activeTool={activeTool}
-        tablesCount={tables.length}
-        onToolChange={handleToolChange}
-      />
+      {floorMode === 'edit' && (
+        <Toolbar
+          activeTool={activeTool}
+          tablesCount={tables.length}
+          onToolChange={handleToolChange}
+        />
+      )}
 
       {error && (
         <div className="mb-6 rounded-2xl border border-red-400/20 bg-red-400/10 px-4 py-3 text-sm text-red-200">
@@ -580,9 +641,12 @@ export function Tables() {
 
           <FloorCanvas
             ref={canvasRef}
-            loading={loading}
+            loading={loading || liveLoading}
             tablesCount={tables.length}
-            activeToolIsSelect={activeTool === 'select'}
+            activeToolIsSelect={
+              floorMode === 'edit' &&
+              activeTool === 'select'
+            }
             zoom={zoom}
             pan={pan}
             isPanning={isPanning}
@@ -590,6 +654,11 @@ export function Tables() {
             onCanvasClick={(event) => {
               if (consumeSuppressedClick()) {
                 event.preventDefault();
+                return;
+              }
+
+              if (floorMode === 'live') {
+                clearSelection();
                 return;
               }
 
@@ -601,7 +670,8 @@ export function Tables() {
             onViewportPointerUp={finishViewportPan}
             onViewportPointerCancel={finishViewportPan}
           >
-            {guideLines.vertical !== null && (
+            {floorMode === 'edit' &&
+              guideLines.vertical !== null && (
               <div
                 className="absolute top-0 bottom-0 w-px bg-cyanAlias/60 pointer-events-none"
                 style={{
@@ -610,7 +680,8 @@ export function Tables() {
                 />
             )}
 
-            {guideLines.horizontal !== null && (
+            {floorMode === 'edit' &&
+              guideLines.horizontal !== null && (
               <div
                 className="absolute left-0 right-0 h-px bg-cyanAlias/60 pointer-events-none"
                 style={{
@@ -620,63 +691,115 @@ export function Tables() {
             )}
 
             {!loading &&
-              tables.map((table) => (
-                <TableNode
-                  key={table.id}
-                  table={table}
-                  saving={savingTableId === table.id}
-                  selected={selectedTableIds.includes(table.id)}
-                  draggingEnabled={
-                    activeTool === 'select' &&
-                    !spacePressed &&
-                    !isPanning
-                  }
-                  viewPortPanningEnabled={spacePressed || isPanning} 
-                  onClick={(event) => {
-                    if (consumeSuppressedClick()) {
-                      event.preventDefault();
-                      return;
-                    }
+              tables.map((table) => {
+                const liveState = getTableState(table.id);
 
-                    if (activeTool !== 'select') {
-                      return;
+                return (
+                  <TableNode
+                    key={table.id}
+                    table={table}
+                    saving={
+                      floorMode === 'edit' &&
+                      savingTableId === table.id
                     }
-
-                    if (event.ctrlKey || event.metaKey) {
-                      toggleSelection(table.id);
-                      return;
+                    mode={floorMode}
+                    liveStatus={liveState.status}
+                    liveReservation={liveState.reservation}
+                    selected={selectedTableIds.includes(table.id)}
+                    draggingEnabled={
+                      floorMode === 'edit' &&
+                      activeTool === 'select' &&
+                      !spacePressed &&
+                      !isPanning
                     }
+                    viewPortPanningEnabled={
+                      spacePressed || isPanning
+                    }
+                    onClick={(event) => {
+                      if (consumeSuppressedClick()) {
+                        event.preventDefault();
+                        return;
+                      }
 
-                    setSelectedTableId(table.id);
-                  }}
-                  onPointerDown={(e) => handlePointerDown(e, table)}
-                  onPointerMove={(e) => handlePointerMove(e, table)}
-                  onPointerUp={(e) => finishDrag(e, table)}
-                  onPointerCancel={(e) => finishDrag(e, table)}
-                  onResizePointerDown={(event) => handleResizePointerDown(event, table)}
-                  onResizePointerMove={(event) =>
-                    handleResizePointerMove(event, table)
-                  }
-                  onResizePointerUp={(event) =>
-                    finishResize(event, table)
-                  }
-                  onResizePointerCancel={(event) =>
-                    finishResize(event, table)
-                  }
-                  onRotatePointerDown={(event) =>
-                    handleRotatePointerDown(event, table)
-                  }
-                  onRotatePointerMove={(event) =>
-                    handleRotatePointerMove(event, table)
-                  }
-                  onRotatePointerUp={(event) =>
-                    finishRotate(event, table)
-                  }
-                  onRotatePointerCancel={(event) =>
-                    finishRotate(event, table)
-                  }
-                />
-              ))}
+                      if (floorMode === 'live') {
+                        setSelectedTableId(table.id);
+                        return;
+                      }
+
+                      if (activeTool !== 'select') {
+                        return;
+                      }
+
+                      if (event.ctrlKey || event.metaKey) {
+                        toggleSelection(table.id);
+                        return;
+                      }
+
+                      setSelectedTableId(table.id);
+                    }}
+                    onPointerDown={(event) => {
+                      if (floorMode === 'edit') {
+                        handlePointerDown(event, table);
+                      }
+                    }}
+                    onPointerMove={(event) => {
+                      if (floorMode === 'edit') {
+                        handlePointerMove(event, table);
+                      }
+                    }}
+                    onPointerUp={(event) => {
+                      if (floorMode === 'edit') {
+                        finishDrag(event, table);
+                      }
+                    }}
+                    onPointerCancel={(event) => {
+                      if (floorMode === 'edit') {
+                        finishDrag(event, table);
+                      }
+                    }}
+                    onResizePointerDown={(event) => {
+                      if (floorMode === 'edit') {
+                        handleResizePointerDown(event, table);
+                      }
+                    }}
+                    onResizePointerMove={(event) => {
+                      if (floorMode === 'edit') {
+                        handleResizePointerMove(event, table);
+                      }
+                    }}
+                    onResizePointerUp={(event) => {
+                      if (floorMode === 'edit') {
+                        finishResize(event, table);
+                      }
+                    }}
+                    onResizePointerCancel={(event) => {
+                      if (floorMode === 'edit') {
+                        finishResize(event, table);
+                      }
+                    }}
+                    onRotatePointerDown={(event) => {
+                      if (floorMode === 'edit') {
+                        handleRotatePointerDown(event, table);
+                      }
+                    }}
+                    onRotatePointerMove={(event) => {
+                      if (floorMode === 'edit') {
+                        handleRotatePointerMove(event, table);
+                      }
+                    }}
+                    onRotatePointerUp={(event) => {
+                      if (floorMode === 'edit') {
+                        finishRotate(event, table);
+                      }
+                    }}
+                    onRotatePointerCancel={(event) => {
+                      if (floorMode === 'edit') {
+                        finishRotate(event, table);
+                      }
+                    }}
+                  />
+                );
+              })}
           </FloorCanvas>
 
           <ZoomControls
@@ -688,45 +811,51 @@ export function Tables() {
             onReset={resetViewport}
           />
 
-          <CreateTableDialog
-            pendingTable={pendingTable}
-            tableNumber={newTableNumber}
-            seats={newTableSeats}
-            creating={creatingTable}
-            zoom={zoom}
-            pan={pan}
-            onTableNumberChange={setNewTableNumber}
-            onSeatsChange={setNewTableSeats}
-            onCancel={closeCreateDialog}
-            onCreate={handleCreateTable}
-          />
+          {floorMode === 'edit' && (
+            <CreateTableDialog
+              pendingTable={pendingTable}
+              tableNumber={newTableNumber}
+              seats={newTableSeats}
+              creating={creatingTable}
+              zoom={zoom}
+              pan={pan}
+              onTableNumberChange={setNewTableNumber}
+              onSeatsChange={setNewTableSeats}
+              onCancel={closeCreateDialog}
+              onCreate={handleCreateTable}
+            />
+          )}
 
         </div>
 
-        <PropertyPanel
-          table={selectedTable}
-          tableNumber={propertyTableNumber}
-          seats={propertySeats}
-          shape={propertyShape}
-          saving={savingProperties}
-          deleting={deletingTable}
-          onTableNumberChange={setPropertyTableNumber}
-          onSeatsChange={setPropertySeats}
-          onShapeChange={setPropertyShape}
-          onClose={clearSelection}
-          onSave={handleSaveSelectedTable}
-          onDelete={handleDeleteSelectedTable}
-        />
+        {floorMode === 'edit' && (
+          <PropertyPanel
+            table={selectedTable}
+            tableNumber={propertyTableNumber}
+            seats={propertySeats}
+            shape={propertyShape}
+            saving={savingProperties}
+            deleting={deletingTable}
+            onTableNumberChange={setPropertyTableNumber}
+            onSeatsChange={setPropertySeats}
+            onShapeChange={setPropertyShape}
+            onClose={clearSelection}
+            onSave={handleSaveSelectedTable}
+            onDelete={handleDeleteSelectedTable}
+          />
+        )}
 
       </div>
 
-      <div className="mt-4 flex flex-wrap items-center gap-5 text-xs text-white/30">
-        <span>Select a shape and click to create a table</span>
-        <span>•</span>
-        <span>Drag tables to reposition them</span>
-        <span>•</span>
-        <span>Positions save automatically</span>
-      </div>
+      {floorMode === 'edit' && (
+        <div className="mt-4 flex flex-wrap items-center gap-5 text-xs text-white/30">
+          <span>Select a shape and click to create a table</span>
+          <span>•</span>
+          <span>Drag tables to reposition them</span>
+          <span>•</span>
+          <span>Positions save automatically</span>
+        </div>
+      )}
 
       <CreateServiceAreaDialog
         open={createAreaOpen}
