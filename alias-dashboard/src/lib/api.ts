@@ -61,7 +61,7 @@ export type ReservationCreate = {
 export type ReservationResponse = ReservationCreate & {
   id: string;
   duration_minutes: number;
-  status: string;
+  status: ReservationStatus;
   session_id?: string | null;
   created_at: string;
   updated_at: string;
@@ -163,17 +163,72 @@ export async function updateRestaurant(
   return response.json();
 }
 
-export async function getReservations(): Promise<ReservationResponse[]> {
+export type ReservationStatus =
+  | 'pending'
+  | 'confirmed'
+  | 'seated'
+  | 'completed'
+  | 'cancelled'
+  | 'no_show';
+
+export type GetReservationsParams = {
+  restaurantId?: string;
+  start?: string;
+  end?: string;
+  status?: ReservationStatus;
+  skip?: number;
+  limit?: number;
+};
+
+export async function getReservations(
+  params: GetReservationsParams = {},
+): Promise<ReservationResponse[]> {
   const token = getAuthToken();
 
-  const response = await fetch(`${API_BASE_URL}/api/v1/reservations`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
+  const query = new URLSearchParams();
+
+  if (params.restaurantId) {
+    query.set('restaurant_id', params.restaurantId);
+  }
+
+  if (params.start) {
+    query.set('start', params.start);
+  }
+
+  if (params.end) {
+    query.set('end', params.end);
+  }
+
+  if (params.status) {
+    query.set('status', params.status);
+  }
+
+  if (params.skip !== undefined) {
+    query.set('skip', String(params.skip));
+  }
+
+  if (params.limit !== undefined) {
+    query.set('limit', String(params.limit));
+  }
+
+  const queryString = query.toString();
+
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/reservations${
+      queryString ? `?${queryString}` : ''
+    }`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     },
-  });
+  );
 
   if (!response.ok) {
-    throw await parseApiError(response, 'Unable to load reservations');
+    throw await parseApiError(
+      response,
+      'Unable to load reservations',
+    );
   }
 
   return response.json();
