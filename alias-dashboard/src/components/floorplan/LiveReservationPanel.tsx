@@ -4,6 +4,10 @@ import {
   Hash,
   Users,
   X,
+  CheckCircle2,
+  CircleX,
+  LoaderCircle,
+  UserCheck,
 } from 'lucide-react';
 
 import type {
@@ -19,7 +23,12 @@ type LiveReservationPanelProps = {
   table: TableResponse | null;
   status: LiveTableStatus;
   reservation: ReservationResponse | null;
+  updating: boolean;
   onClose: () => void;
+  onSeatGuest: () => void;
+  onCompleteService: () => void;
+  onMarkNoShow: () => void;
+  onCancelReservation: () => void;
 };
 
 function formatReservationDate(value: string) {
@@ -66,7 +75,12 @@ export function LiveReservationPanel({
   table,
   status,
   reservation,
+  updating,
   onClose,
+  onSeatGuest,
+  onCompleteService,
+  onMarkNoShow,
+  onCancelReservation,
 }: LiveReservationPanelProps) {
   if (!table) {
     return null;
@@ -137,6 +151,70 @@ export function LiveReservationPanel({
           <p className="text-[10px] uppercase tracking-[.24em] text-white/30">
             Current reservation
           </p>
+
+          <div className="mt-4 space-y-2">
+            {reservation.status !== 'seated' && (
+                <button
+                type="button"
+                disabled={updating}
+                onClick={onSeatGuest}
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-white px-4 py-3 text-sm font-medium text-black transition hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                {updating ? (
+                    <LoaderCircle
+                    size={16}
+                    className="animate-spin"
+                    />
+                ) : (
+                    <UserCheck size={16} />
+                )}
+
+                Seat guest
+                </button>
+            )}
+
+            {reservation.status === 'seated' && (
+                <button
+                type="button"
+                disabled={updating}
+                onClick={onCompleteService}
+                className="flex w-full items-center justify-center gap-2 rounded-xl border border-green-400/20 bg-green-400/10 px-4 py-3 text-sm font-medium text-green-200 transition hover:bg-green-400/15 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                {updating ? (
+                    <LoaderCircle
+                    size={16}
+                    className="animate-spin"
+                    />
+                ) : (
+                    <CheckCircle2 size={16} />
+                )}
+
+                Complete service
+                </button>
+            )}
+
+            {reservation.status !== 'seated' && (
+                <button
+                type="button"
+                disabled={updating}
+                onClick={onMarkNoShow}
+                className="flex w-full items-center justify-center gap-2 rounded-xl border border-amber-400/20 bg-amber-400/10 px-4 py-3 text-sm font-medium text-amber-200 transition hover:bg-amber-400/15 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                <CircleX size={16} />
+                Mark as no-show
+                </button>
+            )}
+
+            <button
+                type="button"
+                disabled={updating}
+                onClick={onCancelReservation}
+                className="flex w-full items-center justify-center gap-2 rounded-xl border border-red-400/20 bg-red-400/10 px-4 py-3 text-sm font-medium text-red-200 transition hover:bg-red-400/15 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+                <X size={16} />
+                Cancel reservation
+            </button>
+            </div>
 
           <div className="mt-3 rounded-2xl border border-white/10 bg-white/[.025] p-4">
             <h3 className="truncate text-lg font-medium text-white">

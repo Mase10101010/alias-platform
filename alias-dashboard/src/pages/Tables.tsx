@@ -4,8 +4,11 @@ import {
 } from 'react';
 
 import {
-  createServiceArea,
+  cancelReservation,
   createFloorPlan,
+  createServiceArea,
+  updateReservation,
+  type ReservationStatus,
   type ServiceAreaType,
 } from '@/lib/api';
 
@@ -72,6 +75,11 @@ export function Tables() {
   const [savingTableId, setSavingTableId] = useState<
     string | null
   >(null);
+
+  const [
+    updatingReservationId,
+    setUpdatingReservationId,
+  ] = useState<string | null>(null);
   
   
   const [error, setError] = useState('');
@@ -544,6 +552,86 @@ export function Tables() {
     }
   }
 
+  async function handleReservationStatusChange(
+    reservationId: string,
+    nextStatus: ReservationStatus,
+  ) {
+    if (updatingReservationId) {
+      return;
+    }
+
+    try {
+      setUpdatingReservationId(reservationId);
+      setError('');
+
+      await updateReservation(reservationId, {
+        status: nextStatus,
+      });
+
+      await refreshLiveFloor();
+
+      if (
+        nextStatus === 'completed' ||
+        nextStatus === 'cancelled' ||
+        nextStatus === 'no_show'
+      ) {
+        clearSelection();
+      }
+    } catch (error) {
+      console.error(
+        'Failed to update reservation status',
+        error,
+      );
+
+      setError(
+        error instanceof Error
+          ? error.message
+          : 'Unable to update reservation.',
+      );
+    } finally {
+      setUpdatingReservationId(null);
+    }
+  }
+
+  async function handleCancelLiveReservation(
+    reservationId: string,
+  ) {
+    if (updatingReservationId) {
+      return;
+    }
+
+    const confirmed = window.confirm(
+      'Cancel this reservation? This action will make the table available again.',
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      setUpdatingReservationId(reservationId);
+      setError('');
+
+      await cancelReservation(reservationId);
+      await refreshLiveFloor();
+
+      clearSelection();
+    } catch (error) {
+      console.error(
+        'Failed to cancel reservation',
+        error,
+      );
+
+      setError(
+        error instanceof Error
+          ? error.message
+          : 'Unable to cancel reservation.',
+      );
+    } finally {
+      setUpdatingReservationId(null);
+    }
+  }
+  
   const selectedLiveState = selectedTableId
     ? getTableState(selectedTableId)
     : null;
@@ -860,7 +948,62 @@ export function Tables() {
               table={selectedTable}
               status={selectedLiveState.status}
               reservation={selectedLiveState.reservation}
+              updating={
+                updatingReservationId ===
+                selectedLiveState.reservation?.id
+              }
               onClose={clearSelection}
+              onSeatGuest={() => {
+                const reservation =
+                  selectedLiveState.reservation;
+
+                if (!reservation) {
+                  return;
+                }
+
+                void handleReservationStatusChange(
+                  reservation.id,
+                  'seated',
+                );
+              }}
+              onCompleteService={() => {
+                const reservation =
+                  selectedLiveState.reservation;
+
+                if (!reservation) {
+                  return;
+                }
+
+                void handleReservationStatusChange(
+                  reservation.id,
+                  'completed',
+                );
+              }}
+              onMarkNoShow={() => {
+                const reservation =
+                  selectedLiveState.reservation;
+
+                if (!reservation) {
+                  return;
+                }
+
+                void handleReservationStatusChange(
+                  reservation.id,
+                  'no_show',
+                );
+              }}
+              onCancelReservation={() => {
+                const reservation =
+                  selectedLiveState.reservation;
+
+                if (!reservation) {
+                  return;
+                }
+
+                void handleCancelLiveReservation(
+                  reservation.id,
+                );
+              }}
             />
           )}
 

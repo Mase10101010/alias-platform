@@ -171,6 +171,17 @@ export type ReservationStatus =
   | 'cancelled'
   | 'no_show';
 
+export type ReservationUpdate = {
+  customer_name?: string;
+  customer_phone?: string;
+  customer_email?: string | null;
+  party_size?: number;
+  reservation_time?: string;
+  duration_minutes?: number;
+  special_requests?: string | null;
+  status?: ReservationStatus;
+};
+
 export type GetReservationsParams = {
   restaurantId?: string;
   start?: string;
@@ -250,6 +261,59 @@ export async function createReservation(
 
   if (!response.ok) {
     throw await parseApiError(response, 'Unable to create reservation');
+  }
+
+  return response.json();
+}
+
+export async function updateReservation(
+  reservationId: string,
+  payload: ReservationUpdate,
+): Promise<ReservationResponse> {
+  const token = getAuthToken();
+
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/reservations/${reservationId}`,
+    {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    },
+  );
+
+  if (!response.ok) {
+    throw await parseApiError(
+      response,
+      'Unable to update reservation',
+    );
+  }
+
+  return response.json();
+}
+
+export async function cancelReservation(
+  reservationId: string,
+): Promise<ReservationResponse> {
+  const token = getAuthToken();
+
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/reservations/${reservationId}`,
+    {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+
+  if (!response.ok) {
+    throw await parseApiError(
+      response,
+      'Unable to cancel reservation',
+    );
   }
 
   return response.json();
