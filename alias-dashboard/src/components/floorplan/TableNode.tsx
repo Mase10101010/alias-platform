@@ -158,7 +158,9 @@ export function TableNode({
         borderRadius: getBorderRadius(table),
         transform: `rotate(${table.rotation}deg)`,
         borderColor: isLiveMode
-          ? liveAppearance.border
+          ? selected
+            ? 'rgba(255, 255, 255, .95)'
+            : liveAppearance.border
           : selected
             ? cyan
             : `${cyan}45`,
@@ -170,7 +172,9 @@ export function TableNode({
             : `linear-gradient(145deg, ${cyan}22, rgba(255,255,255,.035))`,
 
         boxShadow: isLiveMode
-          ? liveAppearance.shadow
+          ? selected
+            ? `0 0 0 3px rgba(255,255,255,.12), ${liveAppearance.shadow}`
+            : liveAppearance.shadow
           : selected
             ? `0 0 0 2px ${cyan}30, 0 16px 42px rgba(0,0,0,.42), 0 0 32px ${cyan}20`
             : `0 12px 35px rgba(0,0,0,.35), 0 0 25px ${cyan}10`,

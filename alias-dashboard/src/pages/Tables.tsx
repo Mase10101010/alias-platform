@@ -10,6 +10,10 @@ import {
 } from '@/lib/api';
 
 import {
+  LiveReservationPanel,
+} from '@/components/floorplan/LiveReservationPanel';
+
+import {
   LiveFloorControls,
   type FloorMode,
 } from '@/components/floorplan/LiveFloorControls';
@@ -540,6 +544,10 @@ export function Tables() {
     }
   }
 
+  const selectedLiveState = selectedTableId
+    ? getTableState(selectedTableId)
+    : null;
+
   function handleFloorModeChange(mode: FloorMode) {
     setFloorMode(mode);
     setActiveTool('select');
@@ -635,9 +643,9 @@ export function Tables() {
         </div>
       )}
 
-      <div className="mt-8 flex gap-6 items-start">
+      <div className="mt-8 flex flex-col items-start gap-6 lg:flex-row">
 
-        <div className="relative flex-1">
+        <div className="relative w-full min-w-0 flex-1">
 
           <FloorCanvas
             ref={canvasRef}
@@ -844,6 +852,17 @@ export function Tables() {
             onDelete={handleDeleteSelectedTable}
           />
         )}
+
+        {floorMode === 'live' &&
+          selectedTable &&
+          selectedLiveState && (
+            <LiveReservationPanel
+              table={selectedTable}
+              status={selectedLiveState.status}
+              reservation={selectedLiveState.reservation}
+              onClose={clearSelection}
+            />
+          )}
 
       </div>
 
