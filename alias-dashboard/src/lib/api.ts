@@ -294,6 +294,36 @@ export async function updateReservation(
   return response.json();
 }
 
+export async function moveReservation(
+  reservationId: string,
+  tableId: string,
+): Promise<ReservationResponse> {
+  const token = getAuthToken();
+
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/reservations/${reservationId}/move`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        table_id: tableId,
+      }),
+    },
+  );
+
+  if (!response.ok) {
+    throw await parseApiError(
+      response,
+      'Unable to move reservation',
+    );
+  }
+
+  return response.json();
+}
+
 export async function cancelReservation(
   reservationId: string,
 ): Promise<ReservationResponse> {

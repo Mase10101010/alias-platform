@@ -7,6 +7,7 @@ import {
   cancelReservation,
   createFloorPlan,
   createServiceArea,
+  moveReservation,
   updateReservation,
   type ReservationStatus,
   type ServiceAreaType,
@@ -631,10 +632,59 @@ export function Tables() {
       setUpdatingReservationId(null);
     }
   }
+
+  async function handleMoveLiveReservation(
+    reservationId: string,
+    destinationTableId: string,
+  ) {
+    if (updatingReservationId) {
+      return;
+    }
+
+    try {
+      setUpdatingReservationId(reservationId);
+      setError('');
+
+      await moveReservation(
+        reservationId,
+        destinationTableId,
+      );
+
+      await refreshLiveFloor();
+
+      setSelectedTableId(destinationTableId);
+    } catch (error) {
+      console.error(
+        'Failed to move reservation',
+        error,
+      );
+
+      setError(
+        error instanceof Error
+          ? error.message
+          : 'Unable to move reservation.',
+      );
+    } finally {
+      setUpdatingReservationId(null);
+    }
+  }
   
   const selectedLiveState = selectedTableId
     ? getTableState(selectedTableId)
     : null;
+
+  const liveMoveTargets = selectedTableId
+    ? tables
+        .filter(
+          (table) =>
+            table.id !== selectedTableId &&
+            table.is_active,
+        )
+        .map((table) => ({
+          table,
+          status: getTableState(table.id).status,
+        }))
+    : [];
 
   function handleFloorModeChange(mode: FloorMode) {
     setFloorMode(mode);
@@ -948,6 +998,7 @@ export function Tables() {
               table={selectedTable}
               status={selectedLiveState.status}
               reservation={selectedLiveState.reservation}
+              moveTargets={liveMoveTargets}
               updating={
                 updatingReservationId ===
                 selectedLiveState.reservation?.id
@@ -1002,6 +1053,19 @@ export function Tables() {
 
                 void handleCancelLiveReservation(
                   reservation.id,
+                );
+              }}
+              onMoveReservation={(destinationTableId) => {
+                const reservation =
+                  selectedLiveState.reservation;
+
+                if (!reservation) {
+                  return;
+                }
+
+                void handleMoveLiveReservation(
+                  reservation.id,
+                  destinationTableId,
                 );
               }}
             />
