@@ -13,6 +13,7 @@ import {
   getTables,
   moveReservation,
   updateReservation,
+  type FloorPlanResponse,
   type ReservationStatus,
   type ServiceAreaType,
   type TableResponse,
@@ -85,6 +86,9 @@ export function Tables() {
   const [allRestaurantTables, setAllRestaurantTables] =
     useState<TableResponse[]>([]);
 
+  const [allRestaurantFloorPlans, setAllRestaurantFloorPlans] =
+    useState<FloorPlanResponse[]>([]);
+
   const [
     updatingReservationId,
     setUpdatingReservationId,
@@ -141,6 +145,7 @@ export function Tables() {
   const loadAllRestaurantTables = useCallback(async () => {
     if (!restaurantId) {
       setAllRestaurantTables([]);
+      setAllRestaurantFloorPlans([]);
       return;
     }
 
@@ -158,6 +163,8 @@ export function Tables() {
       const activeFloorPlans = plansByArea
         .flat()
         .filter((plan) => plan.is_active);
+
+      setAllRestaurantFloorPlans(activeFloorPlans);
 
       const tablesByFloorPlan = await Promise.all(
         activeFloorPlans.map((plan) =>
@@ -716,21 +723,46 @@ export function Tables() {
       setUpdatingReservationId(reservationId);
       setError('');
 
+      const destinationTable = allRestaurantTables.find(
+        (table) => table.id === destinationTableId,
+      );
+
+      const destinationFloorPlan = destinationTable
+        ? allRestaurantFloorPlans.find(
+            (plan) => plan.id === destinationTable.floor_plan_id,
+          )
+        : null;
+
       await moveReservation(
         reservationId,
         destinationTableId,
       );
 
-      await Promise.all([
-        refreshLiveFloor(),
-        loadAllRestaurantTables(),
-      ]);
+      await refreshLiveFloor();
 
-      if (tables.some((table) => table.id === destinationTableId)) {
-        setSelectedTableId(destinationTableId);
-      } else {
+      if (
+        destinationFloorPlan &&
+        destinationFloorPlan.service_area_id !== selectedAreaId
+      ) {
         clearSelection();
+        setPendingTable(null);
+        resetViewport();
+
+        await selectArea(destinationFloorPlan.service_area_id);
+        await selectFloorPlan(destinationFloorPlan.id);
+      } else if (
+        destinationFloorPlan &&
+        destinationFloorPlan.id !== selectedFloorPlanId
+      ) {
+        clearSelection();
+        setPendingTable(null);
+        resetViewport();
+
+        await selectFloorPlan(destinationFloorPlan.id);
       }
+
+      await loadAllRestaurantTables();
+      setSelectedTableId(destinationTableId);
     } catch (error) {
       console.error(
         'Failed to move reservation',
