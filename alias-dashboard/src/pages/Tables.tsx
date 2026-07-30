@@ -1,4 +1,6 @@
 import {
+  useCallback,
+  useEffect,
   useRef,
   useState,
 } from 'react';
@@ -7,10 +9,12 @@ import {
   cancelReservation,
   createFloorPlan,
   createServiceArea,
+  getTables,
   moveReservation,
   updateReservation,
   type ReservationStatus,
   type ServiceAreaType,
+  type TableResponse,
 } from '@/lib/api';
 
 import {
@@ -77,6 +81,9 @@ export function Tables() {
     string | null
   >(null);
 
+  const [allRestaurantTables, setAllRestaurantTables] =
+    useState<TableResponse[]>([]);
+
   const [
     updatingReservationId,
     setUpdatingReservationId,
@@ -129,6 +136,40 @@ export function Tables() {
   } = useFloorPlanLoader({
     onError: setError,
   });
+
+  const loadAllRestaurantTables = useCallback(async () => {
+    if (!restaurantId) {
+      setAllRestaurantTables([]);
+      return;
+    }
+
+    try {
+      const loadedTables = await getTables(restaurantId);
+
+      setAllRestaurantTables(
+        loadedTables.filter((table) => table.is_active),
+      );
+    } catch (error) {
+      console.error(
+        'Failed to load all restaurant tables',
+        error,
+      );
+
+      setError(
+        error instanceof Error
+          ? error.message
+          : 'Unable to load restaurant tables.',
+      );
+    }
+  }, [restaurantId]);
+
+  useEffect(() => {
+    if (floorMode !== 'live') {
+      return;
+    }
+
+    void loadAllRestaurantTables();
+  }, [floorMode, loadAllRestaurantTables]);
 
   const {
     loading: liveLoading,
@@ -223,6 +264,10 @@ export function Tables() {
     floorPlanId: selectedFloorPlanId,
     onCreated(created) {
       setTables((current) => [...current, created]);
+      setAllRestaurantTables((current) => [
+        ...current.filter((table) => table.id !== created.id),
+        created,
+      ]);
       setSelectedTableId(created.id);
       setActiveTool('select');
     },
@@ -650,9 +695,16 @@ export function Tables() {
         destinationTableId,
       );
 
-      await refreshLiveFloor();
+      await Promise.all([
+        refreshLiveFloor(),
+        loadAllRestaurantTables(),
+      ]);
 
-      setSelectedTableId(destinationTableId);
+      if (tables.some((table) => table.id === destinationTableId)) {
+        setSelectedTableId(destinationTableId);
+      } else {
+        clearSelection();
+      }
     } catch (error) {
       console.error(
         'Failed to move reservation',
@@ -674,7 +726,7 @@ export function Tables() {
     : null;
 
   const liveMoveTargets = selectedTableId
-    ? tables
+    ? allRestaurantTables
         .filter(
           (table) =>
             table.id !== selectedTableId &&
@@ -722,7 +774,10 @@ export function Tables() {
           setLiveDate(date);
         }}
         onRefresh={() => {
-          void refreshLiveFloor();
+          void Promise.all([
+            refreshLiveFloor(),
+            loadAllRestaurantTables(),
+          ]);
         }}
       />
 
