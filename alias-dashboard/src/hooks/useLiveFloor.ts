@@ -104,6 +104,14 @@ export function useLiveFloor({
         limit: 500,
       });
 
+      console.log('LIVE FLOOR WINDOW', {
+        selectedDate,
+        start,
+        end,
+      });
+
+      console.log('LIVE FLOOR RESERVATIONS', loaded);
+
       setReservations(
         loaded.filter(
           (reservation) =>
