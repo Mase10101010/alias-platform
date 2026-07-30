@@ -9,6 +9,7 @@ import {
   cancelReservation,
   createFloorPlan,
   createServiceArea,
+  getFloorPlans,
   getTables,
   moveReservation,
   updateReservation,
@@ -144,11 +145,36 @@ export function Tables() {
     }
 
     try {
-      const loadedTables = await getTables(restaurantId);
-
-      setAllRestaurantTables(
-        loadedTables.filter((table) => table.is_active),
+      const activeAreas = serviceAreas.filter(
+        (area) => area.is_active,
       );
+
+      const plansByArea = await Promise.all(
+        activeAreas.map((area) =>
+          getFloorPlans(restaurantId, area.id),
+        ),
+      );
+
+      const activeFloorPlans = plansByArea
+        .flat()
+        .filter((plan) => plan.is_active);
+
+      const tablesByFloorPlan = await Promise.all(
+        activeFloorPlans.map((plan) =>
+          getTables(restaurantId, plan.id),
+        ),
+      );
+
+      const uniqueTables = Array.from(
+        new Map(
+          tablesByFloorPlan
+            .flat()
+            .filter((table) => table.is_active)
+            .map((table) => [table.id, table]),
+        ).values(),
+      );
+
+      setAllRestaurantTables(uniqueTables);
     } catch (error) {
       console.error(
         'Failed to load all restaurant tables',
@@ -161,7 +187,7 @@ export function Tables() {
           : 'Unable to load restaurant tables.',
       );
     }
-  }, [restaurantId]);
+  }, [restaurantId, serviceAreas]);
 
   useEffect(() => {
     if (floorMode !== 'live') {
