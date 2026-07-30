@@ -49,13 +49,28 @@ function getReservationWindow(reservation: ReservationResponse) {
   return { start, end };
 }
 
-function isReservationActive(
+const LIVE_SLOT_MINUTES = 30;
+
+function getSelectedSlot(selectedMoment: Date) {
+  const start = new Date(selectedMoment);
+  const end = new Date(
+    start.getTime() + LIVE_SLOT_MINUTES * 60_000,
+  );
+
+  return { start, end };
+}
+
+function doesReservationOverlapSelectedSlot(
   reservation: ReservationResponse,
   selectedMoment: Date,
 ) {
-  const { start, end } = getReservationWindow(reservation);
+  const reservationWindow = getReservationWindow(reservation);
+  const selectedSlot = getSelectedSlot(selectedMoment);
 
-  return selectedMoment >= start && selectedMoment < end;
+  return (
+    reservationWindow.start < selectedSlot.end &&
+    reservationWindow.end > selectedSlot.start
+  );
 }
 
 export function useLiveFloor({
@@ -159,11 +174,11 @@ export function useLiveFloor({
             return 1;
           }
 
-          const leftActive = isReservationActive(
+          const leftActive = doesReservationOverlapSelectedSlot(
             left,
             selectedMoment,
           );
-          const rightActive = isReservationActive(
+          const rightActive = doesReservationOverlapSelectedSlot(
             right,
             selectedMoment,
           );
@@ -184,7 +199,10 @@ export function useLiveFloor({
 
       const occupied =
         reservation.status === 'seated' ||
-        isReservationActive(reservation, selectedMoment);
+        doesReservationOverlapSelectedSlot(
+          reservation,
+          selectedMoment,
+        );
 
       states.set(tableId, {
         status: occupied ? 'occupied' : 'reserved',
