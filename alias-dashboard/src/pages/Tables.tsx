@@ -73,12 +73,22 @@ import {
   type EditorTool,
 } from '@/components/floorplan/Toolbar';
 
+
+function roundToNearestHalfHour(date: Date) {
+  const rounded = new Date(date);
+  const roundedMinutes = Math.round(rounded.getMinutes() / 30) * 30;
+
+  rounded.setMinutes(roundedMinutes, 0, 0);
+
+  return rounded;
+}
+
 export function Tables() {
   const [floorMode, setFloorMode] =
     useState<FloorMode>('edit');
 
   const [liveDate, setLiveDate] =
-    useState(() => new Date());
+    useState(() => roundToNearestHalfHour(new Date()));
   const [savingTableId, setSavingTableId] = useState<
     string | null
   >(null);

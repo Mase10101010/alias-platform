@@ -40,35 +40,22 @@ function getDayWindow(date: Date) {
   };
 }
 
-function isReservationActive(
-  reservation: ReservationResponse,
-  now: Date,
-) {
-  const reservationStart = new Date(
-    reservation.reservation_time,
+function getReservationWindow(reservation: ReservationResponse) {
+  const start = new Date(reservation.reservation_time);
+  const end = new Date(
+    start.getTime() + reservation.duration_minutes * 60_000,
   );
 
-  const reservationEnd = new Date(
-    reservationStart.getTime() +
-      reservation.duration_minutes * 60_000,
-  );
-
-  return now >= reservationStart && now < reservationEnd;
+  return { start, end };
 }
 
-function getReservationPriority(
+function isReservationActive(
   reservation: ReservationResponse,
-  now: Date,
+  selectedMoment: Date,
 ) {
-  if (reservation.status === 'seated') {
-    return 3;
-  }
+  const { start, end } = getReservationWindow(reservation);
 
-  if (isReservationActive(reservation, now)) {
-    return 2;
-  }
-
-  return 1;
+  return selectedMoment >= start && selectedMoment < end;
 }
 
 export function useLiveFloor({
@@ -82,9 +69,10 @@ export function useLiveFloor({
   >([]);
 
   const [loading, setLoading] = useState(false);
-
   const [lastUpdatedAt, setLastUpdatedAt] =
     useState<Date | null>(null);
+
+  const selectedDayKey = `${selectedDate.getFullYear()}-${selectedDate.getMonth()}-${selectedDate.getDate()}`;
 
   const loadReservations = useCallback(async () => {
     if (!restaurantId || !enabled) {
@@ -103,14 +91,6 @@ export function useLiveFloor({
         end,
         limit: 500,
       });
-
-      console.log('LIVE FLOOR WINDOW', {
-        selectedDate,
-        start,
-        end,
-      });
-
-      console.log('LIVE FLOOR RESERVATIONS', loaded);
 
       setReservations(
         loaded.filter(
@@ -136,19 +116,14 @@ export function useLiveFloor({
     } finally {
       setLoading(false);
     }
-  }, [
-    enabled,
-    onError,
-    restaurantId,
-    selectedDate,
-  ]);
+  }, [enabled, onError, restaurantId, selectedDayKey]);
 
   useEffect(() => {
     void loadReservations();
   }, [loadReservations]);
 
   const tableStates = useMemo(() => {
-    const now = new Date();
+    const selectedMoment = new Date(selectedDate);
 
     const reservationsByTable = new Map<
       string,
@@ -156,46 +131,60 @@ export function useLiveFloor({
     >();
 
     for (const reservation of reservations) {
-      if (!reservation.table_id) {
-        continue;
-      }
+      if (!reservation.table_id) continue;
 
-      const tableReservations =
+      const current =
         reservationsByTable.get(reservation.table_id) ?? [];
 
-      tableReservations.push(reservation);
-
-      reservationsByTable.set(
-        reservation.table_id,
-        tableReservations,
-      );
+      current.push(reservation);
+      reservationsByTable.set(reservation.table_id, current);
     }
 
     const states = new Map<string, LiveTableState>();
 
     for (const [tableId, tableReservations] of reservationsByTable) {
-      const orderedReservations = [...tableReservations].sort(
-        (left, right) => {
-          const priorityDifference =
-            getReservationPriority(right, now) -
-            getReservationPriority(left, now);
+      const relevantReservations = tableReservations
+        .filter((reservation) => {
+          if (reservation.status === 'seated') return true;
 
-          if (priorityDifference !== 0) {
-            return priorityDifference;
+          const { end } = getReservationWindow(reservation);
+          return end > selectedMoment;
+        })
+        .sort((left, right) => {
+          if (left.status === 'seated' && right.status !== 'seated') {
+            return -1;
+          }
+
+          if (right.status === 'seated' && left.status !== 'seated') {
+            return 1;
+          }
+
+          const leftActive = isReservationActive(
+            left,
+            selectedMoment,
+          );
+          const rightActive = isReservationActive(
+            right,
+            selectedMoment,
+          );
+
+          if (leftActive !== rightActive) {
+            return leftActive ? -1 : 1;
           }
 
           return (
             new Date(left.reservation_time).getTime() -
             new Date(right.reservation_time).getTime()
           );
-        },
-      );
+        });
 
-      const reservation = orderedReservations[0];
+      const reservation = relevantReservations[0];
+
+      if (!reservation) continue;
 
       const occupied =
         reservation.status === 'seated' ||
-        isReservationActive(reservation, now);
+        isReservationActive(reservation, selectedMoment);
 
       states.set(tableId, {
         status: occupied ? 'occupied' : 'reserved',
@@ -204,7 +193,7 @@ export function useLiveFloor({
     }
 
     return states;
-  }, [reservations]);
+  }, [reservations, selectedDate]);
 
   const getTableState = useCallback(
     (tableId: string): LiveTableState => {
