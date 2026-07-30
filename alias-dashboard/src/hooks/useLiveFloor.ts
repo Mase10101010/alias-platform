@@ -27,12 +27,18 @@ type UseLiveFloorParams = {
   onError?: (message: string) => void;
 };
 
-function getDayWindow(date: Date) {
-  const start = new Date(date);
-  start.setHours(0, 0, 0, 0);
+function getSafeFetchWindow(date: Date) {
+  // Fetch an intentionally wider range than one calendar day.
+  // This avoids losing reservations when the API stores timestamps in UTC
+  // while the dashboard displays the restaurant's local calendar day.
+  const selectedDayStart = new Date(date);
+  selectedDayStart.setHours(0, 0, 0, 0);
 
-  const end = new Date(start);
-  end.setDate(end.getDate() + 1);
+  const start = new Date(selectedDayStart);
+  start.setDate(start.getDate() - 1);
+
+  const end = new Date(selectedDayStart);
+  end.setDate(end.getDate() + 2);
 
   return {
     start: start.toISOString(),
@@ -98,7 +104,7 @@ export function useLiveFloor({
     try {
       setLoading(true);
 
-      const { start, end } = getDayWindow(selectedDate);
+      const { start, end } = getSafeFetchWindow(selectedDate);
 
       const loaded = await getReservations({
         restaurantId,
@@ -107,14 +113,50 @@ export function useLiveFloor({
         limit: 500,
       });
 
-      setReservations(
-        loaded.filter(
-          (reservation) =>
-            reservation.status !== 'cancelled' &&
-            reservation.status !== 'no_show' &&
-            reservation.status !== 'completed',
-        ),
-      );
+      const activeReservations = loaded.filter((reservation) => {
+        if (
+          reservation.status === 'cancelled' ||
+          reservation.status === 'no_show' ||
+          reservation.status === 'completed'
+        ) {
+          return false;
+        }
+
+        const { start: reservationStart, end: reservationEnd } =
+          getReservationWindow(reservation);
+
+        // Keep reservations touching the selected local calendar day,
+        // including bookings that cross midnight.
+        const selectedDayStart = new Date(selectedDate);
+        selectedDayStart.setHours(0, 0, 0, 0);
+
+        const selectedDayEnd = new Date(selectedDayStart);
+        selectedDayEnd.setDate(selectedDayEnd.getDate() + 1);
+
+        return (
+          reservationStart < selectedDayEnd &&
+          reservationEnd > selectedDayStart
+        );
+      });
+
+      console.log('LIVE FLOOR FETCH', {
+        selectedDate,
+        start,
+        end,
+        loadedCount: loaded.length,
+        selectedDayCount: activeReservations.length,
+        reservations: activeReservations.map((reservation) => ({
+          id: reservation.id,
+          tableId: reservation.table_id,
+          status: reservation.status,
+          reservationTime: reservation.reservation_time,
+          parsedLocalTime: new Date(
+            reservation.reservation_time,
+          ).toString(),
+        })),
+      });
+
+      setReservations(activeReservations);
 
       setLastUpdatedAt(new Date());
     } catch (error) {
