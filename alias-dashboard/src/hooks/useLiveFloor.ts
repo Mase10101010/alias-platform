@@ -188,7 +188,20 @@ export function useLiveFloor({
     >();
 
     for (const reservation of reservations) {
-      if (!reservation.table_id) continue;
+      if (!reservation.table_id) {
+        continue;
+      }
+
+      // A reservation affects the map only when its actual duration
+      // overlaps the selected 30-minute slot.
+      if (
+        !doesReservationOverlapSelectedSlot(
+          reservation,
+          selectedMoment,
+        )
+      ) {
+        continue;
+      }
 
       const current =
         reservationsByTable.get(reservation.table_id) ?? [];
@@ -200,54 +213,33 @@ export function useLiveFloor({
     const states = new Map<string, LiveTableState>();
 
     for (const [tableId, tableReservations] of reservationsByTable) {
-      const relevantReservations = tableReservations
-        .filter((reservation) => {
-          if (reservation.status === 'seated') return true;
-
-          const { end } = getReservationWindow(reservation);
-          return end > selectedMoment;
-        })
-        .sort((left, right) => {
-          if (left.status === 'seated' && right.status !== 'seated') {
+      const reservation = [...tableReservations].sort(
+        (left, right) => {
+          // Prefer an already seated reservation if overlapping bookings
+          // somehow exist for the same table and slot.
+          if (
+            left.status === 'seated' &&
+            right.status !== 'seated'
+          ) {
             return -1;
           }
 
-          if (right.status === 'seated' && left.status !== 'seated') {
+          if (
+            right.status === 'seated' &&
+            left.status !== 'seated'
+          ) {
             return 1;
-          }
-
-          const leftActive = doesReservationOverlapSelectedSlot(
-            left,
-            selectedMoment,
-          );
-          const rightActive = doesReservationOverlapSelectedSlot(
-            right,
-            selectedMoment,
-          );
-
-          if (leftActive !== rightActive) {
-            return leftActive ? -1 : 1;
           }
 
           return (
             new Date(left.reservation_time).getTime() -
             new Date(right.reservation_time).getTime()
           );
-        });
-
-      const reservation = relevantReservations[0];
-
-      if (!reservation) continue;
-
-      const occupied =
-        reservation.status === 'seated' ||
-        doesReservationOverlapSelectedSlot(
-          reservation,
-          selectedMoment,
-        );
+        },
+      )[0];
 
       states.set(tableId, {
-        status: occupied ? 'occupied' : 'reserved',
+        status: 'occupied',
         reservation,
       });
     }
