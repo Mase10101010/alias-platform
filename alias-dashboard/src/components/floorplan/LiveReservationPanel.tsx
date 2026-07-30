@@ -28,6 +28,7 @@ import type {
 export type LiveMoveTarget = {
   table: TableResponse;
   status: LiveTableStatus;
+  areaName: string;
 };
 
 type LiveReservationPanelProps = {
@@ -118,6 +119,17 @@ export function LiveReservationPanel({
   const selectedMoveTarget = moveTargets.find(
     (target) => target.table.id === selectedMoveTableId,
   );
+
+  const moveTargetsByArea = moveTargets.reduce<
+    Record<string, LiveMoveTarget[]>
+  >((groups, target) => {
+    const areaTargets = groups[target.areaName] ?? [];
+
+    return {
+      ...groups,
+      [target.areaName]: [...areaTargets, target],
+    };
+  }, {});
 
   const selectedTargetUnavailable =
     !selectedMoveTarget ||
@@ -272,34 +284,45 @@ export function LiveReservationPanel({
                     Select a table
                   </option>
 
-                  {moveTargets.map((target) => {
-                    const tooSmall =
-                      target.table.seats <
-                      reservation.party_size;
-
-                    const unavailable =
-                      target.status !== 'available';
-
-                    return (
-                      <option
-                        key={target.table.id}
-                        value={target.table.id}
-                        disabled={tooSmall || unavailable}
+                  {Object.entries(moveTargetsByArea).map(
+                    ([areaName, areaTargets]) => (
+                      <optgroup
+                        key={areaName}
+                        label={areaName}
                       >
-                        Table {target.table.table_number}
-                        {' · '}
-                        {target.table.seats}{' '}
-                        {target.table.seats === 1
-                          ? 'seat'
-                          : 'seats'}
-                        {tooSmall
-                          ? ' · Too small'
-                          : unavailable
-                            ? ` · ${target.status}`
-                            : ' · Available'}
-                      </option>
-                    );
-                  })}
+                        {areaTargets.map((target) => {
+                          const tooSmall =
+                            target.table.seats <
+                            reservation.party_size;
+
+                          const unavailable =
+                            target.status !== 'available';
+
+                          return (
+                            <option
+                              key={target.table.id}
+                              value={target.table.id}
+                              disabled={
+                                tooSmall || unavailable
+                              }
+                            >
+                              Table {target.table.table_number}
+                              {' · '}
+                              {target.table.seats}{' '}
+                              {target.table.seats === 1
+                                ? 'seat'
+                                : 'seats'}
+                              {tooSmall
+                                ? ' · Too small'
+                                : unavailable
+                                  ? ` · ${target.status}`
+                                  : ' · Available'}
+                            </option>
+                          );
+                        })}
+                      </optgroup>
+                    ),
+                  )}
                 </select>
 
                 {moveTargets.length === 0 && (

@@ -790,10 +790,39 @@ export function Tables() {
             table.id !== selectedTableId &&
             table.is_active,
         )
-        .map((table) => ({
-          table,
-          status: getTableState(table.id).status,
-        }))
+        .map((table) => {
+          const floorPlan = allRestaurantFloorPlans.find(
+            (plan) => plan.id === table.floor_plan_id,
+          );
+
+          const area = floorPlan
+            ? serviceAreas.find(
+                (serviceArea) =>
+                  serviceArea.id === floorPlan.service_area_id,
+              )
+            : null;
+
+          return {
+            table,
+            status: getTableState(table.id).status,
+            areaName: area?.name ?? 'Other area',
+          };
+        })
+        .sort((first, second) => {
+          const areaComparison = first.areaName.localeCompare(
+            second.areaName,
+          );
+
+          if (areaComparison !== 0) {
+            return areaComparison;
+          }
+
+          return first.table.table_number.localeCompare(
+            second.table.table_number,
+            undefined,
+            { numeric: true },
+          );
+        })
     : [];
 
   function handleFloorModeChange(mode: FloorMode) {
