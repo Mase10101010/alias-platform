@@ -179,6 +179,25 @@ export function TableNode({
   const veryCompactLiveContent =
     table.height < 78 || table.width < 92;
 
+  const customerNameLength =
+    liveReservation?.customer_name?.trim().length ?? 0;
+
+  const customerNameClass = veryCompactLiveContent
+    ? customerNameLength > 16
+      ? 'text-[8px]'
+      : customerNameLength > 11
+        ? 'text-[9px]'
+        : 'text-[10px]'
+    : compactLiveContent
+      ? customerNameLength > 20
+        ? 'text-[9px]'
+        : 'text-[10px]'
+      : customerNameLength > 24
+        ? 'text-[10px]'
+        : customerNameLength > 18
+          ? 'text-[11px]'
+          : 'text-xs';
+
   return (
     <div
       role="button"
@@ -235,7 +254,7 @@ export function TableNode({
       }}
     >
       <div
-        className="flex h-full w-full max-w-full flex-col items-center justify-center overflow-hidden px-2 py-1"
+        className="flex h-full w-full min-w-0 max-w-full flex-col items-center justify-center overflow-hidden px-2 py-1"
         style={{
           transform: `rotate(-${table.rotation}deg)`,
         }}
@@ -263,9 +282,8 @@ export function TableNode({
             {liveReservation && reservationStart && reservationEnd && (
               <>
                 <span
-                  className={`mt-0.5 w-full truncate px-1 font-medium text-white/85 ${
-                    compactLiveContent ? 'text-[10px]' : 'text-xs'
-                  }`}
+                  title={liveReservation.customer_name}
+                  className={`mt-0.5 block w-full min-w-0 overflow-hidden text-ellipsis whitespace-nowrap px-1 font-medium leading-tight text-white/85 ${customerNameClass}`}
                 >
                   {liveReservation.customer_name}
                 </span>
