@@ -173,6 +173,12 @@ export function TableNode({
       ? formatRelativeStart(liveReservation, selectedDate)
       : null;
 
+  const compactLiveContent =
+    table.height < 105 || table.width < 120;
+
+  const veryCompactLiveContent =
+    table.height < 78 || table.width < 92;
+
   return (
     <div
       role="button"
@@ -192,7 +198,7 @@ export function TableNode({
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
       onPointerCancel={onPointerCancel}
-      className={`absolute flex select-none items-center justify-center border text-center transition ${
+      className={`absolute flex select-none items-center justify-center overflow-hidden border text-center transition ${
         draggingEnabled
           ? 'cursor-grab active:cursor-grabbing'
           : 'cursor-default'
@@ -229,7 +235,7 @@ export function TableNode({
       }}
     >
       <div
-        className="flex max-w-full flex-col items-center px-2"
+        className="flex h-full w-full max-w-full flex-col items-center justify-center overflow-hidden px-2 py-1"
         style={{
           transform: `rotate(-${table.rotation}deg)`,
         }}
@@ -238,43 +244,57 @@ export function TableNode({
           <SavingIcon size={16} />
         ) : isLiveMode ? (
           <>
-            <span className="max-w-full truncate font-display text-lg text-white">
+            <span
+              className={`max-w-full truncate font-display text-white ${
+                veryCompactLiveContent ? 'text-sm' : 'text-lg'
+              }`}
+            >
               {table.table_number}
             </span>
 
-            <span
-              className={`mt-1 text-[9px] font-medium uppercase tracking-[.16em] ${liveAppearance.labelClass}`}
-            >
-              {liveAppearance.label}
-            </span>
+            {!veryCompactLiveContent && (
+              <span
+                className={`mt-0.5 max-w-full truncate text-[8px] font-medium uppercase tracking-[.12em] ${liveAppearance.labelClass}`}
+              >
+                {liveAppearance.label}
+              </span>
+            )}
 
             {liveReservation && reservationStart && reservationEnd && (
               <>
-                <span className="mt-1 max-w-full truncate px-1 text-xs font-medium text-white/85">
+                <span
+                  className={`mt-0.5 w-full truncate px-1 font-medium text-white/85 ${
+                    compactLiveContent ? 'text-[10px]' : 'text-xs'
+                  }`}
+                >
                   {liveReservation.customer_name}
                 </span>
 
-                <span className="mt-0.5 text-[10px] text-white/55">
-                  {formatTime(reservationStart)}–{formatTime(reservationEnd)}
-                </span>
+                {!veryCompactLiveContent && (
+                  <span className="mt-0.5 w-full truncate text-[9px] text-white/55">
+                    {formatTime(reservationStart)}–{formatTime(reservationEnd)}
+                    {!compactLiveContent && (
+                      <>
+                        {' · '}
+                        {liveReservation.party_size}{' '}
+                        {liveReservation.party_size === 1
+                          ? 'guest'
+                          : 'guests'}
+                      </>
+                    )}
+                  </span>
+                )}
 
-                <span className="mt-0.5 text-[10px] text-white/40">
-                  {liveReservation.party_size}{' '}
-                  {liveReservation.party_size === 1
-                    ? 'guest'
-                    : 'guests'}
-                </span>
-
-                {relativeStart && (
-                  <span className="mt-1 rounded-full bg-black/25 px-2 py-0.5 text-[9px] font-medium text-amber-200">
+                {!compactLiveContent && relativeStart && (
+                  <span className="mt-1 max-w-full truncate rounded-full bg-black/25 px-2 py-0.5 text-[9px] font-medium text-amber-200">
                     {relativeStart}
                   </span>
                 )}
               </>
             )}
 
-            {!liveReservation && (
-              <span className="mt-1 text-[10px] text-white/35">
+            {!liveReservation && !veryCompactLiveContent && (
+              <span className="mt-0.5 text-[9px] text-white/35">
                 {table.seats} seats
               </span>
             )}
