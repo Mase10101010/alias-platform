@@ -74,13 +74,13 @@ import {
 } from '@/components/floorplan/Toolbar';
 
 
-function roundToNearestHalfHour(date: Date) {
-  const rounded = new Date(date);
-  const roundedMinutes = Math.round(rounded.getMinutes() / 30) * 30;
+function getCurrentHalfHourSlot(date: Date) {
+  const slot = new Date(date);
+  const slotMinutes = Math.floor(slot.getMinutes() / 30) * 30;
 
-  rounded.setMinutes(roundedMinutes, 0, 0);
+  slot.setMinutes(slotMinutes, 0, 0);
 
-  return rounded;
+  return slot;
 }
 
 export function Tables() {
@@ -88,7 +88,7 @@ export function Tables() {
     useState<FloorMode>('edit');
 
   const [liveDate, setLiveDate] =
-    useState(() => roundToNearestHalfHour(new Date()));
+    useState(() => getCurrentHalfHourSlot(new Date()));
   const [savingTableId, setSavingTableId] = useState<
     string | null
   >(null);

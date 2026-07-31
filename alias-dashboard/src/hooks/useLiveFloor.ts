@@ -57,6 +57,17 @@ function getReservationWindow(reservation: ReservationResponse) {
 
 const LIVE_SLOT_MINUTES = 30;
 
+const AUTO_REFRESH_INTERVAL_MS = 60_000;
+
+function isViewingCurrentSlot(selectedMoment: Date) {
+  const now = new Date();
+  const slotEnd = new Date(
+    selectedMoment.getTime() + LIVE_SLOT_MINUTES * 60_000,
+  );
+
+  return now >= selectedMoment && now < slotEnd;
+}
+
 function getSelectedSlot(selectedMoment: Date) {
   const start = new Date(selectedMoment);
   const end = new Date(
@@ -178,6 +189,20 @@ export function useLiveFloor({
   useEffect(() => {
     void loadReservations();
   }, [loadReservations]);
+
+  useEffect(() => {
+    if (!enabled || !restaurantId) {
+      return;
+    }
+
+    const intervalId = window.setInterval(() => {
+      if (isViewingCurrentSlot(selectedDate)) {
+        void loadReservations();
+      }
+    }, AUTO_REFRESH_INTERVAL_MS);
+
+    return () => window.clearInterval(intervalId);
+  }, [enabled, loadReservations, restaurantId, selectedDate]);
 
   const tableStates = useMemo(() => {
     const selectedMoment = new Date(selectedDate);

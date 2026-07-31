@@ -72,14 +72,14 @@ function parseTimeInputValue(value: string, current: Date) {
   return next;
 }
 
-function roundToNearestHalfHour(date: Date) {
-  const rounded = new Date(date);
-  const roundedMinutes =
-    Math.round(rounded.getMinutes() / SLOT_MINUTES) * SLOT_MINUTES;
+function getCurrentHalfHourSlot(date: Date) {
+  const slot = new Date(date);
+  const slotMinutes =
+    Math.floor(slot.getMinutes() / SLOT_MINUTES) * SLOT_MINUTES;
 
-  rounded.setMinutes(roundedMinutes, 0, 0);
+  slot.setMinutes(slotMinutes, 0, 0);
 
-  return rounded;
+  return slot;
 }
 
 function addMinutes(date: Date, minutes: number) {
@@ -192,7 +192,7 @@ export function LiveFloorControls({
 
             <button
               type="button"
-              onClick={() => onDateChange(roundToNearestHalfHour(new Date()))}
+              onClick={() => onDateChange(getCurrentHalfHourSlot(new Date()))}
               disabled={loading}
               className="rounded-xl border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-sm font-medium text-cyan-200 transition hover:bg-cyan-400/15 disabled:cursor-not-allowed disabled:opacity-40"
             >
