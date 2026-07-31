@@ -1,5 +1,7 @@
 import {
   CalendarDays,
+  ChevronLeft,
+  ChevronRight,
   Clock3,
   PencilRuler,
   RefreshCw,
@@ -18,6 +20,9 @@ type LiveFloorControlsProps = {
   onRefresh: () => void;
 };
 
+const SLOT_MINUTES = 30;
+const VISIBLE_SLOT_OFFSETS = [-2, -1, 0, 1, 2];
+
 function formatDateInputValue(date: Date) {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -31,6 +36,21 @@ function formatTimeInputValue(date: Date) {
   const minutes = String(date.getMinutes()).padStart(2, '0');
 
   return `${hours}:${minutes}`;
+}
+
+function formatTimelineTime(date: Date) {
+  return date.toLocaleTimeString([], {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  });
+}
+
+function formatTimelineDay(date: Date) {
+  return date.toLocaleDateString([], {
+    day: '2-digit',
+    month: 'short',
+  });
 }
 
 function parseDateInputValue(value: string, current: Date) {
@@ -54,11 +74,24 @@ function parseTimeInputValue(value: string, current: Date) {
 
 function roundToNearestHalfHour(date: Date) {
   const rounded = new Date(date);
-  const roundedMinutes = Math.round(rounded.getMinutes() / 30) * 30;
+  const roundedMinutes =
+    Math.round(rounded.getMinutes() / SLOT_MINUTES) * SLOT_MINUTES;
 
   rounded.setMinutes(roundedMinutes, 0, 0);
 
   return rounded;
+}
+
+function addMinutes(date: Date, minutes: number) {
+  return new Date(date.getTime() + minutes * 60_000);
+}
+
+function isSameCalendarDay(left: Date, right: Date) {
+  return (
+    left.getFullYear() === right.getFullYear() &&
+    left.getMonth() === right.getMonth() &&
+    left.getDate() === right.getDate()
+  );
 }
 
 const TIME_OPTIONS = Array.from({ length: 48 }, (_, index) => {
@@ -78,110 +111,178 @@ export function LiveFloorControls({
   onDateChange,
   onRefresh,
 }: LiveFloorControlsProps) {
-  return (
-    <div className="mb-6 flex flex-col gap-4 rounded-2xl border border-white/10 bg-black/20 p-3 md:flex-row md:items-center md:justify-between">
-      <div className="flex rounded-xl border border-white/10 bg-black/25 p-1">
-        <button
-          type="button"
-          onClick={() => onModeChange('edit')}
-          className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm transition ${
-            mode === 'edit'
-              ? 'bg-white/10 text-white'
-              : 'text-white/40 hover:text-white/70'
-          }`}
-        >
-          <PencilRuler size={16} />
-          Edit
-        </button>
+  const timelineSlots = VISIBLE_SLOT_OFFSETS.map((offset) => ({
+    offset,
+    date: addMinutes(selectedDate, offset * SLOT_MINUTES),
+  }));
 
-        <button
-          type="button"
-          onClick={() => onModeChange('live')}
-          className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm transition ${
-            mode === 'live'
-              ? 'bg-cyanAlias text-black'
-              : 'text-white/40 hover:text-white/70'
-          }`}
-        >
-          <Radio size={16} />
-          Live
-        </button>
+  return (
+    <div className="mb-6 flex flex-col gap-4 rounded-2xl border border-white/10 bg-black/20 p-3">
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div className="flex w-fit rounded-xl border border-white/10 bg-black/25 p-1">
+          <button
+            type="button"
+            onClick={() => onModeChange('edit')}
+            className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm transition ${
+              mode === 'edit'
+                ? 'bg-white/10 text-white'
+                : 'text-white/40 hover:text-white/70'
+            }`}
+          >
+            <PencilRuler size={16} />
+            Edit
+          </button>
+
+          <button
+            type="button"
+            onClick={() => onModeChange('live')}
+            className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm transition ${
+              mode === 'live'
+                ? 'bg-cyanAlias text-black'
+                : 'text-white/40 hover:text-white/70'
+            }`}
+          >
+            <Radio size={16} />
+            Live
+          </button>
+        </div>
+
+        {mode === 'live' && (
+          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
+            <label className="flex items-center gap-2 rounded-xl border border-white/10 bg-black/25 px-3 py-2">
+              <CalendarDays size={16} className="text-white/40" />
+
+              <input
+                type="date"
+                value={formatDateInputValue(selectedDate)}
+                onChange={(event) => {
+                  if (!event.target.value) return;
+
+                  onDateChange(
+                    parseDateInputValue(event.target.value, selectedDate),
+                  );
+                }}
+                className="bg-transparent text-sm text-white outline-none"
+              />
+            </label>
+
+            <label className="flex items-center gap-2 rounded-xl border border-white/10 bg-black/25 px-3 py-2">
+              <Clock3 size={16} className="text-white/40" />
+
+              <select
+                value={formatTimeInputValue(selectedDate)}
+                onChange={(event) => {
+                  onDateChange(
+                    parseTimeInputValue(event.target.value, selectedDate),
+                  );
+                }}
+                className="bg-transparent text-sm text-white outline-none"
+              >
+                {TIME_OPTIONS.map((option) => (
+                  <option
+                    key={option.value}
+                    value={option.value}
+                    className="bg-[#111417] text-white"
+                  >
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <button
+              type="button"
+              onClick={() => onDateChange(roundToNearestHalfHour(new Date()))}
+              disabled={loading}
+              className="rounded-xl border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-sm font-medium text-cyan-200 transition hover:bg-cyan-400/15 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Now
+            </button>
+
+            <button
+              type="button"
+              onClick={onRefresh}
+              disabled={loading}
+              className="flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[.04] px-4 py-2 text-sm text-white/60 transition hover:bg-white/[.08] hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              <RefreshCw
+                size={15}
+                className={loading ? 'animate-spin' : ''}
+              />
+              Refresh
+            </button>
+
+            {lastUpdatedAt && (
+              <span className="text-xs text-white/30">
+                Updated{' '}
+                {lastUpdatedAt.toLocaleTimeString([], {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                })}
+              </span>
+            )}
+          </div>
+        )}
       </div>
 
       {mode === 'live' && (
-        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
-          <label className="flex items-center gap-2 rounded-xl border border-white/10 bg-black/25 px-3 py-2">
-            <CalendarDays size={16} className="text-white/40" />
+        <div className="flex items-stretch gap-2 overflow-x-auto rounded-2xl border border-white/10 bg-black/25 p-2">
+          <button
+            type="button"
+            aria-label="Previous 30 minutes"
+            title="Previous 30 minutes"
+            onClick={() =>
+              onDateChange(addMinutes(selectedDate, -SLOT_MINUTES))
+            }
+            className="flex min-w-10 items-center justify-center rounded-xl border border-white/10 bg-white/[.03] text-white/50 transition hover:bg-white/[.08] hover:text-white"
+          >
+            <ChevronLeft size={18} />
+          </button>
 
-            <input
-              type="date"
-              value={formatDateInputValue(selectedDate)}
-              onChange={(event) => {
-                if (!event.target.value) return;
+          <div className="grid min-w-[540px] flex-1 grid-cols-5 gap-2">
+            {timelineSlots.map(({ offset, date }) => {
+              const selected = offset === 0;
+              const differentDay = !isSameCalendarDay(date, selectedDate);
 
-                onDateChange(
-                  parseDateInputValue(event.target.value, selectedDate),
-                );
-              }}
-              className="bg-transparent text-sm text-white outline-none"
-            />
-          </label>
-
-          <label className="flex items-center gap-2 rounded-xl border border-white/10 bg-black/25 px-3 py-2">
-            <Clock3 size={16} className="text-white/40" />
-
-            <select
-              value={formatTimeInputValue(selectedDate)}
-              onChange={(event) => {
-                onDateChange(
-                  parseTimeInputValue(event.target.value, selectedDate),
-                );
-              }}
-              className="bg-transparent text-sm text-white outline-none"
-            >
-              {TIME_OPTIONS.map((option) => (
-                <option
-                  key={option.value}
-                  value={option.value}
-                  className="bg-[#111417] text-white"
+              return (
+                <button
+                  key={date.toISOString()}
+                  type="button"
+                  onClick={() => onDateChange(date)}
+                  aria-pressed={selected}
+                  className={`group flex min-h-14 flex-col items-center justify-center rounded-xl border px-3 py-2 text-center transition ${
+                    selected
+                      ? 'border-cyan-300/50 bg-cyanAlias text-black shadow-[0_0_24px_rgba(34,211,238,0.12)]'
+                      : 'border-white/10 bg-white/[.03] text-white/55 hover:border-white/20 hover:bg-white/[.07] hover:text-white'
+                  }`}
                 >
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </label>
+                  <span className="text-sm font-semibold tabular-nums">
+                    {formatTimelineTime(date)}
+                  </span>
+
+                  <span
+                    className={`mt-0.5 text-[10px] uppercase tracking-[0.14em] ${
+                      selected ? 'text-black/60' : 'text-white/25'
+                    }`}
+                  >
+                    {differentDay ? formatTimelineDay(date) : '30 min'}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
 
           <button
             type="button"
-            onClick={() => onDateChange(roundToNearestHalfHour(new Date()))}
-            disabled={loading}
-            className="rounded-xl border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-sm font-medium text-cyan-200 transition hover:bg-cyan-400/15 disabled:cursor-not-allowed disabled:opacity-40"
+            aria-label="Next 30 minutes"
+            title="Next 30 minutes"
+            onClick={() =>
+              onDateChange(addMinutes(selectedDate, SLOT_MINUTES))
+            }
+            className="flex min-w-10 items-center justify-center rounded-xl border border-white/10 bg-white/[.03] text-white/50 transition hover:bg-white/[.08] hover:text-white"
           >
-            Now
+            <ChevronRight size={18} />
           </button>
-
-          <button
-            type="button"
-            onClick={onRefresh}
-            disabled={loading}
-            className="flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[.04] px-4 py-2 text-sm text-white/60 transition hover:bg-white/[.08] hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            <RefreshCw
-              size={15}
-              className={loading ? 'animate-spin' : ''}
-            />
-            Refresh
-          </button>
-
-          {lastUpdatedAt && (
-            <span className="text-xs text-white/30">
-              Updated{' '}
-              {lastUpdatedAt.toLocaleTimeString([], {
-                hour: '2-digit',
-                minute: '2-digit',
-              })}
-            </span>
-          )}
         </div>
       )}
     </div>
