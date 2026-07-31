@@ -26,6 +26,7 @@ type TableNodeProps = {
   mode?: 'edit' | 'live';
   liveStatus?: LiveTableStatus;
   liveReservation?: ReservationResponse | null;
+  selectedDate?: Date;
   onClick?: MouseEventHandler<HTMLDivElement>;
   onPointerDown: PointerEventHandler<HTMLDivElement>;
   onPointerMove: PointerEventHandler<HTMLDivElement>;
@@ -63,6 +64,42 @@ function SavingIcon(props: LucideProps) {
   );
 }
 
+function formatTime(date: Date) {
+  return date.toLocaleTimeString([], {
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+}
+
+function formatRelativeStart(
+  reservation: ReservationResponse,
+  selectedDate: Date,
+) {
+  const reservationStart = new Date(
+    reservation.reservation_time,
+  );
+
+  const differenceMinutes = Math.round(
+    (reservationStart.getTime() - selectedDate.getTime()) /
+      60_000,
+  );
+
+  if (differenceMinutes <= 0) {
+    return null;
+  }
+
+  if (differenceMinutes < 60) {
+    return `Starts in ${differenceMinutes}m`;
+  }
+
+  const hours = Math.floor(differenceMinutes / 60);
+  const minutes = differenceMinutes % 60;
+
+  return minutes > 0
+    ? `Starts in ${hours}h ${minutes}m`
+    : `Starts in ${hours}h`;
+}
+
 export function TableNode({
   table,
   saving,
@@ -72,6 +109,7 @@ export function TableNode({
   mode = 'edit',
   liveStatus = 'available',
   liveReservation = null,
+  selectedDate,
   onClick,
   onPointerDown,
   onPointerMove,
@@ -118,14 +156,23 @@ export function TableNode({
     },
   }[liveStatus];
 
-  const reservationTime = liveReservation
-    ? new Date(
-        liveReservation.reservation_time,
-      ).toLocaleTimeString([], {
-        hour: '2-digit',
-        minute: '2-digit',
-      })
+  const reservationStart = liveReservation
+    ? new Date(liveReservation.reservation_time)
     : null;
+
+  const reservationEnd =
+    liveReservation && reservationStart
+      ? new Date(
+          reservationStart.getTime() +
+            liveReservation.duration_minutes * 60_000,
+        )
+      : null;
+
+  const relativeStart =
+    liveReservation && selectedDate
+      ? formatRelativeStart(liveReservation, selectedDate)
+      : null;
+
   return (
     <div
       role="button"
@@ -164,13 +211,11 @@ export function TableNode({
           : selected
             ? cyan
             : `${cyan}45`,
-
         background: isLiveMode
           ? liveAppearance.background
           : selected
             ? `linear-gradient(145deg, ${cyan}35, rgba(255,255,255,.06))`
             : `linear-gradient(145deg, ${cyan}22, rgba(255,255,255,.035))`,
-
         boxShadow: isLiveMode
           ? selected
             ? `0 0 0 3px rgba(255,255,255,.12), ${liveAppearance.shadow}`
@@ -184,7 +229,7 @@ export function TableNode({
       }}
     >
       <div
-        className="flex flex-col items-center px-2"
+        className="flex max-w-full flex-col items-center px-2"
         style={{
           transform: `rotate(-${table.rotation}deg)`,
         }}
@@ -203,19 +248,28 @@ export function TableNode({
               {liveAppearance.label}
             </span>
 
-            {liveReservation && (
+            {liveReservation && reservationStart && reservationEnd && (
               <>
                 <span className="mt-1 max-w-full truncate px-1 text-xs font-medium text-white/85">
                   {liveReservation.customer_name}
                 </span>
 
-                <span className="mt-0.5 text-[10px] text-white/45">
-                  {reservationTime} ·{' '}
+                <span className="mt-0.5 text-[10px] text-white/55">
+                  {formatTime(reservationStart)}–{formatTime(reservationEnd)}
+                </span>
+
+                <span className="mt-0.5 text-[10px] text-white/40">
                   {liveReservation.party_size}{' '}
                   {liveReservation.party_size === 1
                     ? 'guest'
                     : 'guests'}
                 </span>
+
+                {relativeStart && (
+                  <span className="mt-1 rounded-full bg-black/25 px-2 py-0.5 text-[9px] font-medium text-amber-200">
+                    {relativeStart}
+                  </span>
+                )}
               </>
             )}
 
@@ -237,7 +291,7 @@ export function TableNode({
           </>
         )}
       </div>
-      
+
       {!isLiveMode && selected && draggingEnabled && (
         <button
           type="button"
