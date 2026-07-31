@@ -10,11 +10,19 @@ import {
 
 export type FloorMode = 'edit' | 'live';
 
+export type LiveFloorTableCounts = {
+  total: number;
+  available: number;
+  reserved: number;
+  occupied: number;
+};
+
 type LiveFloorControlsProps = {
   mode: FloorMode;
   selectedDate: Date;
   loading: boolean;
   lastUpdatedAt: Date | null;
+  tableCounts: LiveFloorTableCounts;
   onModeChange: (mode: FloorMode) => void;
   onDateChange: (date: Date) => void;
   onRefresh: () => void;
@@ -107,6 +115,7 @@ export function LiveFloorControls({
   selectedDate,
   loading,
   lastUpdatedAt,
+  tableCounts,
   onModeChange,
   onDateChange,
   onRefresh,
@@ -309,13 +318,32 @@ export function LiveFloorControls({
             </div>
           </div>
 
-          <div className="flex items-center gap-2 text-xs text-white/35">
-            <Clock3 size={14} />
-            <span>Viewing</span>
-            <span className="font-medium tabular-nums text-white/70">
-              {formatTimelineTime(selectedDate)}–
-              {formatTimelineTime(addMinutes(selectedDate, SLOT_MINUTES))}
-            </span>
+          <div className="flex flex-col gap-3 sm:items-end">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="rounded-lg border border-white/10 bg-white/[.03] px-2.5 py-1 text-xs tabular-nums text-white/50">
+                {tableCounts.total} tables
+              </span>
+              <span className="rounded-lg border border-emerald-400/15 bg-emerald-400/[.08] px-2.5 py-1 text-xs tabular-nums text-emerald-300">
+                {tableCounts.available} available
+              </span>
+              {tableCounts.reserved > 0 && (
+                <span className="rounded-lg border border-amber-400/15 bg-amber-400/[.08] px-2.5 py-1 text-xs tabular-nums text-amber-300">
+                  {tableCounts.reserved} reserved
+                </span>
+              )}
+              <span className="rounded-lg border border-red-400/15 bg-red-400/[.08] px-2.5 py-1 text-xs tabular-nums text-red-300">
+                {tableCounts.occupied} occupied
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2 text-xs text-white/35">
+              <Clock3 size={14} />
+              <span>Viewing</span>
+              <span className="font-medium tabular-nums text-white/70">
+                {formatTimelineTime(selectedDate)}–
+                {formatTimelineTime(addMinutes(selectedDate, SLOT_MINUTES))}
+              </span>
+            </div>
           </div>
         </div>
       )}

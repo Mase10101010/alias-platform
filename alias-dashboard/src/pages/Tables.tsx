@@ -1,6 +1,7 @@
 import {
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -225,6 +226,22 @@ export function Tables() {
     selectedDate: liveDate,
     onError: setError,
   });
+  const liveTableCounts = useMemo(() => {
+    const counts = {
+      total: tables.length,
+      available: 0,
+      reserved: 0,
+      occupied: 0,
+    };
+
+    for (const table of tables) {
+      const status = getTableState(table.id).status;
+      counts[status] += 1;
+    }
+
+    return counts;
+  }, [getTableState, tables]);
+
   const {
     selectedTable,
     selectedTableId,
@@ -865,6 +882,7 @@ export function Tables() {
         selectedDate={liveDate}
         loading={liveLoading}
         lastUpdatedAt={lastUpdatedAt}
+        tableCounts={liveTableCounts}
         onModeChange={handleFloorModeChange}
         onDateChange={(date) => {
           clearSelection();
