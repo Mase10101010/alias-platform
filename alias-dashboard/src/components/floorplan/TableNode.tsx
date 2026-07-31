@@ -179,24 +179,33 @@ export function TableNode({
   const veryCompactLiveContent =
     table.height < 78 || table.width < 92;
 
-  const customerNameLength =
-    liveReservation?.customer_name?.trim().length ?? 0;
+  const customerName =
+    liveReservation?.customer_name?.trim() ?? '';
 
-  const customerNameClass = veryCompactLiveContent
-    ? customerNameLength > 16
-      ? 'text-[8px]'
-      : customerNameLength > 11
-        ? 'text-[9px]'
-        : 'text-[10px]'
+  const customerNameLength = customerName.length;
+
+  const customerNameFontSize = veryCompactLiveContent
+    ? 9
     : compactLiveContent
-      ? customerNameLength > 20
-        ? 'text-[9px]'
-        : 'text-[10px]'
-      : customerNameLength > 24
-        ? 'text-[10px]'
-        : customerNameLength > 18
-          ? 'text-[11px]'
-          : 'text-xs';
+      ? 10
+      : 12;
+
+  const customerNameAvailableWidth = Math.max(
+    table.width - (veryCompactLiveContent ? 10 : 18),
+    24,
+  );
+
+  const estimatedCustomerNameWidth =
+    customerNameLength * customerNameFontSize * 0.56;
+
+  const customerNameScale = Math.min(
+    1,
+    Math.max(
+      0.58,
+      customerNameAvailableWidth /
+        Math.max(estimatedCustomerNameWidth, 1),
+    ),
+  );
 
   return (
     <div
@@ -282,10 +291,16 @@ export function TableNode({
             {liveReservation && reservationStart && reservationEnd && (
               <>
                 <span
-                  title={liveReservation.customer_name}
-                  className={`mt-0.5 block w-full min-w-0 overflow-hidden text-ellipsis whitespace-nowrap px-1 font-medium leading-tight text-white/85 ${customerNameClass}`}
+                  title={customerName}
+                  className="mt-0.5 block whitespace-nowrap font-medium leading-tight text-white/85"
+                  style={{
+                    fontSize: `${customerNameFontSize}px`,
+                    maxWidth: `${customerNameAvailableWidth}px`,
+                    transform: `scaleX(${customerNameScale})`,
+                    transformOrigin: 'center',
+                  }}
                 >
-                  {liveReservation.customer_name}
+                  {customerName}
                 </span>
 
                 {!veryCompactLiveContent && (
