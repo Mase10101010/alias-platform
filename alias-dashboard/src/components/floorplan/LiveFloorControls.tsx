@@ -25,6 +25,7 @@ type LiveFloorControlsProps = {
   tableCounts: LiveFloorTableCounts;
   onModeChange: (mode: FloorMode) => void;
   onDateChange: (date: Date) => void;
+  onNow: () => void;
   onRefresh: () => void;
 };
 
@@ -80,15 +81,6 @@ function parseTimeInputValue(value: string, current: Date) {
   return next;
 }
 
-function getCurrentHalfHourSlot(date: Date) {
-  const slot = new Date(date);
-  const slotMinutes =
-    Math.floor(slot.getMinutes() / SLOT_MINUTES) * SLOT_MINUTES;
-
-  slot.setMinutes(slotMinutes, 0, 0);
-
-  return slot;
-}
 
 function addMinutes(date: Date, minutes: number) {
   return new Date(date.getTime() + minutes * 60_000);
@@ -118,6 +110,7 @@ export function LiveFloorControls({
   tableCounts,
   onModeChange,
   onDateChange,
+  onNow,
   onRefresh,
 }: LiveFloorControlsProps) {
   const timelineSlots = VISIBLE_SLOT_OFFSETS.map((offset) => ({
@@ -201,7 +194,7 @@ export function LiveFloorControls({
 
             <button
               type="button"
-              onClick={() => onDateChange(getCurrentHalfHourSlot(new Date()))}
+              onClick={onNow}
               disabled={loading}
               className="rounded-xl border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-sm font-medium text-cyan-200 transition hover:bg-cyan-400/15 disabled:cursor-not-allowed disabled:opacity-40"
             >

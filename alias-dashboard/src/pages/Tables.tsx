@@ -90,6 +90,34 @@ export function Tables() {
 
   const [liveDate, setLiveDate] =
     useState(() => getCurrentHalfHourSlot(new Date()));
+
+  const [followCurrentSlot, setFollowCurrentSlot] =
+    useState(true);
+  useEffect(() => {
+    if (floorMode !== 'live' || !followCurrentSlot) {
+      return;
+    }
+
+    const syncCurrentSlot = () => {
+      const currentSlot = getCurrentHalfHourSlot(new Date());
+
+      setLiveDate((previous) =>
+        previous.getTime() === currentSlot.getTime()
+          ? previous
+          : currentSlot,
+      );
+    };
+
+    syncCurrentSlot();
+
+    const intervalId = window.setInterval(
+      syncCurrentSlot,
+      15_000,
+    );
+
+    return () => window.clearInterval(intervalId);
+  }, [floorMode, followCurrentSlot]);
+
   const [savingTableId, setSavingTableId] = useState<
     string | null
   >(null);
@@ -886,7 +914,13 @@ export function Tables() {
         onModeChange={handleFloorModeChange}
         onDateChange={(date) => {
           clearSelection();
+          setFollowCurrentSlot(false);
           setLiveDate(date);
+        }}
+        onNow={() => {
+          clearSelection();
+          setFollowCurrentSlot(true);
+          setLiveDate(getCurrentHalfHourSlot(new Date()));
         }}
         onRefresh={() => {
           void Promise.all([
