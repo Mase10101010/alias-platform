@@ -285,6 +285,40 @@ export function LiveFloorControls({
           </button>
         </div>
       )}
+
+      {mode === 'live' && (
+        <div className="flex flex-col gap-3 rounded-2xl border border-white/10 bg-black/20 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+            <span className="text-[10px] font-medium uppercase tracking-[0.18em] text-white/30">
+              Table status
+            </span>
+
+            <div className="flex items-center gap-2 text-xs text-white/55">
+              <span className="h-2.5 w-2.5 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.45)]" />
+              Available
+            </div>
+
+            <div className="flex items-center gap-2 text-xs text-white/55">
+              <span className="h-2.5 w-2.5 rounded-full bg-amber-400 shadow-[0_0_10px_rgba(251,191,36,0.45)]" />
+              Reserved
+            </div>
+
+            <div className="flex items-center gap-2 text-xs text-white/55">
+              <span className="h-2.5 w-2.5 rounded-full bg-red-400 shadow-[0_0_10px_rgba(248,113,113,0.45)]" />
+              Occupied
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 text-xs text-white/35">
+            <Clock3 size={14} />
+            <span>Viewing</span>
+            <span className="font-medium tabular-nums text-white/70">
+              {formatTimelineTime(selectedDate)}–
+              {formatTimelineTime(addMinutes(selectedDate, SLOT_MINUTES))}
+            </span>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
