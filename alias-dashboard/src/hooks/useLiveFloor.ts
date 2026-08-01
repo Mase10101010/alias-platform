@@ -159,6 +159,7 @@ export function useLiveFloor({
         reservations: activeReservations.map((reservation) => ({
           id: reservation.id,
           tableId: reservation.table_id,
+          tableIds: reservation.table_ids,
           status: reservation.status,
           reservationTime: reservation.reservation_time,
           parsedLocalTime: new Date(
@@ -213,7 +214,14 @@ export function useLiveFloor({
     >();
 
     for (const reservation of reservations) {
-      if (!reservation.table_id) {
+      const assignedTableIds =
+        reservation.table_ids?.length
+          ? reservation.table_ids
+          : reservation.table_id
+            ? [reservation.table_id]
+            : [];
+
+      if (assignedTableIds.length === 0) {
         continue;
       }
 
@@ -228,11 +236,17 @@ export function useLiveFloor({
         continue;
       }
 
-      const current =
-        reservationsByTable.get(reservation.table_id) ?? [];
+      for (const tableId of assignedTableIds) {
+        const current =
+          reservationsByTable.get(tableId) ?? [];
 
-      current.push(reservation);
-      reservationsByTable.set(reservation.table_id, current);
+        current.push(reservation);
+
+        reservationsByTable.set(
+          tableId,
+          current,
+        );
+      }
     }
 
     const states = new Map<string, LiveTableState>();

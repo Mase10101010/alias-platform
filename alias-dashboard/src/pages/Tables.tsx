@@ -757,9 +757,14 @@ export function Tables() {
           return;
         }
 
-        const currentTableIds = new Set([
-          reservation.table_id,
-        ].filter(Boolean));
+        const currentTableIds = new Set(
+          reservation.table_ids?.length
+            ? reservation.table_ids
+            : [reservation.table_id].filter(
+                (tableId): tableId is string =>
+                  Boolean(tableId),
+              ),
+        );
 
         const recommendationChangesAssignment =
           recommendation.table_ids.some(

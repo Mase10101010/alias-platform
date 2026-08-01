@@ -68,6 +68,8 @@ export type ReservationResponse = ReservationCreate & {
   table_id: string | null;
   table_number: string | null;
   table_code: string | null;
+  table_ids?: string[];
+  table_numbers?: string[];
 };
 
 export type IntelligenceOptimizeRequest = {
