@@ -182,8 +182,15 @@ export default function App() {
   function handleLogout() {
     localStorage.removeItem('alias_access_token');
     localStorage.removeItem('alias_user');
+    localStorage.removeItem('alias_welcome_completed');
+
+    setCurrentUser(null);
     setAuthed(false);
+    setHasRestaurant(false);
+    setWelcomeCompleted(false);
     setActive('home');
+
+    window.location.href = '/auth';
   }
 
   if (checkingAuth) {
@@ -218,13 +225,24 @@ if (!authed && isAuthPage) {
 
   if (authed && parsedUser && !parsedUser.is_email_verified) {
     return (
-      <WelcomeFlow
-        requireEmailVerification
-        initialStep={welcomeCompleted ? 1 : 0}
-        onComplete={() => {
-          window.location.reload();
-        }}
-      />
+      <div className="relative min-h-screen bg-ink text-white">
+        <button
+          type="button"
+          onClick={handleLogout}
+          className="fixed right-4 top-4 z-50 flex items-center gap-2 rounded-full border border-white/10 bg-black/40 px-4 py-2 text-xs uppercase tracking-[.16em] text-white/60 backdrop-blur transition hover:border-white/20 hover:bg-white/[.06] hover:text-white sm:right-6 sm:top-6"
+        >
+          <LogOut size={14} />
+          Use another email
+        </button>
+
+        <WelcomeFlow
+          requireEmailVerification
+          initialStep={welcomeCompleted ? 1 : 0}
+          onComplete={() => {
+            window.location.reload();
+          }}
+        />
+      </div>
     );
   }
 
