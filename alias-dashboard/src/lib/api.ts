@@ -74,6 +74,7 @@ export type IntelligenceOptimizeRequest = {
   restaurant_id: string;
   requested_start: string;
   party_size: number;
+  reservation_id?: string | null;
   duration_minutes?: number;
   buffer_before_minutes?: number;
   buffer_after_minutes?: number;

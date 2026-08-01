@@ -6,9 +6,14 @@ import {
   detectDefaultLanguage,
   translations,
 } from '@/lib/i18n';
-import { createRestaurant, createTable } from '@/lib/api';
+import {
+  createFloorPlan,
+  createRestaurant,
+  createServiceArea,
+  createTable,
+} from '@/lib/api';
 import { motion } from 'framer-motion';
-import { Contact } from 'lucide-react';
+
 
 const steps = ['Business', 'Service', 'Concierge', 'Launch'];
 
@@ -260,6 +265,10 @@ function updateWeeklySchedule(
       return;
     }
 
+    if (isSubmitting) {
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -280,17 +289,60 @@ function updateWeeklySchedule(
         concierge_tone: form.concierge_tone,
       });
 
-      for (const table of form.tables) {
-        await createTable(restaurant.id, {
-          table_number: table.table_number,
-          seats: table.seats,
-        });
+      const serviceArea = await createServiceArea(
+        restaurant.id,
+        {
+          name: 'Main Dining Room',
+          area_type: 'indoor',
+          color: '#7FE3E6',
+          sort_order: 0,
+        },
+      );
+
+      const floorPlan = await createFloorPlan(
+        restaurant.id,
+        serviceArea.id,
+        {
+          name: 'Default Layout',
+          width: 1200,
+          height: 800,
+          sort_order: 0,
+          is_default: true,
+        },
+      );
+
+      for (const [index, table] of form.tables.entries()) {
+        const columns = 5;
+        const column = index % columns;
+        const row = Math.floor(index / columns);
+
+        await createTable(
+          restaurant.id,
+          {
+            floor_plan_id: floorPlan.id,
+            table_number: table.table_number,
+            seats: table.seats,
+            x: 80 + column * 150,
+            y: 80 + row * 140,
+            width: 90,
+            height: 90,
+            shape: 'square',
+            rotation: 0,
+          },
+        );
       }
 
       setCreatedRestaurantId(restaurant.id);
     } catch (err) {
+      console.error(
+        'Unable to complete restaurant onboarding',
+        err,
+      );
+
       setError(
-        err instanceof Error ? err.message : 'Unable to launch concierge.',
+        err instanceof Error
+          ? err.message
+          : 'Unable to launch concierge.',
       );
     } finally {
       setIsSubmitting(false);

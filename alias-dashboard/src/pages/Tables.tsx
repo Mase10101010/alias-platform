@@ -736,6 +736,7 @@ export function Tables() {
 
         const result = await optimizeReservation({
           restaurant_id: restaurantId,
+          reservation_id: reservation.id,
           requested_start: reservation.reservation_time,
           party_size: reservation.party_size,
           duration_minutes: reservation.duration_minutes,
