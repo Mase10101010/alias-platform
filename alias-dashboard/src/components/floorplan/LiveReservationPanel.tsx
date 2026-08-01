@@ -14,9 +14,13 @@ import {
   UserCheck,
   Users,
   X,
+  BrainCircuit,
+  RefreshCw,
+  Sparkles,
 } from 'lucide-react';
 
 import type {
+  IntelligenceAssignmentResponse,
   ReservationResponse,
   TableResponse,
 } from '@/lib/api';
@@ -43,6 +47,12 @@ type LiveReservationPanelProps = {
   onMarkNoShow: () => void;
   onCancelReservation: () => void;
   onMoveReservation: (tableId: string) => void;
+  recommendation: IntelligenceAssignmentResponse | null;
+  loadingRecommendation: boolean;
+  applyingRecommendation: boolean;
+  recommendationError: string;
+  onRefreshRecommendation: () => void;
+  onApplyRecommendation: () => void;
 };
 
 function formatReservationDate(value: string) {
@@ -90,6 +100,10 @@ export function LiveReservationPanel({
   status,
   reservation,
   moveTargets,
+  recommendation,
+  loadingRecommendation,
+  applyingRecommendation,
+  recommendationError,
   updating,
   onClose,
   onSeatGuest,
@@ -97,6 +111,8 @@ export function LiveReservationPanel({
   onMarkNoShow,
   onCancelReservation,
   onMoveReservation,
+  onRefreshRecommendation,
+  onApplyRecommendation,
 }: LiveReservationPanelProps) {
   const [moveOpen, setMoveOpen] = useState(false);
   const [selectedMoveTableId, setSelectedMoveTableId] =
@@ -205,6 +221,131 @@ export function LiveReservationPanel({
           <p className="text-[10px] uppercase tracking-[.24em] text-white/30">
             Current reservation
           </p>
+
+          <div className="mt-4 rounded-2xl border border-cyan-400/20 bg-cyan-400/[.06] p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <div className="flex items-center gap-2 text-cyan-200">
+                  <BrainCircuit size={16} />
+
+                  <p className="text-[10px] font-medium uppercase tracking-[.2em]">
+                    Alias recommendation
+                  </p>
+                </div>
+
+                <p className="mt-2 text-sm text-white/55">
+                  Alias checks whether this reservation can use a more efficient table assignment.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                aria-label="Refresh Alias recommendation"
+                disabled={loadingRecommendation || applyingRecommendation}
+                onClick={onRefreshRecommendation}
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/10 text-white/45 transition hover:bg-white/[.05] hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                <RefreshCw
+                  size={15}
+                  className={loadingRecommendation ? 'animate-spin' : ''}
+                />
+              </button>
+            </div>
+
+            {loadingRecommendation && (
+              <div className="mt-4 flex items-center gap-2 text-sm text-white/45">
+                <LoaderCircle
+                  size={15}
+                  className="animate-spin"
+                />
+
+                Analysing the best table configuration...
+              </div>
+            )}
+
+            {!loadingRecommendation &&
+              !recommendation &&
+              !recommendationError && (
+                <p className="mt-4 text-sm text-white/40">
+                  No better multi-table configuration is currently available.
+                </p>
+              )}
+
+            {recommendationError && (
+              <div className="mt-4 rounded-xl border border-red-400/20 bg-red-400/10 px-3 py-2.5 text-xs leading-relaxed text-red-200">
+                {recommendationError}
+              </div>
+            )}
+
+            {recommendation && (
+              <div className="mt-4">
+                <div className="rounded-xl border border-white/10 bg-black/20 p-3">
+                  <div className="flex items-center gap-2">
+                    <Sparkles
+                      size={15}
+                      className="text-cyan-200"
+                    />
+
+                    <p className="text-sm font-medium text-white">
+                      Combine Tables{' '}
+                      {recommendation.table_numbers.join(' + ')}
+                    </p>
+                  </div>
+
+                  <div className="mt-3 grid grid-cols-2 gap-2">
+                    <div className="rounded-lg border border-white/10 bg-white/[.025] p-2.5">
+                      <p className="text-[9px] uppercase tracking-[.16em] text-white/30">
+                        Capacity
+                      </p>
+
+                      <p className="mt-1 text-sm text-white/80">
+                        {recommendation.capacity}
+                      </p>
+                    </div>
+
+                    <div className="rounded-lg border border-white/10 bg-white/[.025] p-2.5">
+                      <p className="text-[9px] uppercase tracking-[.16em] text-white/30">
+                        Seat waste
+                      </p>
+
+                      <p className="mt-1 text-sm text-white/80">
+                        {recommendation.seat_waste}
+                      </p>
+                    </div>
+                  </div>
+
+                  <p className="mt-3 text-xs leading-relaxed text-white/45">
+                    {recommendation.explanation}
+                  </p>
+
+                  <p className="mt-2 text-[10px] uppercase tracking-[.16em] text-white/25">
+                    Score {recommendation.score.toFixed(2)}
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  disabled={
+                    applyingRecommendation ||
+                    updating
+                  }
+                  onClick={onApplyRecommendation}
+                  className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-cyan-300 px-4 py-3 text-sm font-medium text-black transition hover:bg-cyan-200 disabled:cursor-not-allowed disabled:opacity-45"
+                >
+                  {applyingRecommendation ? (
+                    <LoaderCircle
+                      size={16}
+                      className="animate-spin"
+                    />
+                  ) : (
+                    <Sparkles size={16} />
+                  )}
+
+                  Apply recommendation
+                </button>
+              </div>
+            )}
+          </div>
 
           <div className="mt-4 space-y-2">
             {reservation.status !== 'seated' && (

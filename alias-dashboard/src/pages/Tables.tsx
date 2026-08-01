@@ -7,14 +7,17 @@ import {
 } from 'react';
 
 import {
+  applyIntelligenceRecommendation,
   cancelReservation,
   createFloorPlan,
   createServiceArea,
   getFloorPlans,
   getTables,
   moveReservation,
+  optimizeReservation,
   updateReservation,
   type FloorPlanResponse,
+  type IntelligenceAssignmentResponse,
   type ReservationStatus,
   type ServiceAreaType,
   type TableResponse,
@@ -132,6 +135,26 @@ export function Tables() {
     updatingReservationId,
     setUpdatingReservationId,
   ] = useState<string | null>(null);
+
+  const [
+    intelligenceRecommendation,
+    setIntelligenceRecommendation,
+  ] = useState<IntelligenceAssignmentResponse | null>(null);
+
+  const [
+    loadingIntelligence,
+    setLoadingIntelligence,
+  ] = useState(false);
+
+  const [
+    applyingIntelligence,
+    setApplyingIntelligence,
+  ] = useState(false);
+
+  const [
+    intelligenceError,
+    setIntelligenceError,
+  ] = useState('');
   
   
   const [error, setError] = useState('');
@@ -686,6 +709,202 @@ export function Tables() {
     }
   }
 
+  const selectedLiveState = selectedTableId
+    ? getTableState(selectedTableId)
+    : null;
+
+  const loadIntelligenceRecommendation = useCallback(
+    async () => {
+      const reservation = selectedLiveState?.reservation;
+
+      if (
+        floorMode !== 'live' ||
+        !restaurantId ||
+        !reservation ||
+        reservation.status === 'completed' ||
+        reservation.status === 'cancelled' ||
+        reservation.status === 'no_show'
+      ) {
+        setIntelligenceRecommendation(null);
+        setIntelligenceError('');
+        return;
+      }
+
+      try {
+        setLoadingIntelligence(true);
+        setIntelligenceError('');
+
+        const result = await optimizeReservation({
+          restaurant_id: restaurantId,
+          requested_start: reservation.reservation_time,
+          party_size: reservation.party_size,
+          duration_minutes: reservation.duration_minutes,
+          buffer_before_minutes: 0,
+          buffer_after_minutes: 0,
+          preferred_service_area_id: selectedAreaId ?? null,
+          max_alternatives: 3,
+        });
+
+        const recommendation = result.recommended;
+
+        if (
+          !result.available ||
+          !recommendation ||
+          recommendation.table_ids.length <= 1
+        ) {
+          setIntelligenceRecommendation(null);
+          return;
+        }
+
+        const currentTableIds = new Set([
+          reservation.table_id,
+        ].filter(Boolean));
+
+        const recommendationChangesAssignment =
+          recommendation.table_ids.some(
+            (tableId) => !currentTableIds.has(tableId),
+          ) ||
+          recommendation.table_ids.length !== currentTableIds.size;
+
+        setIntelligenceRecommendation(
+          recommendationChangesAssignment
+            ? recommendation
+            : null,
+        );
+      } catch (error) {
+        console.error(
+          'Failed to load Alias recommendation',
+          error,
+        );
+
+        setIntelligenceRecommendation(null);
+
+        setIntelligenceError(
+          error instanceof Error
+            ? error.message
+            : 'Unable to load Alias recommendation.',
+        );
+      } finally {
+        setLoadingIntelligence(false);
+      }
+    },
+    [
+      floorMode,
+      restaurantId,
+      selectedAreaId,
+      selectedLiveState?.reservation,
+    ],
+  );
+
+  useEffect(() => {
+    void loadIntelligenceRecommendation();
+  }, [loadIntelligenceRecommendation]);
+
+  async function handleApplyIntelligenceRecommendation() {
+    const reservation = selectedLiveState?.reservation;
+    const recommendation = intelligenceRecommendation;
+
+    if (
+      !reservation ||
+      !recommendation ||
+      applyingIntelligence
+    ) {
+      return;
+    }
+
+    const primaryTableId =
+      recommendation.table_ids[0];
+
+    if (!primaryTableId) {
+      setIntelligenceError(
+        'Alias did not return a valid primary table.',
+      );
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Apply Alias recommendation and assign this reservation to tables ${recommendation.table_numbers.join(
+        ' + ',
+      )}?`,
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      setApplyingIntelligence(true);
+      setIntelligenceError('');
+      setError('');
+
+      await applyIntelligenceRecommendation({
+        reservation_id: reservation.id,
+        table_ids: recommendation.table_ids,
+        primary_table_id: primaryTableId,
+      });
+
+      await Promise.all([
+        refreshLiveFloor(),
+        loadAllRestaurantTables(),
+      ]);
+
+      setIntelligenceRecommendation(null);
+
+      const primaryTable = allRestaurantTables.find(
+        (table) => table.id === primaryTableId,
+      );
+
+      const primaryFloorPlan = primaryTable
+        ? allRestaurantFloorPlans.find(
+            (plan) =>
+              plan.id === primaryTable.floor_plan_id,
+          )
+        : null;
+
+      if (
+        primaryFloorPlan &&
+        primaryFloorPlan.service_area_id !== selectedAreaId
+      ) {
+        clearSelection();
+        setPendingTable(null);
+        resetViewport();
+
+        await selectArea(
+          primaryFloorPlan.service_area_id,
+        );
+
+        await selectFloorPlan(primaryFloorPlan.id);
+      } else if (
+        primaryFloorPlan &&
+        primaryFloorPlan.id !== selectedFloorPlanId
+      ) {
+        clearSelection();
+        setPendingTable(null);
+        resetViewport();
+
+        await selectFloorPlan(primaryFloorPlan.id);
+      }
+
+      setSelectedTableId(primaryTableId);
+    } catch (error) {
+      console.error(
+        'Failed to apply Alias recommendation',
+        error,
+      );
+
+      setIntelligenceError(
+        error instanceof Error
+          ? error.message
+          : 'Unable to apply Alias recommendation.',
+      );
+
+      await refreshLiveFloor();
+      await loadIntelligenceRecommendation();
+    } finally {
+      setApplyingIntelligence(false);
+    }
+  }
+
   async function handleReservationStatusChange(
     reservationId: string,
     nextStatus: ReservationStatus,
@@ -834,9 +1053,7 @@ export function Tables() {
     }
   }
   
-  const selectedLiveState = selectedTableId
-    ? getTableState(selectedTableId)
-    : null;
+  
 
   const liveMoveTargets = selectedTableId
     ? allRestaurantTables
@@ -885,6 +1102,8 @@ export function Tables() {
     setActiveTool('select');
     setPendingTable(null);
     clearSelection();
+    setIntelligenceRecommendation(null);
+    setIntelligenceError('');
   }
 
   return (
@@ -1203,6 +1422,10 @@ export function Tables() {
               status={selectedLiveState.status}
               reservation={selectedLiveState.reservation}
               moveTargets={liveMoveTargets}
+              recommendation={intelligenceRecommendation}
+              loadingRecommendation={loadingIntelligence}
+              applyingRecommendation={applyingIntelligence}
+              recommendationError={intelligenceError}
               updating={
                 updatingReservationId ===
                 selectedLiveState.reservation?.id
@@ -1271,6 +1494,12 @@ export function Tables() {
                   reservation.id,
                   destinationTableId,
                 );
+              }}
+              onRefreshRecommendation={() => {
+                void loadIntelligenceRecommendation();
+              }}
+              onApplyRecommendation={() => {
+                void handleApplyIntelligenceRecommendation();
               }}
             />
           )}

@@ -70,6 +70,55 @@ export type ReservationResponse = ReservationCreate & {
   table_code: string | null;
 };
 
+export type IntelligenceOptimizeRequest = {
+  restaurant_id: string;
+  requested_start: string;
+  party_size: number;
+  duration_minutes?: number;
+  buffer_before_minutes?: number;
+  buffer_after_minutes?: number;
+  preferred_service_area_id?: string | null;
+  max_alternatives?: number;
+};
+
+export type IntelligenceAssignmentResponse = {
+  table_ids: string[];
+  table_numbers: string[];
+  start_at: string;
+  end_at: string;
+  capacity: number;
+  score: number;
+  seat_waste: number;
+  fragmentation_minutes: number;
+  explanation: string;
+};
+
+export type IntelligenceOptimizeResponse = {
+  available: boolean;
+  recommended: IntelligenceAssignmentResponse | null;
+  alternatives: IntelligenceAssignmentResponse[];
+  rejected_candidates: number;
+  engine_version: string;
+  mode: 'read_only';
+};
+
+export type IntelligenceApplyRequest = {
+  reservation_id: string;
+  table_ids: string[];
+  primary_table_id: string;
+};
+
+export type IntelligenceApplyResponse = {
+  reservation_id: string;
+  restaurant_id: string;
+  primary_table_id: string;
+  table_ids: string[];
+  table_numbers: string[];
+  status: ReservationStatus;
+  mode: 'assisted';
+  applied: boolean;
+};
+
 function getAuthToken() {
   return localStorage.getItem('alias_access_token');
 }
@@ -318,6 +367,70 @@ export async function moveReservation(
     throw await parseApiError(
       response,
       'Unable to move reservation',
+    );
+  }
+
+  return response.json();
+}
+
+export async function optimizeReservation(
+  payload: IntelligenceOptimizeRequest,
+): Promise<IntelligenceOptimizeResponse> {
+  const token = getAuthToken();
+
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/intelligence/optimize`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token
+          ? {
+              Authorization: `Bearer ${token}`,
+            }
+          : {}),
+      },
+      body: JSON.stringify(payload),
+    },
+  );
+
+  if (!response.ok) {
+    throw await parseApiError(
+      response,
+      'Unable to optimize reservation',
+    );
+  }
+
+  return response.json();
+}
+
+export async function applyIntelligenceRecommendation(
+  payload: IntelligenceApplyRequest,
+): Promise<IntelligenceApplyResponse> {
+  const token = getAuthToken();
+
+  if (!token) {
+    throw new Error(
+      'Authentication is required to apply an Alias recommendation.',
+    );
+  }
+
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/intelligence/apply`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    },
+  );
+
+  if (!response.ok) {
+    throw await parseApiError(
+      response,
+      'Unable to apply Alias recommendation',
     );
   }
 
