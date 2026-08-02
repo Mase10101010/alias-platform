@@ -241,6 +241,9 @@ export function Landing() {
         ['Happy guests', 'Faster responses'],
       ],
       benefitsTitle: 'Everything you need',
+      billedIn: "Billed in",
+      checkoutCurrencyNote:
+        "The selected currency will also be used during checkout.",
       benefitsSubtitle: 'All in one place.',
       benefits: [
        'AI-powered reservation assistant',
@@ -398,6 +401,9 @@ export function Landing() {
         ],
       login: 'Accedi',
       pricing: "Prezzi",
+      billedIn: "Fatturato in",
+      checkoutCurrencyNote:
+        "La valuta selezionata verrà utilizzata anche durante il checkout.",
       aiBenefits: [
         ['Risparmia tempo', 'Automatizza le richieste ripetitive'],
         ['Aumenta le prenotazioni', 'Raccogli domanda 24/7'],
@@ -485,6 +491,9 @@ export function Landing() {
       noSetup: 'Aucun frais d’installation',
       trial: 'Essai gratuit de 7 jours',
       cancel: 'Annulez à tout moment',
+      billedIn: "Facturé en",
+      checkoutCurrencyNote:
+        "La devise sélectionnée sera également utilisée lors du paiement.",
       liveAi: 'IA active',
       overview: 'Aperçu',
       welcome: 'Bienvenue, Restaurant.',
@@ -611,6 +620,9 @@ export function Landing() {
         'Mejoras continuas',
       ],
       newReservation: 'Nueva reserva',
+      billedIn: "Facturado en",
+      checkoutCurrencyNote:
+        "La moneda seleccionada también se utilizará durante el pago.",
       reservationConfirmed: 'Reserva confirmada',
       guestRequestCaptured: 'Solicitud del cliente recibida',
       table4: 'Mesa 4 · 20:30',
@@ -712,6 +724,9 @@ export function Landing() {
       table4: 'Tisch 4 · 20:30',
       table2: 'Tisch 2 · 19:30',
       benefitsTitle: 'Alles, was Sie brauchen',
+      billedIn: "Abgerechnet in",
+      checkoutCurrencyNote:
+        "Die ausgewählte Währung wird auch beim Checkout verwendet.",
       benefitsSubtitle: 'Alles an einem Ort.',
       benefits: [
         'KI-gestützter Reservierungsassistent',
@@ -1322,7 +1337,7 @@ export function Landing() {
             </div>
 
             <p className="mt-3 text-xs uppercase tracking-[.18em] text-white/30">
-              Billed in {currency.code}
+              {landingText.billedIn} {currency.code}
             </p>
 
             <ul className="mt-7 space-y-3 text-sm text-white/55">
@@ -1347,8 +1362,7 @@ export function Landing() {
             </p>
 
             <p className="mt-2 text-center text-[11px] leading-relaxed text-white/25">
-              Currency selection will also be used
-              during checkout.
+              {landingText.checkoutCurrencyNote}
             </p>
           </motion.div>
         </div>
