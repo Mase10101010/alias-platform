@@ -23,6 +23,8 @@ import {
   type TableResponse,
 } from '@/lib/api';
 
+import { cyan } from '@/lib/data';
+
 import {
   LiveReservationPanel,
 } from '@/components/floorplan/LiveReservationPanel';
@@ -87,7 +89,15 @@ function getCurrentHalfHourSlot(date: Date) {
   return slot;
 }
 
-export function Tables() {
+type TablesProps = {
+  onboardingMode?: boolean;
+  onOnboardingComplete?: () => void;
+};
+
+export function Tables({
+  onboardingMode = false,
+  onOnboardingComplete,
+}: TablesProps) {
   const [floorMode, setFloorMode] =
     useState<FloorMode>('edit');
 
@@ -1112,48 +1122,55 @@ export function Tables() {
     setIntelligenceError('');
   }
 
+  const onboardingConfigurationReady =
+    serviceAreas.some((area) => area.is_active) &&
+    floorPlans.some((plan) => plan.is_active) &&
+    tables.some((table) => table.is_active);
+
   return (
     <section className="rounded-3xl border border-white/10 bg-white/[.03] p-5 sm:p-8">
       <div>
         <p className="text-xs uppercase tracking-[.28em] text-white/30">
-          Restaurant layout
+          {onboardingMode ? 'Onboarding · Restaurant layout' : 'Restaurant layout'}
         </p>
 
         <h1 className="mt-3 font-display text-3xl font-light text-white sm:text-4xl">
-          Floor Plan
+          {onboardingMode ? 'Build your restaurant map' : 'Floor Plan'}
         </h1>
 
         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/45">
-          Create and arrange the physical tables in your
-          restaurant. Every change is connected to the same
-          tables used by reservations and Alias Concierge AI.
+          {onboardingMode
+            ? 'Create an area, add a layout and position at least one table. Everything you create here will remain available in the dashboard.'
+            : 'Create and arrange the physical tables in your restaurant. Every change is connected to the same tables used by reservations and Alias Concierge AI.'}
         </p>
       </div>
 
-      <LiveFloorControls
-        mode={floorMode}
-        selectedDate={liveDate}
-        loading={liveLoading}
-        lastUpdatedAt={lastUpdatedAt}
-        tableCounts={liveTableCounts}
-        onModeChange={handleFloorModeChange}
-        onDateChange={(date) => {
-          clearSelection();
-          setFollowCurrentSlot(false);
-          setLiveDate(date);
-        }}
-        onNow={() => {
-          clearSelection();
-          setFollowCurrentSlot(true);
-          setLiveDate(getCurrentHalfHourSlot(new Date()));
-        }}
-        onRefresh={() => {
-          void Promise.all([
-            refreshLiveFloor(),
-            loadAllRestaurantTables(),
-          ]);
-        }}
-      />
+      {!onboardingMode && (
+        <LiveFloorControls
+          mode={floorMode}
+          selectedDate={liveDate}
+          loading={liveLoading}
+          lastUpdatedAt={lastUpdatedAt}
+          tableCounts={liveTableCounts}
+          onModeChange={handleFloorModeChange}
+          onDateChange={(date) => {
+            clearSelection();
+            setFollowCurrentSlot(false);
+            setLiveDate(date);
+          }}
+          onNow={() => {
+            clearSelection();
+            setFollowCurrentSlot(true);
+            setLiveDate(getCurrentHalfHourSlot(new Date()));
+          }}
+          onRefresh={() => {
+            void Promise.all([
+              refreshLiveFloor(),
+              loadAllRestaurantTables(),
+            ]);
+          }}
+        />
+      )}
 
       <FloorPlanNavigator
         serviceAreas={serviceAreas}
@@ -1519,6 +1536,43 @@ export function Tables() {
           <span>Drag tables to reposition them</span>
           <span>•</span>
           <span>Positions save automatically</span>
+        </div>
+      )}
+
+      {onboardingMode && (
+        <div className="mt-8 rounded-3xl border border-white/10 bg-white/[.025] p-5">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm font-medium text-white/80">
+                Complete your restaurant map
+              </p>
+              <p className="mt-1 text-sm text-white/40">
+                Create at least one area, one floor plan and one table before launching Alias.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              disabled={!onboardingConfigurationReady}
+              onClick={onOnboardingComplete}
+              className="rounded-full px-6 py-3 text-sm font-medium text-black disabled:cursor-not-allowed disabled:opacity-40"
+              style={{ background: cyan }}
+            >
+              Launch Alias
+            </button>
+          </div>
+
+          <div className="mt-4 flex flex-wrap gap-4 text-xs">
+            <span className={serviceAreas.some((area) => area.is_active) ? 'text-emerald-300' : 'text-white/30'}>
+              {serviceAreas.some((area) => area.is_active) ? '✓' : '○'} Service area
+            </span>
+            <span className={floorPlans.some((plan) => plan.is_active) ? 'text-emerald-300' : 'text-white/30'}>
+              {floorPlans.some((plan) => plan.is_active) ? '✓' : '○'} Floor plan
+            </span>
+            <span className={tables.some((table) => table.is_active) ? 'text-emerald-300' : 'text-white/30'}>
+              {tables.some((table) => table.is_active) ? '✓' : '○'} At least one table
+            </span>
+          </div>
         </div>
       )}
 

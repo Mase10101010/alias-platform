@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 
 
 import { cyan } from '@/lib/data';
@@ -6,16 +6,12 @@ import {
   detectDefaultLanguage,
   translations,
 } from '@/lib/i18n';
-import {
-  createFloorPlan,
-  createRestaurant,
-  createServiceArea,
-  createTable,
-} from '@/lib/api';
+import { createRestaurant } from '@/lib/api';
+import { Tables } from '@/pages/Tables';
 import { motion } from 'framer-motion';
 
 
-const steps = ['Business', 'Service', 'Concierge', 'Launch'];
+const steps = ['Business', 'Service', 'Concierge', 'Floor plan'];
 
 type FormState = {
   name: string;
@@ -109,72 +105,12 @@ export function Onboarding({
   const language = detectDefaultLanguage();
   const t = translations[language];
 
-  const totalTables = useMemo(() => {
-    return form.tables.length;
-  }, [form.tables]);
-
-  const estimatedSeats = useMemo(() => {
-    return form.tables.reduce(
-      (total, table) => total + table.seats,
-      0,
-    );
-  }, [form.tables]);
-
   function updateField(field: keyof FormState, value: string) {
     setForm((current) => {
       const next = { ...current, [field]: value };
       return next;
     });
   }
-
-function addTableSetup() {
-  const tableNumber = form.table_number_input.trim();
-  const seats = toNumber(form.seats_input);
-
-  if (!tableNumber || seats <= 0) {
-    setError('Please enter a table number and valid seats.');
-    return;
-  }
-
-  const alreadyExists = form.tables.some(
-    (table) => table.table_number.toLowerCase() === tableNumber.toLowerCase(),
-  );
-
-  if (alreadyExists) {
-    setError('This table number already exists.');
-    return;
-  }
-
-  setError(null);
-
-  setForm((current) => ({
-    ...current,
-    tables: [
-      ...current.tables,
-      {
-        table_number: tableNumber,
-        seats,
-      },
-    ],
-    table_number_input: '',
-    seats_input: '2',
-    number_of_tables: String(current.tables.length + 1),
-  }));
-}
-
-function removeTableSetup(index: number) {
-  setForm((current) => {
-    const nextTables = current.tables.filter(
-      (_, itemIndex) => itemIndex !== index,
-    );
-
-    return {
-      ...current,
-      tables: nextTables,
-      number_of_tables: String(nextTables.length),
-    };
-  });
-}
 
 function toggleOpeningDay(day: string) {
   setForm((current) => {
@@ -242,9 +178,6 @@ function updateWeeklySchedule(
         return 'Please enter valid opening and closing hours.';
       }
 
-      if (totalTables <= 0) {
-        return 'Please enter at least one table.';
-      }
     }
 
     return null;
@@ -260,12 +193,12 @@ function updateWeeklySchedule(
       return;
     }
 
-    if (step < 3) {
-      setStep((current) => Math.min(3, current + 1));
+    if (step < 2) {
+      setStep((current) => Math.min(2, current + 1));
       return;
     }
 
-    if (isSubmitting) {
+    if (step === 3 || isSubmitting) {
       return;
     }
 
@@ -282,67 +215,25 @@ function updateWeeklySchedule(
         timezone: 'Australia/Perth',
         opening_hour: Number(form.opening_hour),
         closing_hour: Number(form.closing_hour),
-        number_of_tables: totalTables,
+        number_of_tables: 0,
         table_setup: [],
         weekly_schedule: form.weekly_schedule,
         special_closures: [],
         concierge_tone: form.concierge_tone,
       });
 
-      const serviceArea = await createServiceArea(
-        restaurant.id,
-        {
-          name: 'Main Dining Room',
-          area_type: 'indoor',
-          color: '#7FE3E6',
-          sort_order: 0,
-        },
-      );
-
-      const floorPlan = await createFloorPlan(
-        restaurant.id,
-        serviceArea.id,
-        {
-          name: 'Default Layout',
-          width: 1200,
-          height: 800,
-          sort_order: 0,
-          is_default: true,
-        },
-      );
-
-      for (const [index, table] of form.tables.entries()) {
-        const columns = 5;
-        const column = index % columns;
-        const row = Math.floor(index / columns);
-
-        await createTable(
-          restaurant.id,
-          {
-            floor_plan_id: floorPlan.id,
-            table_number: table.table_number,
-            seats: table.seats,
-            x: 80 + column * 150,
-            y: 80 + row * 140,
-            width: 90,
-            height: 90,
-            shape: 'square',
-            rotation: 0,
-          },
-        );
-      }
-
       setCreatedRestaurantId(restaurant.id);
+      setStep(3);
     } catch (err) {
       console.error(
-        'Unable to complete restaurant onboarding',
+        'Unable to create restaurant workspace',
         err,
       );
 
       setError(
         err instanceof Error
           ? err.message
-          : 'Unable to launch concierge.',
+          : 'Unable to create restaurant workspace.',
       );
     } finally {
       setIsSubmitting(false);
@@ -350,7 +241,7 @@ function updateWeeklySchedule(
   }
 
   return (
-    <div className="mx-auto max-w-4xl">
+    <div className={step === 3 ? 'mx-auto max-w-7xl' : 'mx-auto max-w-4xl'}>
       <p
         className="text-[11px] uppercase tracking-[0.28em]"
         style={{ color: cyan }}
@@ -382,94 +273,57 @@ function updateWeeklySchedule(
         animate={{ opacity: 1, y: 0 }}
         className="glass mt-10 rounded-3xl p-8"
       >
-        {createdRestaurantId ? (
-          <Success 
-            restaurantId={createdRestaurantId} 
-            restaurantName={form.name} 
-            onComplete={onComplete}
-            labels={{
-              successTitle: t.successTitle,
-              successDescription: t.successDescription,
-              restaurantId: t.restaurantId,
-              goToDashboard: t.goToDashboard,
-            }}
-          />
-        ) : (
-          <>
-            {step === 0 && (
-              <BusinessStep 
-                form={form} 
-                updateField={updateField} 
-                title={t.businessStepTitle}
-                description={t.businessStepDescription}
-                labels={{
-                  restaurantName: t.restaurantName,
-                  businessType: t.businessType,
-                  contactEmail: t.contactEmail,
-                  phoneNumberLabel: t.phoneNumberLabel,
-                }}
-              />
-            )}
-            {step === 1 && (
-              <ServiceStep
-                form={form}
-                updateField={updateField}
-                totalTables={totalTables}
-                estimatedSeats={estimatedSeats}
-                addTableSetup={addTableSetup}
-                removeTableSetup={removeTableSetup}
-                toggleOpeningDay={toggleOpeningDay}
-                updateWeeklySchedule={updateWeeklySchedule}
-                labels={{
-                  serviceStepTitle: t.serviceStepTitle,
-                  serviceStepDescription: t.serviceStepDescription,
-                  openingHours: t.openingHours,
-                  restaurantSchedule: t.restaurantSchedule,
-                  openingTime: t.openingTime,
-                  closingTime: t.closingTime,
-                  availabilityTitle: t.availabilityTitle,
-                  openingDays: t.openingDays,
-                  openingDaysDescription: t.openingDaysDescription,
-                  open: t.open,
-                  closed: t.closed,
-                  seatingConfiguration: t.seatingConfiguration,
-                  tableDistribution: t.tableDistribution,
-                  totalTables: t.totalTables,
-                  numberOfTables: t.numberOfTables,
-                  seatsPerTable: t.seatsPerTable,
-                  tableNumber: t.tableNumberLabel,
-                  tableLabel: t.tableLabel,
-                  seatsLabel: t.seatsLabel,
-                  add: t.add,
-                  noTableConfigurations: t.noTableConfigurations,
-                  totalSeats: t.totalSeats,
-                  remove: t.remove,
-                  monday: t.monday,
-                  tuesday: t.tuesday,
-                  wednesday: t.wednesday,
-                  thursday: t.thursday,
-                  friday: t.friday,
-                  saturday: t.saturday,
-                  sunday: t.sunday,
-                  tablesLabel: t.tablesLabel,
-                  seatsEachLabel: t.seatsEachLabel,
-                }}
-              />
-            )}
-            {step === 2 && (
-              <TonePicker 
-              form={form} 
-              updateField={updateField} 
+        <>
+          {step === 0 && (
+            <BusinessStep
+              form={form}
+              updateField={updateField}
+              title={t.businessStepTitle}
+              description={t.businessStepDescription}
+              labels={{
+                restaurantName: t.restaurantName,
+                businessType: t.businessType,
+                contactEmail: t.contactEmail,
+                phoneNumberLabel: t.phoneNumberLabel,
+              }}
+            />
+          )}
+
+          {step === 1 && (
+            <ServiceStep
+              form={form}
+              updateWeeklySchedule={updateWeeklySchedule}
+              labels={{
+                serviceStepTitle: t.serviceStepTitle,
+                serviceStepDescription: t.serviceStepDescription,
+                availabilityTitle: t.availabilityTitle,
+                openingDays: t.openingDays,
+                openingDaysDescription: t.openingDaysDescription,
+                open: t.open,
+                closed: t.closed,
+                monday: t.monday,
+                tuesday: t.tuesday,
+                wednesday: t.wednesday,
+                thursday: t.thursday,
+                friday: t.friday,
+                saturday: t.saturday,
+                sunday: t.sunday,
+              }}
+            />
+          )}
+
+          {step === 2 && (
+            <TonePicker
+              form={form}
+              updateField={updateField}
               labels={{
                 tonePickerTitle: t.tonePickerTitle,
                 tonePickerDescription: t.tonePickerDescription,
                 toneCardDescription: t.toneCardDescription,
-
                 toneLuxury: t.toneLuxury,
                 toneElegant: t.toneElegant,
                 toneCasual: t.toneCasual,
                 toneModern: t.toneModern,
-
                 toneLuxuryDescription: t.toneLuxuryDescription,
                 toneElegantDescription: t.toneElegantDescription,
                 toneCasualDescription: t.toneCasualDescription,
@@ -477,33 +331,28 @@ function updateWeeklySchedule(
               }}
             />
           )}
-            {step === 3 && (
-              <Launch
-                form={form}
-                totalTables={totalTables}
-                estimatedSeats={estimatedSeats}
-                labels={{
-                  launchTitle: t.launchTitle,
-                  launchDescription: t.launchDescription,
-                  totalTables: t.totalTables,
-                  estimatedSeats: t.estimatedSeats,
-                }}
-              />
-            )}
 
-            {error && (
-              <div className="mt-6 rounded-2xl border border-red-400/20 bg-red-400/10 px-4 py-3 text-sm text-red-200">
-                {error}
-              </div>
-            )}
+          {step === 3 && createdRestaurantId && (
+            <Tables
+              onboardingMode
+              onOnboardingComplete={onComplete}
+            />
+          )}
 
+          {error && (
+            <div className="mt-6 rounded-2xl border border-red-400/20 bg-red-400/10 px-4 py-3 text-sm text-red-200">
+              {error}
+            </div>
+          )}
+
+          {step < 3 && (
             <div className="mt-8 flex justify-between">
               <button
                 onClick={() => {
                   setError(null);
                   setStep(Math.max(0, step - 1));
                 }}
-                disabled={isSubmitting}
+                disabled={isSubmitting || step === 0}
                 className="rounded-full border border-white/10 px-5 py-3 text-sm text-white/60 disabled:opacity-40"
               >
                 {t.back}
@@ -517,13 +366,13 @@ function updateWeeklySchedule(
               >
                 {isSubmitting
                   ? t.launching
-                  : step === 3
-                    ? t.launchConcierge
+                  : step === 2
+                    ? 'Configure floor plan'
                     : t.continue}
               </button>
             </div>
-          </>
-        )}
+          )}
+        </>
       </motion.div>
     </div>
   );
@@ -584,35 +433,17 @@ function BusinessStep({
 
 function ServiceStep({
   form,
-  updateField,
-  totalTables,
-  estimatedSeats,
-  addTableSetup,
-  removeTableSetup,
-  toggleOpeningDay,
   updateWeeklySchedule,
   labels,
 }: {
   form: FormState;
-  updateField: (field: keyof FormState, value: string) => void;
-  totalTables: number;
-  estimatedSeats: number;
-  toggleOpeningDay: (day: string) => void;
-
   updateWeeklySchedule: (
     day: string,
     field: 'is_open' | 'opening_hour' | 'closing_hour',
     value: boolean | string,
   ) => void;
-
-  addTableSetup: () => void;
-
-  removeTableSetup: (index: number) => void;
-
   labels: Record<string, string>;
-
 }) {
-
   const dayLabels: Record<string, string> = {
     Mon: labels.monday,
     Tue: labels.tuesday,
@@ -621,7 +452,8 @@ function ServiceStep({
     Fri: labels.friday,
     Sat: labels.saturday,
     Sun: labels.sunday,
-  }
+  };
+
   return (
     <>
       <h2 className="font-display text-3xl font-light">
@@ -631,7 +463,6 @@ function ServiceStep({
       <p className="mt-3 max-w-2xl text-sm leading-7 text-white/45">
         {labels.serviceStepDescription}
       </p>
-
 
       <div className="mt-7 rounded-3xl border border-white/10 bg-white/[.02] p-5">
         <p className="text-xs uppercase tracking-[.22em] text-white/35">
@@ -654,6 +485,7 @@ function ServiceStep({
             >
               <div className="flex items-center gap-3">
                 <button
+                  type="button"
                   onClick={() =>
                     updateWeeklySchedule(
                       schedule.day,
@@ -666,11 +498,9 @@ function ServiceStep({
                     borderColor: schedule.is_open
                       ? cyan
                       : 'rgba(255,255,255,.1)',
-
                     background: schedule.is_open
                       ? `${cyan}15`
                       : 'rgba(255,255,255,.03)',
-
                     color: schedule.is_open
                       ? cyan
                       : 'rgba(255,255,255,.7)',
@@ -695,6 +525,7 @@ function ServiceStep({
                       value,
                     )
                   }
+                  disabled={!schedule.is_open}
                 />
 
                 <Input
@@ -707,92 +538,12 @@ function ServiceStep({
                       value,
                     )
                   }
+                  disabled={!schedule.is_open}
                 />
               </div>
             </div>
           ))}
         </div>
-      </div>
-
-      <div className="mt-8 rounded-3xl border border-white/10 bg-white/[.02] p-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-xs uppercase tracking-[.22em] text-white/35">
-              {labels.seatingConfiguration}
-            </p>
-
-            <h3 className="mt-2 font-display text-2xl font-light">
-              {labels.tableDistribution}
-            </h3>
-          </div>
-
-          <div className="text-right">
-            <p className="text-xs uppercase tracking-[.22em] text-white/35">
-              {labels.totalTables}
-            </p>
-
-            <p className="mt-2 font-display text-4xl font-light text-white">
-              {totalTables}
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-8 rounded-2xl border border-white/10 bg-black/20 p-5">
-          <div className="grid gap-4 md:grid-cols-[1fr_1fr_auto]">
-            <Input
-              placeholder={labels.tableNumber}
-              value={form.table_number_input}
-              onChange={(value) => updateField('table_number_input', value)}
-            />
-
-            <Input
-              placeholder={labels.seatsPerTable}
-              value={form.seats_input}
-              onChange={(value) => updateField('seats_input', value)}
-            />
-
-            <button
-              onClick={addTableSetup}
-              className="rounded-xl px-5 py-3 text-sm font-medium text-black"
-              style={{ background: cyan }}
-            >
-              {labels.add}
-            </button>
-          </div>
-
-          <div className="mt-6 space-y-3">
-            {form.tables.length === 0 ? (
-              <p className="text-sm text-white/35">
-                {labels.noTableConfigurations}
-              </p>
-            ) : (
-              form.tables.map((table, index) => (
-                <div
-                  key={`${table.table_number}-${table.seats}-${index}`}
-                  className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[.03] px-4 py-4"
-                >
-                  <div>
-                    <p className="font-medium text-white">
-                      {labels.tableLabel} {table.table_number} · {table.seats} {labels.seatsLabel}
-                    </p>
-
-                    <p className="mt-1 text-sm text-white/40">
-                      {labels.totalSeats}: {table.seats}
-                    </p>
-                  </div>
-
-                  <button
-                    onClick={() => removeTableSetup(index)}
-                    className="text-sm text-red-300 transition hover:text-red-200"
-                  >
-                    {labels.remove}
-                  </button>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-
       </div>
     </>
   );
@@ -869,107 +620,6 @@ function TonePicker({
   );
 }
 
-function Launch({
-  form,
-  totalTables,
-  estimatedSeats,
-  labels,
-}: {
-  form: FormState;
-  totalTables: number;
-  estimatedSeats: number;
-  labels: Record<string, string>;
-}) {
-  return (
-    <div className="text-center">
-      <div
-        className="cyan-glow mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full"
-        style={{ background: `${cyan}18`, color: cyan }}
-      >
-        A
-      </div>
-
-      <h2 className="font-display text-4xl font-light">
-        {labels.launchTitle}
-      </h2>
-
-      <p className="mx-auto mt-4 max-w-lg text-white/50">
-        {labels.launchDescription.replace(
-          '{restaurantName}',
-          form.name || 'your restaurant',
-        )}
-        
-      </p>
-
-      <div className="mx-auto mt-8 grid max-w-2xl gap-4 md:grid-cols-2">
-        <div className="rounded-2xl border border-white/10 bg-white/[.03] p-5">
-          <p className="text-xs uppercase tracking-[.22em] text-white/35">
-            {labels.totalTables}
-          </p>
-
-          <p className="mt-3 font-display text-4xl font-light">
-            {totalTables}
-          </p>
-        </div>
-
-        <div className="rounded-2xl border border-white/10 bg-white/[.03] p-5">
-          <p className="text-xs uppercase tracking-[.22em] text-white/35">
-            {labels.estimatedSeats}
-          </p>
-
-          <p className="mt-3 font-display text-4xl font-light">
-            {estimatedSeats}
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function Success({
-  restaurantId,
-  restaurantName,
-  labels,
-  onComplete,
-}: {
-  restaurantId: string;
-  restaurantName: string;
-  labels: Record<string, string>;
-  onComplete?: () => void;
-}) {
-  return (
-    <div className="text-center">
-      <div
-        className="cyan-glow mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full"
-        style={{ background: `${cyan}18`, color: cyan }}
-      >
-        ✓
-      </div>
-
-      <h2 className="font-display text-4xl font-light">
-        {labels.successTitle.replace('{restaurantName}', restaurantName)}
-      </h2>
-
-      <p className="mx-auto mt-4 max-w-xl text-white/50">
-        {labels.successDescription}
-      </p>
-
-      <div className="mx-auto mt-6 max-w-xl rounded-2xl border border-white/10 bg-white/[.03] px-4 py-3 text-left text-xs text-white/50">
-        {labels.restaurantId}:
-        <span className="ml-2 font-mono text-white/80">
-          {restaurantId}
-        </span>
-      </div>
-      <button
-        onClick={onComplete}
-        className="mt-8 rounded-full px-6 py-3 text-sm text-black"
-        style={{ background: cyan}}
-      >
-        {labels.goToDashboard}
-      </button>
-    </div>
-  );
-}
 
 function Input({
   placeholder,
