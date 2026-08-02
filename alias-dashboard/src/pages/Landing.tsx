@@ -16,7 +16,7 @@ import {
 
 import { AliasMark } from '@/components/Brand';
 import { cyan } from '@/lib/data';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   detectDefaultLanguage,
   languages,
@@ -42,10 +42,195 @@ const stagger = {
 
 const benefits = [];
 
+type CurrencyCode =
+  | 'EUR'
+  | 'USD'
+  | 'AUD'
+  | 'GBP'
+  | 'CAD'
+  | 'CHF';
+
+type CurrencyConfiguration = {
+  code: CurrencyCode;
+  label: string;
+  amount: number;
+  locale: string;
+};
+
+const CURRENCY_STORAGE_KEY =
+  'alias_landing_currency';
+
+const currencies: CurrencyConfiguration[] = [
+  {
+    code: 'EUR',
+    label: 'EUR',
+    amount: 99,
+    locale: 'it-IT',
+  },
+  {
+    code: 'USD',
+    label: 'USD',
+    amount: 109,
+    locale: 'en-US',
+  },
+  {
+    code: 'AUD',
+    label: 'AUD',
+    amount: 169,
+    locale: 'en-AU',
+  },
+  {
+    code: 'GBP',
+    label: 'GBP',
+    amount: 89,
+    locale: 'en-GB',
+  },
+  {
+    code: 'CAD',
+    label: 'CAD',
+    amount: 149,
+    locale: 'en-CA',
+  },
+  {
+    code: 'CHF',
+    label: 'CHF',
+    amount: 95,
+    locale: 'de-CH',
+  },
+];
+
+const currencyByCode = Object.fromEntries(
+  currencies.map((currency) => [
+    currency.code,
+    currency,
+  ]),
+) as Record<
+  CurrencyCode,
+  CurrencyConfiguration
+>;
+
+function isCurrencyCode(
+  value: string | null,
+): value is CurrencyCode {
+  return currencies.some(
+    (currency) => currency.code === value,
+  );
+}
+
+function detectDefaultCurrency(): CurrencyCode {
+  const storedCurrency = localStorage.getItem(
+    CURRENCY_STORAGE_KEY,
+  );
+
+  if (isCurrencyCode(storedCurrency)) {
+    return storedCurrency;
+  }
+
+  const locale =
+    navigator.languages?.[0] ??
+    navigator.language ??
+    'en-US';
+
+  const region = locale
+    .split('-')[1]
+    ?.toUpperCase();
+
+  const timezone =
+    Intl.DateTimeFormat()
+      .resolvedOptions()
+      .timeZone;
+
+  if (
+    region === 'AU' ||
+    timezone?.startsWith('Australia/')
+  ) {
+    return 'AUD';
+  }
+
+  if (region === 'US') {
+    return 'USD';
+  }
+
+  if (region === 'GB') {
+    return 'GBP';
+  }
+
+  if (region === 'CA') {
+    return 'CAD';
+  }
+
+  if (
+    region === 'CH' ||
+    timezone === 'Europe/Zurich'
+  ) {
+    return 'CHF';
+  }
+
+  const euroRegions = new Set([
+    'AT',
+    'BE',
+    'CY',
+    'DE',
+    'EE',
+    'ES',
+    'FI',
+    'FR',
+    'GR',
+    'HR',
+    'IE',
+    'IT',
+    'LT',
+    'LU',
+    'LV',
+    'MT',
+    'NL',
+    'PT',
+    'SI',
+    'SK',
+  ]);
+
+  if (region && euroRegions.has(region)) {
+    return 'EUR';
+  }
+
+  return 'EUR';
+}
+
+function formatCurrencyPrice(
+  currency: CurrencyConfiguration,
+) {
+  return new Intl.NumberFormat(
+    currency.locale,
+    {
+      style: 'currency',
+      currency: currency.code,
+      maximumFractionDigits: 0,
+    },
+  ).format(currency.amount);
+}
+
 export function Landing() {
   const [language, setLanguage] = useState<LanguageCode>(
     detectDefaultLanguage(),
   );
+
+  const [currencyCode, setCurrencyCode] =
+    useState<CurrencyCode>(() =>
+      detectDefaultCurrency(),
+    );
+
+  const currency =
+    currencyByCode[currencyCode];
+
+  const formattedPrice =
+    formatCurrencyPrice(currency);
+
+  useEffect(() => {
+    localStorage.setItem(
+      CURRENCY_STORAGE_KEY,
+      currencyCode,
+    );
+  }, [currencyCode]);
 
   const landingText = {
     en: {
@@ -655,6 +840,27 @@ export function Landing() {
                 </option>
             ))}
           </select>
+
+          <select
+            aria-label="Currency"
+            value={currencyCode}
+            onChange={(event) => {
+              setCurrencyCode(
+                event.target.value as CurrencyCode,
+              );
+            }}
+            className="rounded-full border border-white/10 bg-white/[.03] px-3 py-2 text-xs uppercase tracking-[.14em] text-white/70 outline-none transition hover:border-white/20"
+          >
+            {currencies.map((item) => (
+              <option
+                key={item.code}
+                value={item.code}
+                className="bg-[#050816]"
+              >
+                {item.label}
+              </option>
+            ))}
+          </select>
           <button
             onClick={goToAuth}
             className="hidden rounded-full border border-white/10 px-5 py-2 text-sm text-white/60 transition hover:border-white/20 hover:text-white sm:block"
@@ -1110,10 +1316,14 @@ export function Landing() {
                 className="font-display text-6xl font-light"
                 style={{ color: cyan }}
               >
-                €99
+                {formattedPrice}
               </span>
               <span className="ml-2 text-white/40">{landingText.pricePeriod}</span>
             </div>
+
+            <p className="mt-3 text-xs uppercase tracking-[.18em] text-white/30">
+              Billed in {currency.code}
+            </p>
 
             <ul className="mt-7 space-y-3 text-sm text-white/55">
               <li>✓ {landingText.unlimitedReservations}</li>
@@ -1134,6 +1344,11 @@ export function Landing() {
 
             <p className="mt-4 text-center text-xs text-white/35">
               {landingText.pricingFooter}
+            </p>
+
+            <p className="mt-2 text-center text-[11px] leading-relaxed text-white/25">
+              Currency selection will also be used
+              during checkout.
             </p>
           </motion.div>
         </div>
