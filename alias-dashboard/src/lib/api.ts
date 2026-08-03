@@ -36,14 +36,17 @@ export type RestaurantCreate = {
   weekly_schedule?: WeeklyScheduleItem[];
   special_closures?: SpecialClosure[];
   concierge_tone: string;
+  onboarding_completed?: boolean;
 };
 
 export type RestaurantResponse = RestaurantCreate & {
   id: string;
   owner_id: string;
   subscription_status: string;
+  onboarding_completed: boolean;
   created_at: string;
   updated_at: string;
+  
 };
 
 export type ReservationCreate = {

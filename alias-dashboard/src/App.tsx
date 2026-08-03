@@ -50,6 +50,10 @@ export default function App() {
   const [authed, setAuthed] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [hasRestaurant, setHasRestaurant] = useState(false);
+  const [
+    onboardingCompleted,
+    setOnboardingCompleted,
+  ] = useState(false);
   const [welcomeCompleted, setWelcomeCompleted] = useState(
     localStorage.getItem('alias_welcome_completed') === 'true',
   );
@@ -142,7 +146,13 @@ export default function App() {
       );
       if (restaurantResponse.ok) {
         const restaurantData = await restaurantResponse.json();
-        setHasRestaurant(restaurantData.length > 0);
+        const restaurant = restaurantData[0];
+
+        setHasRestaurant(Boolean(restaurant));
+
+        setOnboardingCompleted(
+          Boolean(restaurant?.onboarding_completed),
+        );
       }
       
       try {
@@ -187,6 +197,7 @@ export default function App() {
     setCurrentUser(null);
     setAuthed(false);
     setHasRestaurant(false);
+    setOnboardingCompleted(false);
     setWelcomeCompleted(false);
     setActive('home');
 
@@ -276,11 +287,18 @@ if (!authed && isAuthPage) {
     return <TrialGate />;
   }
 
-  if (authed && !hasRestaurant && hasSelectedLanguage && hasActiveBilling) {
+  if (
+    authed &&
+    hasSelectedLanguage &&
+    hasActiveBilling &&
+    (!hasRestaurant || !onboardingCompleted)
+  ) {
     return (
-      <Onboarding 
+      <Onboarding
+        existingRestaurant={hasRestaurant}
         onComplete={() => {
           setHasRestaurant(true);
+          setOnboardingCompleted(true);
           setActive('home');
         }}
       />

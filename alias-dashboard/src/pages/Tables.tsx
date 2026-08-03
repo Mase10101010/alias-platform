@@ -16,6 +16,7 @@ import {
   moveReservation,
   optimizeReservation,
   updateReservation,
+  updateRestaurant,
   type FloorPlanResponse,
   type IntelligenceAssignmentResponse,
   type ReservationStatus,
@@ -140,6 +141,9 @@ export function Tables({
 
   const [allRestaurantFloorPlans, setAllRestaurantFloorPlans] =
     useState<FloorPlanResponse[]>([]);
+
+  const [completingOnboarding, setCompletingOnboarding] =
+    useState(false);
 
   const [
     updatingReservationId,
@@ -1127,6 +1131,43 @@ export function Tables({
     floorPlans.some((plan) => plan.is_active) &&
     tables.some((table) => table.is_active);
 
+  async function handleCompleteOnboarding() {
+    if (
+      !restaurantId ||
+      !onboardingConfigurationReady ||
+      completingOnboarding
+    ) {
+      return;
+    }
+
+    try {
+      setCompletingOnboarding(true);
+      setError('');
+
+      await updateRestaurant(restaurantId, {
+        onboarding_completed: true,
+        number_of_tables: tables.filter(
+          (table) => table.is_active,
+        ).length,
+      });
+
+      onOnboardingComplete?.();
+    } catch (error) {
+      console.error(
+        'Failed to complete onboarding',
+        error,
+      );
+
+      setError(
+        error instanceof Error
+          ? error.message
+          : 'Unable to complete onboarding.',
+      );
+    } finally {
+      setCompletingOnboarding(false);
+    }
+  }
+
   return (
     <section className="rounded-3xl border border-white/10 bg-white/[.03] p-5 sm:p-8">
       <div>
@@ -1553,12 +1594,19 @@ export function Tables({
 
             <button
               type="button"
-              disabled={!onboardingConfigurationReady}
-              onClick={onOnboardingComplete}
+              disabled={
+                !onboardingConfigurationReady ||
+                completingOnboarding
+              }
+              onClick={() => {
+                void handleCompleteOnboarding();
+              }}
               className="rounded-full px-6 py-3 text-sm font-medium text-black disabled:cursor-not-allowed disabled:opacity-40"
               style={{ background: cyan }}
             >
-              Launch Alias
+              {completingOnboarding
+                ? 'Launching Alias...'
+                : 'Launch Alias'}
             </button>
           </div>
 

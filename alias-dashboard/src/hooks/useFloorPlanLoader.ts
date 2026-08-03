@@ -90,7 +90,7 @@ export function useFloorPlanLoader({
             setFloorPlans([]);
             setSelectedFloorPlanId(null);
             setTables([]);
-            onError('No service area found.');
+            onError('');
           }
 
           return;
@@ -113,7 +113,7 @@ export function useFloorPlanLoader({
             setFloorPlans([]);
             setSelectedFloorPlanId(null);
             setTables([]);
-            onError('No floor plan found.');
+            onError('');
           }
 
           return;

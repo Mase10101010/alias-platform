@@ -1,4 +1,8 @@
-import { useState } from 'react';
+import {
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 
 
 import { cyan } from '@/lib/data';
@@ -6,7 +10,10 @@ import {
   detectDefaultLanguage,
   translations,
 } from '@/lib/i18n';
-import { createRestaurant } from '@/lib/api';
+import {
+  createRestaurant,
+  getRestaurants,
+} from '@/lib/api';
 import { Tables } from '@/pages/Tables';
 import { motion } from 'framer-motion';
 
@@ -92,15 +99,58 @@ function toNumber(value: string) {
 
 export function Onboarding({
   onComplete,
+  existingRestaurant = false,
 }: {
   onComplete?: () => void;
+  existingRestaurant?: boolean;
 }) {
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(
+    existingRestaurant ? 3 : 0,
+  );
   const [form, setForm] = useState<FormState>(initialForm);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [createdRestaurantId, setCreatedRestaurantId] = useState<string | null>(
     null,
   );
+  useEffect(() => {
+    if (!existingRestaurant) {
+      return;
+    }
+
+    let cancelled = false;
+
+    async function loadExistingRestaurant() {
+      try {
+        const restaurants = await getRestaurants();
+        const restaurant = restaurants[0];
+
+        if (!cancelled) {
+          setCreatedRestaurantId(
+            restaurant?.id ?? null,
+          );
+        }
+      } catch (error) {
+        console.error(
+          'Unable to load existing restaurant',
+          error,
+        );
+
+        if (!cancelled) {
+          setError(
+            error instanceof Error
+              ? error.message
+              : 'Unable to load restaurant workspace.',
+          );
+        }
+      }
+    }
+
+    void loadExistingRestaurant();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [existingRestaurant]);
   const [error, setError] = useState<string | null>(null);
   const language = detectDefaultLanguage();
   const t = translations[language];
@@ -338,6 +388,15 @@ function updateWeeklySchedule(
               onOnboardingComplete={onComplete}
             />
           )}
+
+          {step === 3 &&
+            existingRestaurant &&
+            !createdRestaurantId &&
+            !error && (
+              <div className="py-16 text-center text-sm text-white/40">
+                Loading restaurant workspace...
+              </div>
+            )}
 
           {error && (
             <div className="mt-6 rounded-2xl border border-red-400/20 bg-red-400/10 px-4 py-3 text-sm text-red-200">
