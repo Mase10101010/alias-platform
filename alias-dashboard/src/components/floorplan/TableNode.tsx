@@ -226,7 +226,7 @@ export function TableNode({
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
       onPointerCancel={onPointerCancel}
-      className={`absolute flex select-none items-center justify-center overflow-hidden border text-center transition ${
+      className={`absolute flex select-none items-center justify-center overflow-visible border text-center transition ${
         draggingEnabled
           ? 'cursor-grab active:cursor-grabbing'
           : 'cursor-default'
@@ -265,6 +265,7 @@ export function TableNode({
       <div
         className="flex h-full w-full min-w-0 max-w-full flex-col items-center justify-center overflow-hidden px-2 py-1"
         style={{
+          borderRadius: getBorderRadius(table),
           transform: `rotate(-${table.rotation}deg)`,
         }}
       >
@@ -393,7 +394,7 @@ export function TableNode({
             event.stopPropagation();
             onResizePointerCancel?.(event);
           }}
-          className="absolute bottom-1 left-1/2 z-30 h-5 w-5 -translate-x-1/2 cursor-ns-resize rounded-full border-2 border-[#050607] bg-cyanAlias shadow-[0_0_16px_rgba(127,227,230,.45)]"
+          className="absolute -bottom-3 left-1/2 z-30 h-5 w-5 -translate-x-1/2 cursor-ns-resize rounded-full border-2 border-[#050607] bg-cyanAlias shadow-[0_0_16px_rgba(127,227,230,.45)]"
         />
       )}
     </div>
