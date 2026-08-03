@@ -393,7 +393,7 @@ export function TableNode({
             event.stopPropagation();
             onResizePointerCancel?.(event);
           }}
-          className="absolute -bottom-2 -right-2 z-30 h-5 w-5 cursor-nwse-resize rounded-full border-2 border-[#050607] bg-cyanAlias shadow-[0_0_16px_rgba(127,227,230,.45)]"
+          className="absolute bottom-1 left-1/2 z-30 h-5 w-5 -translate-x-1/2 cursor-ns-resize rounded-full border-2 border-[#050607] bg-cyanAlias shadow-[0_0_16px_rgba(127,227,230,.45)]"
         />
       )}
     </div>
