@@ -1582,9 +1582,19 @@ export function Tables({
                       setSelectedTableId(table.id);
                     }}
                     onPointerDown={(event) => {
-                      if (floorMode === 'edit') {
-                        handlePointerDown(event, table);
+                      if (floorMode !== 'edit') {
+                        return;
                       }
+
+                      // Ctrl/Cmd + click serve esclusivamente alla selezione multipla.
+                      // Non avviamo il drag, altrimenti useFloorDrag sostituisce
+                      // la selezione corrente con il solo tavolo cliccato.
+                      if (event.ctrlKey || event.metaKey) {
+                        event.stopPropagation();
+                        return;
+                      }
+
+                      handlePointerDown(event, table);
                     }}
                     onPointerMove={(event) => {
                       if (floorMode === 'edit') {
