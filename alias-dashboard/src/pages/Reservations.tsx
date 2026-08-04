@@ -709,9 +709,11 @@ export function Reservations() {
               
 
               <span className="text-white/55">
-                {reservation.table_number
-                  ? `${t.tableLabel} ${reservation.table_number}`
-                  : '—'}
+                {reservation.table_numbers?.length
+                  ? `${t.tableLabel} ${reservation.table_numbers.join(' + ')}`
+                  : reservation.table_number
+                    ? `${t.tableLabel} ${reservation.table_number}`
+                    : '—'}
               </span>
 
               <div className="min-w-0 text-white/55">
