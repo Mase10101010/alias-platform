@@ -125,6 +125,101 @@ export type IntelligenceApplyResponse = {
   applied: boolean;
 };
 
+export type IntelligenceReoptimizeRequest = {
+  restaurant_id: string;
+  requested_start: string;
+  party_size: number;
+  duration_minutes?: number;
+  reservation_id?: string | null;
+  buffer_before_minutes?: number;
+  buffer_after_minutes?: number;
+  preferred_service_area_id?: string | null;
+  max_reservations_to_move?: number;
+  max_plans?: number;
+};
+
+export type IntelligenceReservationMoveResponse = {
+  reservation_id: string;
+
+  from_table_ids: string[];
+  from_table_numbers: string[];
+
+  to_table_ids: string[];
+  to_table_numbers: string[];
+
+  party_size: number;
+  start_at: string;
+  end_at: string;
+
+  destination_capacity: number;
+  seat_waste: number;
+  explanation: string;
+};
+
+export type IntelligenceReoptimizationPlanResponse = {
+  new_reservation_assignment:
+    IntelligenceAssignmentResponse;
+
+  moves: IntelligenceReservationMoveResponse[];
+
+  score: number;
+  total_seat_waste: number;
+  moved_reservations_count: number;
+  explanation: string;
+};
+
+export type IntelligenceReoptimizeResponse = {
+  available: boolean;
+
+  recommended:
+    | IntelligenceReoptimizationPlanResponse
+    | null;
+
+  alternatives:
+    IntelligenceReoptimizationPlanResponse[];
+
+  evaluated_plans: number;
+  rejected_plans: number;
+
+  engine_version: string;
+  mode: 'read_only';
+};
+
+export type IntelligenceReoptimizationMoveApply = {
+  reservation_id: string;
+  to_table_ids: string[];
+  primary_table_id: string;
+};
+
+export type IntelligenceApplyReoptimizationRequest = {
+  new_reservation_id: string;
+
+  new_reservation_table_ids: string[];
+  new_reservation_primary_table_id: string;
+
+  moves: IntelligenceReoptimizationMoveApply[];
+};
+
+export type IntelligenceAppliedMoveResponse = {
+  reservation_id: string;
+  primary_table_id: string;
+  table_ids: string[];
+  table_numbers: string[];
+};
+
+export type IntelligenceApplyReoptimizationResponse = {
+  new_reservation_id: string;
+
+  new_reservation_primary_table_id: string;
+  new_reservation_table_ids: string[];
+  new_reservation_table_numbers: string[];
+
+  applied_moves: IntelligenceAppliedMoveResponse[];
+
+  mode: 'assisted_reoptimization';
+  applied: boolean;
+};
+
 export type TableCombinationMemberResponse = {
   table_id: string;
   table_number: string;
@@ -563,6 +658,39 @@ export async function optimizeReservation(
   return response.json();
 }
 
+export async function reoptimizeReservation(
+  payload: IntelligenceReoptimizeRequest,
+): Promise<IntelligenceReoptimizeResponse> {
+  const token = getAuthToken();
+
+  if (!token) {
+    throw new Error(
+      'Authentication is required to reoptimize reservations.',
+    );
+  }
+
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/intelligence/reoptimize`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    },
+  );
+
+  if (!response.ok) {
+    throw await parseApiError(
+      response,
+      'Unable to reoptimize reservations',
+    );
+  }
+
+  return response.json();
+}
+
 export async function applyIntelligenceRecommendation(
   payload: IntelligenceApplyRequest,
 ): Promise<IntelligenceApplyResponse> {
@@ -590,6 +718,39 @@ export async function applyIntelligenceRecommendation(
     throw await parseApiError(
       response,
       'Unable to apply Alias recommendation',
+    );
+  }
+
+  return response.json();
+}
+
+export async function applyIntelligenceReoptimization(
+  payload: IntelligenceApplyReoptimizationRequest,
+): Promise<IntelligenceApplyReoptimizationResponse> {
+  const token = getAuthToken();
+
+  if (!token) {
+    throw new Error(
+      'Authentication is required to apply a reoptimization plan.',
+    );
+  }
+
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/intelligence/apply-reoptimization`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    },
+  );
+
+  if (!response.ok) {
+    throw await parseApiError(
+      response,
+      'Unable to apply the reoptimization plan',
     );
   }
 
