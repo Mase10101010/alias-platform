@@ -17,6 +17,8 @@ import {
   optimizeReservation,
   updateReservation,
   updateRestaurant,
+  createTableCombination,
+  type TableCombinationResponse,
   type FloorPlanResponse,
   type IntelligenceAssignmentResponse,
   type ReservationStatus,
@@ -25,6 +27,10 @@ import {
 } from '@/lib/api';
 
 import { cyan } from '@/lib/data';
+
+import {
+  CreateTableCombinationDialog,
+} from '@/components/floorplan/CreateTableCombinationDialog';
 
 import {
   LiveReservationPanel,
@@ -104,6 +110,41 @@ export function Tables({
 
   const [liveDate, setLiveDate] =
     useState(() => getCurrentHalfHourSlot(new Date()));
+
+  const [
+    createCombinationOpen,
+    setCreateCombinationOpen,
+  ] = useState(false);
+
+  const [
+    combinationName,
+    setCombinationName,
+  ] = useState('');
+
+  const [
+    combinationMinCapacity,
+    setCombinationMinCapacity,
+  ] = useState('1');
+
+  const [
+    combinationMaxCapacity,
+    setCombinationMaxCapacity,
+  ] = useState('1');
+
+  const [
+    combinationSetupMinutes,
+    setCombinationSetupMinutes,
+  ] = useState('5');
+
+  const [
+    creatingCombination,
+    setCreatingCombination,
+  ] = useState(false);
+
+  const [
+    tableCombinations,
+    setTableCombinations,
+  ] = useState<TableCombinationResponse[]>([]);
 
   const [followCurrentSlot, setFollowCurrentSlot] =
     useState(true);
@@ -1168,6 +1209,167 @@ export function Tables({
     }
   }
 
+  function openCreateCombinationDialog() {
+    if (
+      selectedTables.length < 2 ||
+      creatingCombination
+    ) {
+      return;
+    }
+
+    const totalCapacity = selectedTables.reduce(
+      (total, table) => total + table.seats,
+      0,
+    );
+
+    const generatedName = selectedTables
+      .map((table) => `Table ${table.table_number}`)
+      .join(' + ');
+
+    setCombinationName(generatedName);
+
+    setCombinationMinCapacity(
+      String(
+        Math.max(
+          1,
+          totalCapacity -
+            Math.max(1, selectedTables.length - 1),
+        ),
+      ),
+    );
+
+    setCombinationMaxCapacity(
+      String(totalCapacity),
+    );
+
+    setCombinationSetupMinutes('5');
+    setCreateCombinationOpen(true);
+  }
+
+  function closeCreateCombinationDialog() {
+    if (creatingCombination) {
+      return;
+    }
+
+    setCreateCombinationOpen(false);
+    setCombinationName('');
+    setCombinationMinCapacity('1');
+    setCombinationMaxCapacity('1');
+    setCombinationSetupMinutes('5');
+  }
+
+  async function handleCreateCombination() {
+    if (
+      !restaurantId ||
+      !selectedAreaId ||
+      selectedTables.length < 2 ||
+      creatingCombination
+    ) {
+      return;
+    }
+
+    const minCapacity = Number(
+      combinationMinCapacity,
+    );
+
+    const maxCapacity = Number(
+      combinationMaxCapacity,
+    );
+
+    const setupMinutes = Number(
+      combinationSetupMinutes,
+    );
+
+    if (!combinationName.trim()) {
+      setError(
+        'Please enter a combination name.',
+      );
+      return;
+    }
+
+    if (
+      !Number.isInteger(minCapacity) ||
+      minCapacity < 1
+    ) {
+      setError(
+        'Minimum capacity must be at least 1.',
+      );
+      return;
+    }
+
+    if (
+      !Number.isInteger(maxCapacity) ||
+      maxCapacity < 1
+    ) {
+      setError(
+        'Maximum capacity must be at least 1.',
+      );
+      return;
+    }
+
+    if (minCapacity > maxCapacity) {
+      setError(
+        'Minimum capacity cannot exceed maximum capacity.',
+      );
+      return;
+    }
+
+    if (
+      !Number.isInteger(setupMinutes) ||
+      setupMinutes < 0 ||
+      setupMinutes > 180
+    ) {
+      setError(
+        'Setup time must be between 0 and 180 minutes.',
+      );
+      return;
+    }
+
+    try {
+      setCreatingCombination(true);
+      setError('');
+
+      const created =
+        await createTableCombination(
+          restaurantId,
+          {
+            service_area_id: selectedAreaId,
+            name: combinationName.trim(),
+            min_capacity: minCapacity,
+            max_capacity: maxCapacity,
+            setup_minutes: setupMinutes,
+            table_ids: selectedTables.map(
+              (table) => table.id,
+            ),
+          },
+        );
+
+      setTableCombinations((current) => [
+        ...current.filter(
+          (combination) =>
+            combination.id !== created.id,
+        ),
+        created,
+      ]);
+
+      setCreateCombinationOpen(false);
+      clearSelection();
+    } catch (error) {
+      console.error(
+        'Failed to create table combination',
+        error,
+      );
+
+      setError(
+        error instanceof Error
+          ? error.message
+          : 'Unable to create table combination.',
+      );
+    } finally {
+      setCreatingCombination(false);
+    }
+  }
+
   return (
     <section className="rounded-3xl border border-white/10 bg-white/[.03] p-5 sm:p-8">
       <div>
@@ -1258,7 +1460,16 @@ export function Tables({
         <Toolbar
           activeTool={activeTool}
           tablesCount={tables.length}
+          selectedTablesCount={
+            selectedTableIds.length
+          }
+          creatingCombination={
+            creatingCombination
+          }
           onToolChange={handleToolChange}
+          onCreateCombination={
+            openCreateCombinationDialog
+          }
         />
       )}
 
@@ -1651,6 +1862,38 @@ export function Tables({
         onCancel={closeCreateFloorPlanDialog}
         onCreate={() => {
           void handleCreateFloorPlan();
+        }}
+      />
+
+      <CreateTableCombinationDialog
+        open={createCombinationOpen}
+        selectedTables={selectedTables}
+        name={combinationName}
+        minCapacity={
+          combinationMinCapacity
+        }
+        maxCapacity={
+          combinationMaxCapacity
+        }
+        setupMinutes={
+          combinationSetupMinutes
+        }
+        creating={creatingCombination}
+        onNameChange={setCombinationName}
+        onMinCapacityChange={
+          setCombinationMinCapacity
+        }
+        onMaxCapacityChange={
+          setCombinationMaxCapacity
+        }
+        onSetupMinutesChange={
+          setCombinationSetupMinutes
+        }
+        onCancel={
+          closeCreateCombinationDialog
+        }
+        onCreate={() => {
+          void handleCreateCombination();
         }}
       />
     </section>

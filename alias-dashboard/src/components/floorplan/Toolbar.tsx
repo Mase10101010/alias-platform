@@ -1,5 +1,6 @@
 import {
   Circle,
+  Combine,
   MousePointer2,
   Plus,
   RectangleHorizontal,
@@ -15,7 +16,10 @@ export type EditorTool =
 type ToolbarProps = {
   activeTool: EditorTool;
   tablesCount: number;
+  selectedTablesCount: number;
+  creatingCombination?: boolean;
   onToolChange: (tool: EditorTool) => void;
+  onCreateCombination: () => void;
 };
 
 const tools: {
@@ -48,8 +52,16 @@ const tools: {
 export function Toolbar({
   activeTool,
   tablesCount,
+  selectedTablesCount,
+  creatingCombination = false,
   onToolChange,
+  onCreateCombination,
 }: ToolbarProps) {
+  const canCreateCombination =
+    activeTool === 'select' &&
+    selectedTablesCount >= 2 &&
+    !creatingCombination;
+
   return (
     <div className="mb-6 mt-8 flex flex-wrap items-center gap-3 rounded-2xl border border-white/10 bg-white/[.03] p-3">
       {tools.map(({ id, label, icon: Icon }) => {
@@ -71,6 +83,21 @@ export function Toolbar({
           </button>
         );
       })}
+
+      <button
+        type="button"
+        disabled={!canCreateCombination}
+        onClick={onCreateCombination}
+        className="flex items-center gap-2 rounded-xl border border-cyanAlias/20 bg-cyanAlias/10 px-4 py-3 text-sm text-cyanAlias transition hover:bg-cyanAlias/15 disabled:cursor-not-allowed disabled:border-white/10 disabled:bg-white/[.025] disabled:text-white/25"
+      >
+        <Combine size={18} />
+
+        {creatingCombination
+          ? 'Creating...'
+          : selectedTablesCount >= 2
+            ? `Create combination (${selectedTablesCount})`
+            : 'Select 2+ tables'}
+      </button>
 
       <div className="ml-auto flex flex-wrap items-center gap-3">
         <div className="flex items-center gap-2 rounded-xl border border-cyanAlias/20 bg-cyanAlias/10 px-4 py-3 text-sm text-cyanAlias">
