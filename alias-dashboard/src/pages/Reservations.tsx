@@ -18,10 +18,13 @@ import {
   getConversationHistory,
   getReservations,
   applyIntelligenceRecommendation,
+  applyIntelligenceReoptimization,
   optimizeReservation,
+  reoptimizeReservation,
   getRestaurants,
   getTables,
   type IntelligenceAssignmentResponse,
+  type IntelligenceReoptimizationPlanResponse,
   type ConversationHistoryResponse,
   type ReservationResponse,
   type TableResponse,
@@ -128,6 +131,31 @@ export function Reservations() {
     optimizationError,
     setOptimizationError,
   ] = useState<string | null>(null);
+
+  const [
+    reoptimizingReservationId,
+    setReoptimizingReservationId,
+  ] = useState<string | null>(null);
+
+  const [
+    applyingReoptimization,
+    setApplyingReoptimization,
+  ] = useState(false);
+
+  const [
+    reoptimizationReservation,
+    setReoptimizationReservation,
+  ] = useState<ReservationResponse | null>(null);
+
+  const [
+    reoptimizationPlan,
+    setReoptimizationPlan,
+  ] = useState<IntelligenceReoptimizationPlanResponse | null>(null);
+
+  const [
+    reoptimizationError,
+    setReoptimizationError,
+  ] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   const [searchQuery, setSearchQuery] = useState('');
   const language = detectDefaultLanguage();
@@ -156,7 +184,10 @@ export function Reservations() {
         if (restaurant) {
           setRestaurantId(restaurant.id);
 
-          
+          const restaurantTables =
+            await getTables(restaurant.id);
+
+          setTables(restaurantTables);
         } else {
           setRestaurantId(null);
           setTables([]);
@@ -461,6 +492,136 @@ export function Reservations() {
     setOptimizationReservation(null);
     setOptimizationRecommendation(null);
     setOptimizationError(null);
+  }
+
+  async function handleReoptimizeReservation(
+    reservation: ReservationResponse,
+  ) {
+    if (
+      !restaurantId ||
+      reoptimizingReservationId ||
+      applyingReoptimization
+    ) {
+      return;
+    }
+
+    try {
+      setReoptimizingReservationId(reservation.id);
+      setReoptimizationReservation(reservation);
+      setReoptimizationPlan(null);
+      setReoptimizationError(null);
+
+      const result = await reoptimizeReservation({
+        restaurant_id: restaurantId,
+        reservation_id: reservation.id,
+        requested_start: reservation.reservation_time,
+        party_size: reservation.party_size,
+        duration_minutes: reservation.duration_minutes,
+        buffer_before_minutes: 0,
+        buffer_after_minutes: 0,
+        max_reservations_to_move: 1,
+        max_plans: 5,
+      });
+
+      if (!result.available || !result.recommended) {
+        setReoptimizationError(
+          'Alias could not find a safe room reoptimization plan.',
+        );
+        return;
+      }
+
+      setReoptimizationPlan(result.recommended);
+    } catch (err) {
+      console.error('Failed to reoptimize room', err);
+
+      setReoptimizationError(
+        err instanceof Error
+          ? err.message
+          : 'Unable to reoptimize the room.',
+      );
+    } finally {
+      setReoptimizingReservationId(null);
+    }
+  }
+
+  async function handleApplyReoptimization() {
+    if (
+      !reoptimizationReservation ||
+      !reoptimizationPlan ||
+      applyingReoptimization
+    ) {
+      return;
+    }
+
+    const assignment =
+      reoptimizationPlan.new_reservation_assignment;
+
+    const primaryTableId = assignment.table_ids[0];
+
+    if (!primaryTableId) {
+      setReoptimizationError(
+        'Alias did not return a valid primary table.',
+      );
+      return;
+    }
+
+    for (const move of reoptimizationPlan.moves) {
+      if (!move.to_table_ids[0]) {
+        setReoptimizationError(
+          'Alias returned an invalid destination table.',
+        );
+        return;
+      }
+    }
+
+    try {
+      setApplyingReoptimization(true);
+      setReoptimizationError(null);
+
+      await applyIntelligenceReoptimization({
+        new_reservation_id: reoptimizationReservation.id,
+        new_reservation_table_ids: assignment.table_ids,
+        new_reservation_primary_table_id: primaryTableId,
+        moves: reoptimizationPlan.moves.map((move) => ({
+          reservation_id: move.reservation_id,
+          to_table_ids: move.to_table_ids,
+          primary_table_id: move.to_table_ids[0],
+        })),
+      });
+
+      await loadReservations();
+
+      setReoptimizationReservation(null);
+      setReoptimizationPlan(null);
+    } catch (err) {
+      console.error('Failed to apply reoptimization plan', err);
+
+      setReoptimizationError(
+        err instanceof Error
+          ? err.message
+          : 'Unable to apply the reoptimization plan.',
+      );
+    } finally {
+      setApplyingReoptimization(false);
+    }
+  }
+
+  function closeReoptimization() {
+    if (applyingReoptimization) {
+      return;
+    }
+
+    setReoptimizationReservation(null);
+    setReoptimizationPlan(null);
+    setReoptimizationError(null);
+  }
+
+  function getReservationName(reservationId: string) {
+    return (
+      reservations.find(
+        (reservation) => reservation.id === reservationId,
+      )?.customer_name || 'Existing reservation'
+    );
   }
 
   return (
@@ -772,6 +933,30 @@ export function Reservations() {
                 )}
 
                 <button
+                  type="button"
+                  disabled={
+                    reoptimizingReservationId === reservation.id
+                  }
+                  onClick={() => {
+                    void handleReoptimizeReservation(reservation);
+                  }}
+                  className="flex items-center justify-center gap-2 rounded-full border border-white/10 px-4 py-2 text-center text-xs uppercase tracking-[.16em] text-white/60 transition hover:border-cyanAlias/30 hover:text-cyanAlias disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {reoptimizingReservationId === reservation.id ? (
+                    <LoaderCircle
+                      size={14}
+                      className="animate-spin"
+                    />
+                  ) : (
+                    <Sparkles size={14} />
+                  )}
+
+                  {reoptimizingReservationId === reservation.id
+                    ? 'Planning'
+                    : 'Reoptimize room'}
+                </button>
+
+                <button
                   onClick={() => openConversation(reservation)}
                   className="rounded-full border border-white/10 px-4 py-2 text-center text-xs uppercase tracking-[.18em] text-white/60 transition hover:border-white/20 hover:text-white"
                 >
@@ -917,6 +1102,178 @@ export function Reservations() {
                     {applyingRecommendation
                       ? 'Applying…'
                       : 'Apply recommendation'}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {reoptimizationReservation && (
+        <div className="fixed inset-0 z-[75] flex items-center justify-center bg-black/75 px-4 backdrop-blur-sm">
+          <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl border border-white/10 bg-ink p-6 shadow-2xl sm:p-8">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <div
+                  className="flex items-center gap-2 text-xs uppercase tracking-[.24em]"
+                  style={{ color: cyan }}
+                >
+                  <Sparkles size={16} />
+                  Alias room plan
+                </div>
+
+                <h2 className="mt-3 font-display text-3xl font-light text-white">
+                  {reoptimizationReservation.customer_name}
+                </h2>
+
+                <p className="mt-2 text-sm text-white/45">
+                  Party of {reoptimizationReservation.party_size}
+                  {' · '}
+                  {formatTime(
+                    reoptimizationReservation.reservation_time,
+                  )}
+                </p>
+              </div>
+
+              <button
+                type="button"
+                disabled={applyingReoptimization}
+                onClick={closeReoptimization}
+                className="rounded-full border border-white/10 p-2 text-white/45 transition hover:text-white disabled:opacity-40"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {reoptimizingReservationId ===
+              reoptimizationReservation.id && (
+              <div className="mt-8 flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[.03] px-4 py-5 text-sm text-white/50">
+                <LoaderCircle
+                  size={18}
+                  className="animate-spin"
+                  style={{ color: cyan }}
+                />
+                Alias is evaluating the entire room…
+              </div>
+            )}
+
+            {reoptimizationError && (
+              <div className="mt-8 rounded-2xl border border-red-400/20 bg-red-400/10 px-4 py-4 text-sm text-red-200">
+                {reoptimizationError}
+              </div>
+            )}
+
+            {reoptimizationPlan && (
+              <>
+                <div className="mt-8 rounded-3xl border border-cyanAlias/20 bg-cyanAlias/[.06] p-5">
+                  <p className="text-xs uppercase tracking-[.18em] text-white/35">
+                    New reservation assignment
+                  </p>
+
+                  <h3 className="mt-3 font-display text-2xl font-light text-white">
+                    Tables{' '}
+                    {reoptimizationPlan.new_reservation_assignment.table_numbers.join(
+                      ' + ',
+                    )}
+                  </h3>
+
+                  <div className="mt-5 grid grid-cols-3 gap-3">
+                    <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
+                      <p className="text-[10px] uppercase tracking-[.15em] text-white/30">
+                        Moves
+                      </p>
+                      <p className="mt-2 text-lg text-white">
+                        {reoptimizationPlan.moved_reservations_count}
+                      </p>
+                    </div>
+
+                    <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
+                      <p className="text-[10px] uppercase tracking-[.15em] text-white/30">
+                        Seat waste
+                      </p>
+                      <p className="mt-2 text-lg text-white">
+                        {reoptimizationPlan.total_seat_waste}
+                      </p>
+                    </div>
+
+                    <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
+                      <p className="text-[10px] uppercase tracking-[.15em] text-white/30">
+                        Score
+                      </p>
+                      <p className="mt-2 text-lg text-white">
+                        {reoptimizationPlan.score.toFixed(2)}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {reoptimizationPlan.moves.length > 0 ? (
+                  <div className="mt-5 space-y-3">
+                    <p className="text-xs uppercase tracking-[.18em] text-white/35">
+                      Proposed moves
+                    </p>
+
+                    {reoptimizationPlan.moves.map((move) => (
+                      <div
+                        key={move.reservation_id}
+                        className="rounded-2xl border border-white/10 bg-white/[.03] p-4"
+                      >
+                        <p className="text-sm font-medium text-white">
+                          {getReservationName(move.reservation_id)}
+                        </p>
+
+                        <p className="mt-2 text-sm text-white/55">
+                          Table {move.from_table_numbers.join(' + ')}
+                          {' → '}
+                          Table {move.to_table_numbers.join(' + ')}
+                        </p>
+
+                        <p className="mt-2 text-xs leading-relaxed text-white/35">
+                          Party of {move.party_size} · {move.explanation}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="mt-5 rounded-2xl border border-white/10 bg-white/[.03] px-4 py-4 text-sm text-white/50">
+                    No existing reservations need to be moved.
+                  </div>
+                )}
+
+                <p className="mt-5 text-sm leading-relaxed text-white/45">
+                  {reoptimizationPlan.explanation}
+                </p>
+
+                <div className="mt-7 flex justify-end gap-3">
+                  <button
+                    type="button"
+                    disabled={applyingReoptimization}
+                    onClick={closeReoptimization}
+                    className="rounded-full border border-white/10 px-5 py-3 text-sm text-white/55 disabled:opacity-40"
+                  >
+                    Cancel
+                  </button>
+
+                  <button
+                    type="button"
+                    disabled={applyingReoptimization}
+                    onClick={() => {
+                      void handleApplyReoptimization();
+                    }}
+                    className="flex items-center gap-2 rounded-full px-6 py-3 text-sm font-medium text-black disabled:opacity-50"
+                    style={{ background: cyan }}
+                  >
+                    {applyingReoptimization && (
+                      <LoaderCircle
+                        size={16}
+                        className="animate-spin"
+                      />
+                    )}
+
+                    {applyingReoptimization
+                      ? 'Applying plan…'
+                      : 'Apply plan'}
                   </button>
                 </div>
               </>
