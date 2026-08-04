@@ -4,6 +4,7 @@ import {
   Plus,
   Search,
   Sparkles,
+  Trash2,
   X,
 } from 'lucide-react';
 
@@ -23,6 +24,7 @@ import {
   reoptimizeReservation,
   getRestaurants,
   getTables,
+  cancelReservation,
   type IntelligenceAssignmentResponse,
   type IntelligenceReoptimizationPlanResponse,
   type ConversationHistoryResponse,
@@ -105,6 +107,11 @@ export function Reservations() {
   const [tables, setTables] = useState<TableResponse[]>([]);
   const [restaurantId, setRestaurantId] =
     useState<string | null>(null);
+  
+  const [
+    cancellingReservationId,
+    setCancellingReservationId,
+  ] = useState<string | null>(null);
 
   const [
     optimizingReservationId,
@@ -624,6 +631,44 @@ export function Reservations() {
     );
   }
 
+  async function handleCancelReservation(
+    reservation: ReservationResponse,
+  ) {
+    if (cancellingReservationId) {
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Cancel the reservation for ${reservation.customer_name}?`,
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      setCancellingReservationId(reservation.id);
+      setError(null);
+
+      await cancelReservation(reservation.id);
+
+      await loadReservations();
+    } catch (err) {
+      console.error(
+        'Failed to cancel reservation',
+        err,
+      );
+
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'Unable to cancel the reservation.',
+      );
+    } finally {
+      setCancellingReservationId(null);
+    }
+  }
+
   return (
     <div className="min-w-0 overflow-x-hidden">
       <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
@@ -954,6 +999,32 @@ export function Reservations() {
                   {reoptimizingReservationId === reservation.id
                     ? 'Planning'
                     : 'Reoptimize room'}
+                </button>
+
+                <button
+                  type="button"
+                  disabled={
+                    cancellingReservationId === reservation.id
+                  }
+                  onClick={() => {
+                    void handleCancelReservation(
+                      reservation,
+                    );
+                  }}
+                  className="flex items-center justify-center gap-2 rounded-full border border-red-400/20 bg-red-400/10 px-4 py-2 text-xs uppercase tracking-[.16em] text-red-200 transition hover:bg-red-400/15 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {cancellingReservationId === reservation.id ? (
+                    <LoaderCircle
+                      size={14}
+                      className="animate-spin"
+                    />
+                  ) : (
+                    <Trash2 size={14} />
+                  )}
+
+                  {cancellingReservationId === reservation.id
+                    ? 'Cancelling'
+                    : 'Cancel'}
                 </button>
 
                 <button
