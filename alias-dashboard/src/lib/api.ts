@@ -125,6 +125,159 @@ export type IntelligenceApplyResponse = {
   applied: boolean;
 };
 
+export type TableCombinationMemberResponse = {
+  table_id: string;
+  table_number: string;
+  seats: number;
+  sort_order: number;
+};
+
+export type TableCombinationResponse = {
+  id: string;
+  restaurant_id: string;
+  service_area_id: string;
+  name: string;
+  min_capacity: number;
+  max_capacity: number;
+  setup_minutes: number;
+  is_active: boolean;
+  members: TableCombinationMemberResponse[];
+};
+
+export type TableCombinationCreate = {
+  service_area_id: string;
+  name: string;
+  min_capacity: number;
+  max_capacity: number;
+  setup_minutes: number;
+  table_ids: string[];
+};
+
+export type TableCombinationUpdate = {
+  name?: string;
+  min_capacity?: number;
+  max_capacity?: number;
+  setup_minutes?: number;
+  table_ids?: string[];
+  is_active?: boolean;
+};
+
+export async function getTableCombinations(
+  restaurantId: string,
+  serviceAreaId?: string | null,
+): Promise<TableCombinationResponse[]> {
+  const token = getAuthToken();
+
+  const query = new URLSearchParams();
+
+  if (serviceAreaId) {
+    query.set('service_area_id', serviceAreaId);
+  }
+
+  const queryString = query.toString();
+
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/restaurants/${restaurantId}/table-combinations${
+      queryString ? `?${queryString}` : ''
+    }`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+
+  if (!response.ok) {
+    throw await parseApiError(
+      response,
+      'Unable to load table combinations',
+    );
+  }
+
+  return response.json();
+}
+
+export async function createTableCombination(
+  restaurantId: string,
+  payload: TableCombinationCreate,
+): Promise<TableCombinationResponse> {
+  const token = getAuthToken();
+
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/restaurants/${restaurantId}/table-combinations`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    },
+  );
+
+  if (!response.ok) {
+    throw await parseApiError(
+      response,
+      'Unable to create table combination',
+    );
+  }
+
+  return response.json();
+}
+
+export async function updateTableCombination(
+  restaurantId: string,
+  combinationId: string,
+  payload: TableCombinationUpdate,
+): Promise<TableCombinationResponse> {
+  const token = getAuthToken();
+
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/restaurants/${restaurantId}/table-combinations/${combinationId}`,
+    {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    },
+  );
+
+  if (!response.ok) {
+    throw await parseApiError(
+      response,
+      'Unable to update table combination',
+    );
+  }
+
+  return response.json();
+}
+
+export async function deleteTableCombination(
+  restaurantId: string,
+  combinationId: string,
+): Promise<void> {
+  const token = getAuthToken();
+
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/restaurants/${restaurantId}/table-combinations/${combinationId}`,
+    {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+
+  if (!response.ok) {
+    throw await parseApiError(
+      response,
+      'Unable to delete table combination',
+    );
+  }
+}
+
 function getAuthToken() {
   return localStorage.getItem('alias_access_token');
 }
