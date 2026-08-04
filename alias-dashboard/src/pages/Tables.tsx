@@ -12,6 +12,7 @@ import {
   createFloorPlan,
   createServiceArea,
   getFloorPlans,
+  getTableCombinations,
   getTables,
   moveReservation,
   optimizeReservation,
@@ -258,6 +259,37 @@ export function Tables({
   } = useFloorPlanLoader({
     onError: setError,
   });
+
+  const loadTableCombinations = useCallback(async () => {
+    if (!restaurantId || !selectedAreaId) {
+      setTableCombinations([]);
+      return;
+    }
+
+    try {
+      const combinations = await getTableCombinations(
+        restaurantId,
+        selectedAreaId,
+      );
+
+      setTableCombinations(combinations);
+    } catch (error) {
+      console.error(
+        'Failed to load table combinations',
+        error,
+      );
+
+      setError(
+        error instanceof Error
+          ? error.message
+          : 'Unable to load table combinations.',
+      );
+    }
+  }, [restaurantId, selectedAreaId]);
+
+  useEffect(() => {
+    void loadTableCombinations();
+  }, [loadTableCombinations]);
 
   const loadAllRestaurantTables = useCallback(async () => {
     if (!restaurantId) {
@@ -1217,8 +1249,6 @@ export function Tables({
       return;
     }
 
-    setError('');
-
     const totalCapacity = selectedTables.reduce(
       (total, table) => total + table.seats,
       0,
@@ -1245,6 +1275,7 @@ export function Tables({
     );
 
     setCombinationSetupMinutes('5');
+    setError('');
     setCreateCombinationOpen(true);
   }
 
@@ -1331,28 +1362,21 @@ export function Tables({
       setCreatingCombination(true);
       setError('');
 
-      const created =
-        await createTableCombination(
-          restaurantId,
-          {
-            service_area_id: selectedAreaId,
-            name: combinationName.trim(),
-            min_capacity: minCapacity,
-            max_capacity: maxCapacity,
-            setup_minutes: setupMinutes,
-            table_ids: selectedTables.map(
-              (table) => table.id,
-            ),
-          },
-        );
+      await createTableCombination(
+        restaurantId,
+        {
+          service_area_id: selectedAreaId,
+          name: combinationName.trim(),
+          min_capacity: minCapacity,
+          max_capacity: maxCapacity,
+          setup_minutes: setupMinutes,
+          table_ids: selectedTables.map(
+            (table) => table.id,
+          ),
+        },
+      );
 
-      setTableCombinations((current) => [
-        ...current.filter(
-          (combination) =>
-            combination.id !== created.id,
-        ),
-        created,
-      ]);
+      await loadTableCombinations();
 
       setCreateCombinationOpen(false);
       clearSelection();
@@ -1367,17 +1391,13 @@ export function Tables({
           ? error.message
           : 'Unable to create table combination.';
 
-      setError(message);
-
-      if (
+      setError(
         message.includes(
           'A table combination with this name already exists',
         )
-      ) {
-        setError(
-          'This combination name already exists. Choose a different name.',
-        );
-      }
+          ? 'This combination name already exists. Choose a different name.'
+          : message,
+      );
     } finally {
       setCreatingCombination(false);
     }
@@ -1595,19 +1615,9 @@ export function Tables({
                       setSelectedTableId(table.id);
                     }}
                     onPointerDown={(event) => {
-                      if (floorMode !== 'edit') {
-                        return;
+                      if (floorMode === 'edit') {
+                        handlePointerDown(event, table);
                       }
-
-                      // Ctrl/Cmd + click serve esclusivamente alla selezione multipla.
-                      // Non avviamo il drag, altrimenti useFloorDrag sostituisce
-                      // la selezione corrente con il solo tavolo cliccato.
-                      if (event.ctrlKey || event.metaKey) {
-                        event.stopPropagation();
-                        return;
-                      }
-
-                      handlePointerDown(event, table);
                     }}
                     onPointerMove={(event) => {
                       if (floorMode === 'edit') {
@@ -1811,6 +1821,13 @@ export function Tables({
           <span>Drag tables to reposition them</span>
           <span>•</span>
           <span>Positions save automatically</span>
+          <span>•</span>
+          <span>
+            {tableCombinations.length}{' '}
+            {tableCombinations.length === 1
+              ? 'combination configured'
+              : 'combinations configured'}
+          </span>
         </div>
       )}
 
