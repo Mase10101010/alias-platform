@@ -1615,9 +1615,15 @@ export function Tables({
                       setSelectedTableId(table.id);
                     }}
                     onPointerDown={(event) => {
-                      if (floorMode === 'edit') {
-                        handlePointerDown(event, table);
+                      if (floorMode !== 'edit') {
+                        return;
                       }
+
+                      if (event.ctrlKey || event.metaKey) {
+                        return;
+                      }
+
+                      handlePointerDown(event, table);
                     }}
                     onPointerMove={(event) => {
                       if (floorMode === 'edit') {
