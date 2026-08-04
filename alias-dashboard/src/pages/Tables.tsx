@@ -7,6 +7,13 @@ import {
 } from 'react';
 
 import {
+  LoaderCircle,
+  Pencil,
+  Trash2,
+  X,
+} from 'lucide-react';
+
+import {
   applyIntelligenceRecommendation,
   cancelReservation,
   createFloorPlan,
@@ -19,6 +26,8 @@ import {
   updateReservation,
   updateRestaurant,
   createTableCombination,
+  deleteTableCombination,
+  updateTableCombination,
   type TableCombinationResponse,
   type FloorPlanResponse,
   type IntelligenceAssignmentResponse,
@@ -146,6 +155,41 @@ export function Tables({
     tableCombinations,
     setTableCombinations,
   ] = useState<TableCombinationResponse[]>([]);
+
+  const [
+    editingCombination,
+    setEditingCombination,
+  ] = useState<TableCombinationResponse | null>(null);
+
+  const [
+    editCombinationName,
+    setEditCombinationName,
+  ] = useState('');
+
+  const [
+    editCombinationMinCapacity,
+    setEditCombinationMinCapacity,
+  ] = useState('1');
+
+  const [
+    editCombinationMaxCapacity,
+    setEditCombinationMaxCapacity,
+  ] = useState('1');
+
+  const [
+    editCombinationSetupMinutes,
+    setEditCombinationSetupMinutes,
+  ] = useState('5');
+
+  const [
+    savingCombinationId,
+    setSavingCombinationId,
+  ] = useState<string | null>(null);
+
+  const [
+    deletingCombinationId,
+    setDeletingCombinationId,
+  ] = useState<string | null>(null);
 
   const [followCurrentSlot, setFollowCurrentSlot] =
     useState(true);
@@ -385,6 +429,7 @@ export function Tables({
     selectedTableId,
     selectedTables,
     selectedTableIds,
+    setSelectedTableIds,
     setSelectedTableId,
     toggleSelection,
     clearSelection,
@@ -1403,6 +1448,216 @@ export function Tables({
     }
   }
 
+
+  function highlightCombination(
+    combination: TableCombinationResponse,
+  ) {
+    setActiveTool('select');
+    setSelectedTableIds(
+      combination.members.map(
+        (member) => member.table_id,
+      ),
+    );
+  }
+
+  function openEditCombinationDialog(
+    combination: TableCombinationResponse,
+  ) {
+    setError('');
+    setEditingCombination(combination);
+    setEditCombinationName(combination.name);
+    setEditCombinationMinCapacity(
+      String(combination.min_capacity),
+    );
+    setEditCombinationMaxCapacity(
+      String(combination.max_capacity),
+    );
+    setEditCombinationSetupMinutes(
+      String(combination.setup_minutes),
+    );
+
+    highlightCombination(combination);
+  }
+
+  function closeEditCombinationDialog() {
+    if (savingCombinationId) {
+      return;
+    }
+
+    setEditingCombination(null);
+    setEditCombinationName('');
+    setEditCombinationMinCapacity('1');
+    setEditCombinationMaxCapacity('1');
+    setEditCombinationSetupMinutes('5');
+  }
+
+  async function handleUpdateCombination() {
+    if (
+      !restaurantId ||
+      !editingCombination ||
+      savingCombinationId
+    ) {
+      return;
+    }
+
+    const minCapacity = Number(
+      editCombinationMinCapacity,
+    );
+
+    const maxCapacity = Number(
+      editCombinationMaxCapacity,
+    );
+
+    const setupMinutes = Number(
+      editCombinationSetupMinutes,
+    );
+
+    if (!editCombinationName.trim()) {
+      setError(
+        'Please enter a combination name.',
+      );
+      return;
+    }
+
+    if (
+      !Number.isInteger(minCapacity) ||
+      minCapacity < 1
+    ) {
+      setError(
+        'Minimum capacity must be at least 1.',
+      );
+      return;
+    }
+
+    if (
+      !Number.isInteger(maxCapacity) ||
+      maxCapacity < 1
+    ) {
+      setError(
+        'Maximum capacity must be at least 1.',
+      );
+      return;
+    }
+
+    if (minCapacity > maxCapacity) {
+      setError(
+        'Minimum capacity cannot exceed maximum capacity.',
+      );
+      return;
+    }
+
+    if (
+      !Number.isInteger(setupMinutes) ||
+      setupMinutes < 0 ||
+      setupMinutes > 180
+    ) {
+      setError(
+        'Setup time must be between 0 and 180 minutes.',
+      );
+      return;
+    }
+
+    try {
+      setSavingCombinationId(
+        editingCombination.id,
+      );
+      setError('');
+
+      await updateTableCombination(
+        restaurantId,
+        editingCombination.id,
+        {
+          name: editCombinationName.trim(),
+          min_capacity: minCapacity,
+          max_capacity: maxCapacity,
+          setup_minutes: setupMinutes,
+        },
+      );
+
+      await loadTableCombinations();
+      setEditingCombination(null);
+      setEditCombinationName('');
+      setEditCombinationMinCapacity('1');
+      setEditCombinationMaxCapacity('1');
+      setEditCombinationSetupMinutes('5');
+    } catch (error) {
+      console.error(
+        'Failed to update table combination',
+        error,
+      );
+
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Unable to update table combination.';
+
+      setError(
+        message.includes(
+          'A table combination with this name already exists',
+        )
+          ? 'This combination name already exists. Choose a different name.'
+          : message,
+      );
+    } finally {
+      setSavingCombinationId(null);
+    }
+  }
+
+  async function handleDeleteCombination(
+    combination: TableCombinationResponse,
+  ) {
+    if (
+      !restaurantId ||
+      deletingCombinationId ||
+      savingCombinationId
+    ) {
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Delete "${combination.name}"? Alias will no longer use this table combination.`,
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      setDeletingCombinationId(
+        combination.id,
+      );
+      setError('');
+
+      await deleteTableCombination(
+        restaurantId,
+        combination.id,
+      );
+
+      if (
+        editingCombination?.id ===
+        combination.id
+      ) {
+        setEditingCombination(null);
+      }
+
+      clearSelection();
+      await loadTableCombinations();
+    } catch (error) {
+      console.error(
+        'Failed to delete table combination',
+        error,
+      );
+
+      setError(
+        error instanceof Error
+          ? error.message
+          : 'Unable to delete table combination.',
+      );
+    } finally {
+      setDeletingCombinationId(null);
+    }
+  }
+
   return (
     <section className="rounded-3xl border border-white/10 bg-white/[.03] p-5 sm:p-8">
       <div>
@@ -1504,6 +1759,158 @@ export function Tables({
             openCreateCombinationDialog
           }
         />
+      )}
+
+      {floorMode === 'edit' && (
+        <div className="mt-6 rounded-3xl border border-white/10 bg-white/[.025] p-5">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-xs uppercase tracking-[.22em] text-white/30">
+                Table combinations
+              </p>
+
+              <h2 className="mt-2 font-display text-2xl font-light text-white">
+                Configured joins
+              </h2>
+
+              <p className="mt-2 max-w-2xl text-sm leading-relaxed text-white/40">
+                Alias uses only these approved physical table
+                combinations when optimizing reservations.
+              </p>
+            </div>
+
+            <div className="rounded-full border border-white/10 bg-black/20 px-4 py-2 text-xs text-white/40">
+              {tableCombinations.length}{' '}
+              {tableCombinations.length === 1
+                ? 'combination'
+                : 'combinations'}
+            </div>
+          </div>
+
+          {tableCombinations.length === 0 ? (
+            <div className="mt-5 rounded-2xl border border-dashed border-white/10 px-4 py-6 text-sm text-white/35">
+              Select at least two tables with Ctrl or Cmd, then
+              choose Create combination.
+            </div>
+          ) : (
+            <div className="mt-5 grid gap-3 xl:grid-cols-2">
+              {tableCombinations.map((combination) => {
+                const deleting =
+                  deletingCombinationId ===
+                  combination.id;
+
+                return (
+                  <div
+                    key={combination.id}
+                    className="rounded-2xl border border-white/10 bg-black/20 p-4"
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          highlightCombination(
+                            combination,
+                          )
+                        }
+                        className="min-w-0 flex-1 text-left"
+                      >
+                        <p className="truncate text-sm font-medium text-white/85">
+                          {combination.name}
+                        </p>
+
+                        <p className="mt-2 text-xs text-white/40">
+                          Tables{' '}
+                          {combination.members
+                            .map(
+                              (member) =>
+                                member.table_number,
+                            )
+                            .join(' + ')}
+                        </p>
+                      </button>
+
+                      <div className="flex shrink-0 items-center gap-2">
+                        <button
+                          type="button"
+                          disabled={
+                            deleting ||
+                            Boolean(
+                              savingCombinationId,
+                            )
+                          }
+                          onClick={() =>
+                            openEditCombinationDialog(
+                              combination,
+                            )
+                          }
+                          className="rounded-full border border-white/10 p-2 text-white/45 transition hover:bg-white/[.06] hover:text-white disabled:opacity-40"
+                          aria-label={`Edit ${combination.name}`}
+                        >
+                          <Pencil size={15} />
+                        </button>
+
+                        <button
+                          type="button"
+                          disabled={
+                            deleting ||
+                            Boolean(
+                              savingCombinationId,
+                            )
+                          }
+                          onClick={() => {
+                            void handleDeleteCombination(
+                              combination,
+                            );
+                          }}
+                          className="rounded-full border border-red-400/15 p-2 text-red-300/70 transition hover:bg-red-400/10 hover:text-red-200 disabled:opacity-40"
+                          aria-label={`Delete ${combination.name}`}
+                        >
+                          {deleting ? (
+                            <LoaderCircle
+                              size={15}
+                              className="animate-spin"
+                            />
+                          ) : (
+                            <Trash2 size={15} />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 grid grid-cols-3 gap-2">
+                      <div className="rounded-xl border border-white/[.06] bg-white/[.025] p-3">
+                        <p className="text-[10px] uppercase tracking-[.14em] text-white/25">
+                          Min
+                        </p>
+                        <p className="mt-1 text-sm text-white/70">
+                          {combination.min_capacity}
+                        </p>
+                      </div>
+
+                      <div className="rounded-xl border border-white/[.06] bg-white/[.025] p-3">
+                        <p className="text-[10px] uppercase tracking-[.14em] text-white/25">
+                          Max
+                        </p>
+                        <p className="mt-1 text-sm text-white/70">
+                          {combination.max_capacity}
+                        </p>
+                      </div>
+
+                      <div className="rounded-xl border border-white/[.06] bg-white/[.025] p-3">
+                        <p className="text-[10px] uppercase tracking-[.14em] text-white/25">
+                          Setup
+                        </p>
+                        <p className="mt-1 text-sm text-white/70">
+                          {combination.setup_minutes} min
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
       )}
 
       {error && (
@@ -1877,6 +2284,176 @@ export function Tables({
             <span className={tables.some((table) => table.is_active) ? 'text-emerald-300' : 'text-white/30'}>
               {tables.some((table) => table.is_active) ? '✓' : '○'} At least one table
             </span>
+          </div>
+        </div>
+      )}
+
+      {editingCombination && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm">
+          <div className="w-full max-w-xl rounded-3xl border border-white/10 bg-[#080b12] p-6 shadow-2xl sm:p-8">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs uppercase tracking-[.22em] text-cyanAlias">
+                  Edit table combination
+                </p>
+
+                <h2 className="mt-3 font-display text-3xl font-light text-white">
+                  {editingCombination.name}
+                </h2>
+
+                <p className="mt-2 text-sm text-white/40">
+                  Tables{' '}
+                  {editingCombination.members
+                    .map(
+                      (member) =>
+                        member.table_number,
+                    )
+                    .join(' + ')}
+                </p>
+              </div>
+
+              <button
+                type="button"
+                disabled={Boolean(
+                  savingCombinationId,
+                )}
+                onClick={
+                  closeEditCombinationDialog
+                }
+                className="rounded-full border border-white/10 p-2 text-white/45 transition hover:text-white disabled:opacity-40"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="mt-7 grid gap-4 sm:grid-cols-2">
+              <label className="sm:col-span-2">
+                <span className="mb-2 block text-xs uppercase tracking-[.16em] text-white/35">
+                  Combination name
+                </span>
+
+                <input
+                  value={editCombinationName}
+                  disabled={Boolean(
+                    savingCombinationId,
+                  )}
+                  onChange={(event) =>
+                    setEditCombinationName(
+                      event.target.value,
+                    )
+                  }
+                  className="w-full rounded-2xl border border-white/10 bg-white/[.035] px-4 py-3 text-sm text-white outline-none transition focus:border-cyanAlias/40"
+                />
+              </label>
+
+              <label>
+                <span className="mb-2 block text-xs uppercase tracking-[.16em] text-white/35">
+                  Minimum capacity
+                </span>
+
+                <input
+                  type="number"
+                  min="1"
+                  value={
+                    editCombinationMinCapacity
+                  }
+                  disabled={Boolean(
+                    savingCombinationId,
+                  )}
+                  onChange={(event) =>
+                    setEditCombinationMinCapacity(
+                      event.target.value,
+                    )
+                  }
+                  className="w-full rounded-2xl border border-white/10 bg-white/[.035] px-4 py-3 text-sm text-white outline-none transition focus:border-cyanAlias/40"
+                />
+              </label>
+
+              <label>
+                <span className="mb-2 block text-xs uppercase tracking-[.16em] text-white/35">
+                  Maximum capacity
+                </span>
+
+                <input
+                  type="number"
+                  min="1"
+                  value={
+                    editCombinationMaxCapacity
+                  }
+                  disabled={Boolean(
+                    savingCombinationId,
+                  )}
+                  onChange={(event) =>
+                    setEditCombinationMaxCapacity(
+                      event.target.value,
+                    )
+                  }
+                  className="w-full rounded-2xl border border-white/10 bg-white/[.035] px-4 py-3 text-sm text-white outline-none transition focus:border-cyanAlias/40"
+                />
+              </label>
+
+              <label className="sm:col-span-2">
+                <span className="mb-2 block text-xs uppercase tracking-[.16em] text-white/35">
+                  Setup time in minutes
+                </span>
+
+                <input
+                  type="number"
+                  min="0"
+                  max="180"
+                  value={
+                    editCombinationSetupMinutes
+                  }
+                  disabled={Boolean(
+                    savingCombinationId,
+                  )}
+                  onChange={(event) =>
+                    setEditCombinationSetupMinutes(
+                      event.target.value,
+                    )
+                  }
+                  className="w-full rounded-2xl border border-white/10 bg-white/[.035] px-4 py-3 text-sm text-white outline-none transition focus:border-cyanAlias/40"
+                />
+              </label>
+            </div>
+
+            <div className="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+              <button
+                type="button"
+                disabled={Boolean(
+                  savingCombinationId,
+                )}
+                onClick={
+                  closeEditCombinationDialog
+                }
+                className="rounded-full border border-white/10 px-5 py-3 text-sm text-white/55 transition hover:bg-white/[.05] hover:text-white disabled:opacity-40"
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                disabled={Boolean(
+                  savingCombinationId,
+                )}
+                onClick={() => {
+                  void handleUpdateCombination();
+                }}
+                className="flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-medium text-black disabled:opacity-40"
+                style={{ background: cyan }}
+              >
+                {savingCombinationId && (
+                  <LoaderCircle
+                    size={16}
+                    className="animate-spin"
+                  />
+                )}
+
+                {savingCombinationId
+                  ? 'Saving...'
+                  : 'Save changes'}
+              </button>
+            </div>
           </div>
         </div>
       )}
