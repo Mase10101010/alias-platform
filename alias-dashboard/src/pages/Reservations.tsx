@@ -1,5 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Plus, Search, X } from 'lucide-react';
+import {
+  LoaderCircle,
+  Plus,
+  Search,
+  Sparkles,
+  X,
+} from 'lucide-react';
 
 import { cyan } from '@/lib/data';
 import {
@@ -11,10 +17,13 @@ import {
   createReservation,
   getConversationHistory,
   getReservations,
-  type ConversationHistoryResponse,
-  type ReservationResponse,
+  applyIntelligenceRecommendation,
+  optimizeReservation,
   getRestaurants,
   getTables,
+  type IntelligenceAssignmentResponse,
+  type ConversationHistoryResponse,
+  type ReservationResponse,
   type TableResponse,
 } from '@/lib/api';
 
@@ -91,6 +100,34 @@ export function Reservations() {
   const [error, setError] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<'date' | 'time' | 'name' | 'party'>('date');
   const [tables, setTables] = useState<TableResponse[]>([]);
+  const [restaurantId, setRestaurantId] =
+    useState<string | null>(null);
+
+  const [
+    optimizingReservationId,
+    setOptimizingReservationId,
+  ] = useState<string | null>(null);
+
+  const [
+    applyingRecommendation,
+    setApplyingRecommendation,
+  ] = useState(false);
+
+  const [
+    optimizationReservation,
+    setOptimizationReservation,
+  ] = useState<ReservationResponse | null>(null);
+
+  const [
+    optimizationRecommendation,
+    setOptimizationRecommendation,
+  ] =
+    useState<IntelligenceAssignmentResponse | null>(null);
+
+  const [
+    optimizationError,
+    setOptimizationError,
+  ] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   const [searchQuery, setSearchQuery] = useState('');
   const language = detectDefaultLanguage();
@@ -116,10 +153,14 @@ export function Reservations() {
       const restaurants = await getRestaurants();
       const restaurant = restaurants[0];
 
-      if (restaurant) {
-        const restaurantTables = await getTables(restaurant.id);
-        setTables(restaurantTables);
-      }
+        if (restaurant) {
+          setRestaurantId(restaurant.id);
+
+          
+        } else {
+          setRestaurantId(null);
+          setTables([]);
+        }
     } catch (err) {
       console.error('Failed to load reservations', err);
     } finally {
@@ -181,7 +222,7 @@ export function Reservations() {
   todayStart.setHours(0, 0, 0, 0);
 
   const visibleReservations = reservations.filter((reservation) => {
-    if (reservation.status === 'cancelled' || reservation.status === 'CANCELLED') {
+    if (reservation.status === 'cancelled') {
       return false;
     }
     const reservationDate = new Date(reservation.reservation_time);
@@ -305,6 +346,121 @@ export function Reservations() {
     } finally {
       setSubmitting(false);
     }
+  }
+
+  async function handleOptimizeReservation(
+    reservation: ReservationResponse,
+  ) {
+    if (
+      !restaurantId ||
+      optimizingReservationId ||
+      applyingRecommendation
+    ) {
+      return;
+    }
+
+    try {
+      setOptimizingReservationId(reservation.id);
+      setOptimizationReservation(reservation);
+      setOptimizationRecommendation(null);
+      setOptimizationError(null);
+
+      const result = await optimizeReservation({
+        restaurant_id: restaurantId,
+        reservation_id: reservation.id,
+        requested_start: reservation.reservation_time,
+        party_size: reservation.party_size,
+        duration_minutes: reservation.duration_minutes,
+        buffer_before_minutes: 0,
+        buffer_after_minutes: 0,
+        max_alternatives: 3,
+      });
+
+      if (!result.available || !result.recommended) {
+        setOptimizationError(
+          'Alias could not find an available table configuration.',
+        );
+        return;
+      }
+
+      setOptimizationRecommendation(
+        result.recommended,
+      );
+    } catch (err) {
+      console.error(
+        'Failed to optimize reservation',
+        err,
+      );
+
+      setOptimizationError(
+        err instanceof Error
+          ? err.message
+          : 'Unable to optimize this reservation.',
+      );
+    } finally {
+      setOptimizingReservationId(null);
+    }
+  }
+
+  async function handleApplyOptimization() {
+    if (
+      !optimizationReservation ||
+      !optimizationRecommendation ||
+      applyingRecommendation
+    ) {
+      return;
+    }
+
+    const primaryTableId =
+      optimizationRecommendation.table_ids[0];
+
+    if (!primaryTableId) {
+      setOptimizationError(
+        'Alias did not return a valid primary table.',
+      );
+      return;
+    }
+
+    try {
+      setApplyingRecommendation(true);
+      setOptimizationError(null);
+
+      await applyIntelligenceRecommendation({
+        reservation_id:
+          optimizationReservation.id,
+        table_ids:
+          optimizationRecommendation.table_ids,
+        primary_table_id: primaryTableId,
+      });
+
+      await loadReservations();
+
+      setOptimizationReservation(null);
+      setOptimizationRecommendation(null);
+    } catch (err) {
+      console.error(
+        'Failed to apply Alias recommendation',
+        err,
+      );
+
+      setOptimizationError(
+        err instanceof Error
+          ? err.message
+          : 'Unable to apply the recommendation.',
+      );
+    } finally {
+      setApplyingRecommendation(false);
+    }
+  }
+
+  function closeOptimization() {
+    if (applyingRecommendation) {
+      return;
+    }
+
+    setOptimizationReservation(null);
+    setOptimizationRecommendation(null);
+    setOptimizationError(null);
   }
 
   return (
@@ -582,6 +738,37 @@ export function Reservations() {
                   </span>
                 )}
 
+                {!reservation.table_id && (
+                  <button
+                    type="button"
+                    disabled={
+                      optimizingReservationId ===
+                      reservation.id
+                    }
+                    onClick={() => {
+                      void handleOptimizeReservation(
+                        reservation,
+                      );
+                    }}
+                    className="flex items-center justify-center gap-2 rounded-full border border-cyanAlias/25 bg-cyanAlias/10 px-4 py-2 text-xs uppercase tracking-[.16em] text-cyanAlias transition hover:bg-cyanAlias/15 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {optimizingReservationId ===
+                    reservation.id ? (
+                      <LoaderCircle
+                        size={14}
+                        className="animate-spin"
+                      />
+                    ) : (
+                      <Sparkles size={14} />
+                    )}
+
+                    {optimizingReservationId ===
+                    reservation.id
+                      ? 'Optimizing'
+                      : 'Ask Alias'}
+                  </button>
+                )}
+
                 <button
                   onClick={() => openConversation(reservation)}
                   className="rounded-full border border-white/10 px-4 py-2 text-center text-xs uppercase tracking-[.18em] text-white/60 transition hover:border-white/20 hover:text-white"
@@ -593,6 +780,148 @@ export function Reservations() {
           ))
         )}
       </div>
+
+      {optimizationReservation && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm">
+          <div className="w-full max-w-xl rounded-3xl border border-white/10 bg-ink p-6 shadow-2xl sm:p-8">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <div
+                  className="flex items-center gap-2 text-xs uppercase tracking-[.24em]"
+                  style={{ color: cyan }}
+                >
+                  <Sparkles size={16} />
+                  Alias recommendation
+                </div>
+
+                <h2 className="mt-3 font-display text-3xl font-light text-white">
+                  {optimizationReservation.customer_name}
+                </h2>
+
+                <p className="mt-2 text-sm text-white/45">
+                  Party of{' '}
+                  {optimizationReservation.party_size}
+                  {' · '}
+                  {formatTime(
+                    optimizationReservation.reservation_time,
+                  )}
+                </p>
+              </div>
+
+              <button
+                type="button"
+                disabled={applyingRecommendation}
+                onClick={closeOptimization}
+                className="rounded-full border border-white/10 p-2 text-white/45 transition hover:text-white disabled:opacity-40"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {optimizingReservationId ===
+              optimizationReservation.id && (
+              <div className="mt-8 flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[.03] px-4 py-5 text-sm text-white/50">
+                <LoaderCircle
+                  size={18}
+                  className="animate-spin"
+                  style={{ color: cyan }}
+                />
+                Alias is evaluating the floor plan…
+              </div>
+            )}
+
+            {optimizationError && (
+              <div className="mt-8 rounded-2xl border border-red-400/20 bg-red-400/10 px-4 py-4 text-sm text-red-200">
+                {optimizationError}
+              </div>
+            )}
+
+            {optimizationRecommendation && (
+              <>
+                <div className="mt-8 rounded-3xl border border-cyanAlias/20 bg-cyanAlias/[.06] p-5">
+                  <p className="text-xs uppercase tracking-[.18em] text-white/35">
+                    Recommended assignment
+                  </p>
+
+                  <h3 className="mt-3 font-display text-2xl font-light text-white">
+                    Tables{' '}
+                    {optimizationRecommendation.table_numbers.join(
+                      ' + ',
+                    )}
+                  </h3>
+
+                  <div className="mt-5 grid grid-cols-3 gap-3">
+                    <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
+                      <p className="text-[10px] uppercase tracking-[.15em] text-white/30">
+                        Capacity
+                      </p>
+                      <p className="mt-2 text-lg text-white">
+                        {optimizationRecommendation.capacity}
+                      </p>
+                    </div>
+
+                    <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
+                      <p className="text-[10px] uppercase tracking-[.15em] text-white/30">
+                        Seat waste
+                      </p>
+                      <p className="mt-2 text-lg text-white">
+                        {optimizationRecommendation.seat_waste}
+                      </p>
+                    </div>
+
+                    <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
+                      <p className="text-[10px] uppercase tracking-[.15em] text-white/30">
+                        Score
+                      </p>
+                      <p className="mt-2 text-lg text-white">
+                        {optimizationRecommendation.score.toFixed(
+                          2,
+                        )}
+                      </p>
+                    </div>
+                  </div>
+
+                  <p className="mt-5 text-sm leading-relaxed text-white/50">
+                    {optimizationRecommendation.explanation}
+                  </p>
+                </div>
+
+                <div className="mt-7 flex justify-end gap-3">
+                  <button
+                    type="button"
+                    disabled={applyingRecommendation}
+                    onClick={closeOptimization}
+                    className="rounded-full border border-white/10 px-5 py-3 text-sm text-white/55 disabled:opacity-40"
+                  >
+                    Cancel
+                  </button>
+
+                  <button
+                    type="button"
+                    disabled={applyingRecommendation}
+                    onClick={() => {
+                      void handleApplyOptimization();
+                    }}
+                    className="flex items-center gap-2 rounded-full px-6 py-3 text-sm font-medium text-black disabled:opacity-50"
+                    style={{ background: cyan }}
+                  >
+                    {applyingRecommendation && (
+                      <LoaderCircle
+                        size={16}
+                        className="animate-spin"
+                      />
+                    )}
+
+                    {applyingRecommendation
+                      ? 'Applying…'
+                      : 'Apply recommendation'}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
 
       {selectedReservation && (
         <div className="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-sm">
