@@ -1217,6 +1217,8 @@ export function Tables({
       return;
     }
 
+    setError('');
+
     const totalCapacity = selectedTables.reduce(
       (total, table) => total + table.seats,
       0,
@@ -1360,11 +1362,22 @@ export function Tables({
         error,
       );
 
-      setError(
+      const message =
         error instanceof Error
           ? error.message
-          : 'Unable to create table combination.',
-      );
+          : 'Unable to create table combination.';
+
+      setError(message);
+
+      if (
+        message.includes(
+          'A table combination with this name already exists',
+        )
+      ) {
+        setError(
+          'This combination name already exists. Choose a different name.',
+        );
+      }
     } finally {
       setCreatingCombination(false);
     }
