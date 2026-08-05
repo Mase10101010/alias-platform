@@ -760,6 +760,7 @@ export function Reservations() {
     }
   }
 
+
   return (
     <div className="min-w-0 overflow-x-hidden">
       <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
@@ -1296,7 +1297,7 @@ export function Reservations() {
                   style={{ color: cyan }}
                 >
                   <Sparkles size={16} />
-                  Alias room plan
+                  Alias seating plan
                 </div>
 
                 <h2 className="mt-3 font-display text-3xl font-light text-white">
@@ -1342,93 +1343,152 @@ export function Reservations() {
 
             {reoptimizationPlan && (
               <>
-                <div className="mt-8 rounded-3xl border border-cyanAlias/20 bg-cyanAlias/[.06] p-5">
+                <p className="mt-6 text-sm leading-relaxed text-white/55">
+                  Alias found a safe way to accommodate this booking
+                  {reoptimizationPlan.moves.length > 0
+                    ? ` by moving ${
+                        reoptimizationPlan.moves.length === 1
+                          ? 'one existing reservation'
+                          : `${reoptimizationPlan.moves.length} existing reservations`
+                      }.`
+                    : ' without moving any existing reservations.'}
+                </p>
+
+                <div className="mt-6 rounded-3xl border border-cyanAlias/20 bg-cyanAlias/[.06] p-5">
                   <p className="text-xs uppercase tracking-[.18em] text-white/35">
-                    New reservation assignment
+                    Seat this booking
                   </p>
 
-                  <h3 className="mt-3 font-display text-2xl font-light text-white">
-                    Tables{' '}
-                    {reoptimizationPlan.new_reservation_assignment.table_numbers.join(
-                      ' + ',
-                    )}
-                  </h3>
+                  <div className="mt-4 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+                    <div>
+                      <p className="text-sm text-white/45">
+                        {reoptimizationReservation.customer_name}
+                      </p>
 
-                  <div className="mt-5 grid grid-cols-3 gap-3">
-                    <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
-                      <p className="text-[10px] uppercase tracking-[.15em] text-white/30">
-                        Moves
-                      </p>
-                      <p className="mt-2 text-lg text-white">
-                        {reoptimizationPlan.moved_reservations_count}
-                      </p>
+                      <h3 className="mt-1 font-display text-2xl font-light text-white">
+                        Tables{' '}
+                        {reoptimizationPlan.new_reservation_assignment.table_numbers.join(
+                          ' + ',
+                        )}
+                      </h3>
                     </div>
 
-                    <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
-                      <p className="text-[10px] uppercase tracking-[.15em] text-white/30">
-                        Seat waste
-                      </p>
-                      <p className="mt-2 text-lg text-white">
-                        {reoptimizationPlan.total_seat_waste}
-                      </p>
-                    </div>
-
-                    <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
-                      <p className="text-[10px] uppercase tracking-[.15em] text-white/30">
-                        Score
-                      </p>
-                      <p className="mt-2 text-lg text-white">
-                        {reoptimizationPlan.score.toFixed(2)}
-                      </p>
+                    <div className="self-start rounded-full border border-cyanAlias/20 bg-cyanAlias/10 px-3 py-1 text-xs text-cyanAlias sm:self-auto">
+                      {reoptimizationReservation.party_size}{' '}
+                      guests
                     </div>
                   </div>
                 </div>
 
                 {reoptimizationPlan.moves.length > 0 ? (
-                  <div className="mt-5 space-y-3">
+                  <div className="mt-6">
                     <p className="text-xs uppercase tracking-[.18em] text-white/35">
-                      Proposed moves
+                      Move existing reservations
                     </p>
 
-                    {reoptimizationPlan.moves.map((move) => (
-                      <div
-                        key={move.reservation_id}
-                        className="rounded-2xl border border-white/10 bg-white/[.03] p-4"
-                      >
-                        <p className="text-sm font-medium text-white">
-                          {getReservationName(move.reservation_id)}
-                        </p>
+                    <div className="mt-3 space-y-3">
+                      {reoptimizationPlan.moves.map((move) => (
+                        <div
+                          key={move.reservation_id}
+                          className="rounded-2xl border border-white/10 bg-white/[.035] p-4"
+                        >
+                          <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+                            <div>
+                              <p className="text-sm font-medium text-white">
+                                {getReservationName(
+                                  move.reservation_id,
+                                )}
+                              </p>
 
-                        <p className="mt-2 text-sm text-white/55">
-                          Table {move.from_table_numbers.join(' + ')}
-                          {' → '}
-                          Table {move.to_table_numbers.join(' + ')}
-                        </p>
+                              <p className="mt-1 text-xs text-white/40">
+                                Party of {move.party_size}
+                              </p>
+                            </div>
 
-                        <p className="mt-2 text-xs leading-relaxed text-white/35">
-                          Party of {move.party_size} · {move.explanation}
-                        </p>
-                      </div>
-                    ))}
+                            <div className="flex flex-wrap items-center gap-3 text-sm">
+                              <span className="rounded-full border border-white/10 bg-black/20 px-3 py-2 text-white/55">
+                                {move.from_table_numbers.length === 1
+                                  ? 'Table'
+                                  : 'Tables'}{' '}
+                                {move.from_table_numbers.join(
+                                  ' + ',
+                                )}
+                              </span>
+
+                              <span className="text-cyanAlias">
+                                →
+                              </span>
+
+                              <span className="rounded-full border border-cyanAlias/20 bg-cyanAlias/10 px-3 py-2 text-cyanAlias">
+                                {move.to_table_numbers.length === 1
+                                  ? 'Table'
+                                  : 'Tables'}{' '}
+                                {move.to_table_numbers.join(
+                                  ' + ',
+                                )}
+                              </span>
+                            </div>
+                          </div>
+
+                          <p className="mt-4 text-xs leading-relaxed text-white/40">
+                            {move.seat_waste === 0
+                              ? 'Exact capacity fit with no wasted seats.'
+                              : `${move.seat_waste} unused ${
+                                  move.seat_waste === 1
+                                    ? 'seat'
+                                    : 'seats'
+                                } after the move.`}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 ) : (
-                  <div className="mt-5 rounded-2xl border border-white/10 bg-white/[.03] px-4 py-4 text-sm text-white/50">
+                  <div className="mt-6 rounded-2xl border border-white/10 bg-white/[.03] px-4 py-4 text-sm text-white/50">
                     No existing reservations need to be moved.
                   </div>
                 )}
 
-                <p className="mt-5 text-sm leading-relaxed text-white/45">
-                  {reoptimizationPlan.explanation}
-                </p>
+                <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
+                  <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
+                    <p className="text-[10px] uppercase tracking-[.15em] text-white/30">
+                      Moves
+                    </p>
 
-                <div className="mt-7 flex justify-end gap-3">
+                    <p className="mt-2 text-lg text-white">
+                      {reoptimizationPlan.moved_reservations_count}
+                    </p>
+                  </div>
+
+                  <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
+                    <p className="text-[10px] uppercase tracking-[.15em] text-white/30">
+                      Unused seats
+                    </p>
+
+                    <p className="mt-2 text-lg text-white">
+                      {reoptimizationPlan.total_seat_waste}
+                    </p>
+                  </div>
+
+                  <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
+                    <p className="text-[10px] uppercase tracking-[.15em] text-white/30">
+                      Plan score
+                    </p>
+
+                    <p className="mt-2 text-lg text-white">
+                      {reoptimizationPlan.score.toFixed(2)}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-7 flex flex-col-reverse justify-end gap-3 sm:flex-row">
                   <button
                     type="button"
                     disabled={applyingReoptimization}
                     onClick={closeReoptimization}
-                    className="rounded-full border border-white/10 px-5 py-3 text-sm text-white/55 disabled:opacity-40"
+                    className="rounded-full border border-white/10 px-5 py-3 text-sm text-white/55 transition hover:border-white/20 hover:text-white disabled:opacity-40"
                   >
-                    Cancel
+                    Keep current layout
                   </button>
 
                   <button
@@ -1437,7 +1497,7 @@ export function Reservations() {
                     onClick={() => {
                       void handleApplyReoptimization();
                     }}
-                    className="flex items-center gap-2 rounded-full px-6 py-3 text-sm font-medium text-black disabled:opacity-50"
+                    className="flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-medium text-black transition hover:opacity-90 disabled:opacity-50"
                     style={{ background: cyan }}
                   >
                     {applyingReoptimization && (
@@ -1448,8 +1508,8 @@ export function Reservations() {
                     )}
 
                     {applyingReoptimization
-                      ? 'Applying plan…'
-                      : 'Apply plan'}
+                      ? 'Applying changes…'
+                      : 'Apply seating plan'}
                   </button>
                 </div>
               </>
