@@ -31,6 +31,8 @@ import {
   cancelReservation,
   getFloorPlans,
   getServiceAreas,
+  acceptAISuggestion,
+  type AISuggestionResponse,
   type IntelligenceAssignmentResponse,
   type IntelligenceReoptimizationPlanResponse,
   type ConversationHistoryResponse,
@@ -123,6 +125,11 @@ export function Reservations() {
   const [
     cancellingReservationId,
     setCancellingReservationId,
+  ] = useState<string | null>(null);
+
+  const [
+    reviewingSuggestionId,
+    setReviewingSuggestionId,
   ] = useState<string | null>(null);
 
   const [
@@ -508,6 +515,62 @@ export function Reservations() {
     }
   }, [availableTables, form.table_id]);
 
+  useEffect(() => {
+    const storedSuggestion = sessionStorage.getItem(
+      'alias_ai_suggestion_review',
+    );
+
+    if (!storedSuggestion) {
+      return;
+    }
+
+    try {
+      const suggestion = JSON.parse(
+        storedSuggestion,
+      ) as AISuggestionResponse;
+
+      const reservationId =
+        suggestion.reservation_id ??
+        suggestion.payload.reservation.id;
+
+      const targetReservation = reservations.find(
+        (reservation) =>
+          reservation.id === reservationId,
+      );
+
+      if (!targetReservation) {
+        return;
+      }
+
+      setReviewingSuggestionId(
+        suggestion.id,
+      );
+
+      setReoptimizationReservation(
+        targetReservation,
+      );
+
+      setReoptimizationPlan(
+        suggestion.payload.plan,
+      );
+
+      setReoptimizationError(null);
+
+      sessionStorage.removeItem(
+        'alias_ai_suggestion_review',
+      );
+    } catch (error) {
+      console.error(
+        'Unable to open AI suggestion review',
+        error,
+      );
+
+      sessionStorage.removeItem(
+        'alias_ai_suggestion_review',
+      );
+    }
+  }, [reservations]);
+
   async function openConversation(reservation: ReservationResponse) {
     setSelectedReservation(reservation);
     setConversation(null);
@@ -867,10 +930,24 @@ export function Reservations() {
         })),
       });
 
+      if (reviewingSuggestionId) {
+        try {
+          await acceptAISuggestion(
+            reviewingSuggestionId,
+          );
+        } catch (error) {
+          console.error(
+            'Seating plan applied, but AI suggestion could not be marked as accepted',
+            error,
+          );
+        }
+      }
+
       await loadReservations();
 
       setReoptimizationReservation(null);
       setReoptimizationPlan(null);
+      setReviewingSuggestionId(null);
     } catch (err) {
       console.error('Failed to apply reoptimization plan', err);
 
@@ -892,6 +969,7 @@ export function Reservations() {
     setReoptimizationReservation(null);
     setReoptimizationPlan(null);
     setReoptimizationError(null);
+    setReviewingSuggestionId(null);
   }
 
   function getReservationName(reservationId: string) {
