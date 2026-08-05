@@ -45,6 +45,11 @@ type FormState = {
   special_requests: string;
 };
 
+type ReservationTableOption = TableResponse & {
+  service_area_name: string;
+  floor_plan_name: string;
+};
+
 const initialForm: FormState = {
   customer_name: '',
   customer_phone: '',
@@ -106,7 +111,8 @@ export function Reservations() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<'date' | 'time' | 'name' | 'party'>('date');
-  const [tables, setTables] = useState<TableResponse[]>([]);
+  const [tables, setTables] =
+    useState<ReservationTableOption[]>([]);
   const [restaurantId, setRestaurantId] =
     useState<string | null>(null);
   
@@ -181,7 +187,7 @@ export function Reservations() {
 
   async function loadAllRestaurantTables(
     currentRestaurantId: string,
-  ): Promise<TableResponse[]> {
+  ): Promise<ReservationTableOption[]> {
     const serviceAreas = await getServiceAreas(
       currentRestaurantId,
     );
@@ -191,47 +197,72 @@ export function Reservations() {
     );
 
     const floorPlanGroups = await Promise.all(
-      activeAreas.map((area) =>
-        getFloorPlans(
+      activeAreas.map(async (area) => {
+        const floorPlans = await getFloorPlans(
           currentRestaurantId,
           area.id,
-        ),
-      ),
+        );
+
+        return floorPlans
+          .filter((floorPlan) => floorPlan.is_active)
+          .map((floorPlan) => ({
+            floorPlan,
+            serviceArea: area,
+          }));
+      }),
     );
 
-    const activeFloorPlans = floorPlanGroups
-      .flat()
-      .filter((floorPlan) => floorPlan.is_active);
+    const floorPlanEntries = floorPlanGroups.flat();
 
     const tableGroups = await Promise.all(
-      activeFloorPlans.map((floorPlan) =>
-        getTables(
-          currentRestaurantId,
-          floorPlan.id,
-        ),
+      floorPlanEntries.map(
+        async ({ floorPlan, serviceArea }) => {
+          const floorPlanTables = await getTables(
+            currentRestaurantId,
+            floorPlan.id,
+          );
+
+          return floorPlanTables
+            .filter((table) => table.is_active)
+            .map((table) => ({
+              ...table,
+              service_area_name: serviceArea.name,
+              floor_plan_name: floorPlan.name,
+            }));
+        },
       ),
     );
 
     const uniqueTables = new Map<
       string,
-      TableResponse
+      ReservationTableOption
     >();
 
     for (const table of tableGroups.flat()) {
-      if (table.is_active) {
+      if (!uniqueTables.has(table.id)) {
         uniqueTables.set(table.id, table);
       }
     }
 
     return [...uniqueTables.values()].sort(
-      (first, second) =>
-        first.table_number.localeCompare(
+      (first, second) => {
+        const areaComparison =
+          first.service_area_name.localeCompare(
+            second.service_area_name,
+          );
+
+        if (areaComparison !== 0) {
+          return areaComparison;
+        }
+
+        return first.table_number.localeCompare(
           second.table_number,
           undefined,
           {
             numeric: true,
           },
-        ),
+        );
+      },
     );
   }
 
@@ -838,7 +869,9 @@ export function Reservations() {
                   }}
                 >
                   Table {table.table_number} ·{' '}
-                  {table.seats} seats
+                  {table.seats} seats ·{' '}
+                  {table.service_area_name} /{' '}
+                  {table.floor_plan_name}
                 </option>
               ))}
             </select>
