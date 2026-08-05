@@ -407,7 +407,8 @@ export function Reservations() {
       partySize < 1
     ) {
       return tables.filter(
-        (table) => table.seats >= Math.max(partySize || 1, 1),
+        (table) =>
+          table.seats >= Math.max(partySize || 1, 1),
       );
     }
 
@@ -415,41 +416,51 @@ export function Reservations() {
       `${form.reservation_date}T${form.reservation_time}:00`,
     );
 
-    if (Number.isNaN(requestedStart.getTime())) {
+    const requestedStartMs =
+      requestedStart.getTime();
+
+    if (Number.isNaN(requestedStartMs)) {
       return [];
     }
 
-    // La creazione manuale usa attualmente la durata standard di 90 minuti.
-    const requestedEnd = new Date(
-      requestedStart.getTime() + 90 * 60 * 1000,
-    );
+    const requestedDurationMinutes = 90;
+
+    const requestedEndMs =
+      requestedStartMs +
+      requestedDurationMinutes * 60 * 1000;
 
     const occupiedTableIds = new Set<string>();
 
     for (const reservation of reservations) {
+      const normalizedStatus =
+        String(reservation.status).toLowerCase();
+
       if (
-        reservation.status === 'cancelled' ||
-        reservation.status === 'completed' ||
-        reservation.status === 'no_show'
+        normalizedStatus === 'cancelled' ||
+        normalizedStatus === 'completed' ||
+        normalizedStatus === 'no_show'
       ) {
         continue;
       }
 
-      const existingStart = new Date(
+      const existingStartMs = new Date(
         reservation.reservation_time,
-      );
+      ).getTime();
 
-      const existingDuration =
+      if (Number.isNaN(existingStartMs)) {
+        continue;
+      }
+
+      const existingDurationMinutes =
         reservation.duration_minutes || 90;
 
-      const existingEnd = new Date(
-        existingStart.getTime() +
-          existingDuration * 60 * 1000,
-      );
+      const existingEndMs =
+        existingStartMs +
+        existingDurationMinutes * 60 * 1000;
 
       const overlaps =
-        existingStart < requestedEnd &&
-        existingEnd > requestedStart;
+        existingStartMs < requestedEndMs &&
+        existingEndMs > requestedStartMs;
 
       if (!overlaps) {
         continue;
@@ -1002,6 +1013,16 @@ export function Reservations() {
                 </span>
               )}
             </div>
+
+            {form.reservation_date &&
+              form.reservation_time && (
+                <div className="mt-2 text-[11px] text-white/25">
+                  Checking availability for{' '}
+                  {new Date(
+                    `${form.reservation_date}T${form.reservation_time}:00`,
+                  ).toLocaleString()}
+                </div>
+              )}
 
             <Input
               type="date"
