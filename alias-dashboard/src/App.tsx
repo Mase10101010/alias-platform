@@ -1,20 +1,38 @@
-import { useEffect, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useState,
+} from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Languages, LogOut, Menu } from 'lucide-react';
+import {
+  Bell,
+  LogOut,
+  Menu,
+} from 'lucide-react';
 import {
   detectDefaultLanguage,
   languages,
   saveLanguage,
   type LanguageCode
 } from '@/lib/i18n' ;
+import { cyan } from '@/lib/data';
 import { translations } from '@/lib/i18n';
 import { VerifyEmail } from '@/pages/VerifyEmail';
 import { Privacy } from '@/pages/Privacy';
 import { Terms } from '@/pages/Terms';
 import { Billing } from '@/pages/Billing';
 import { TrialGate } from '@/pages/TrialGate';
-import { getBillingStatus } from '@/lib/api';
-
+import {
+  dismissAISuggestion,
+  getAISuggestions,
+  getBillingStatus,
+  getReservations,
+  getRestaurants,
+  markAISuggestionRead,
+  type AISuggestionResponse,
+  type ReservationResponse,
+} from '@/lib/api';
+import { AISuggestionsPanel } from '@/components/AISuggestionsPanel';
 import { Sidebar } from '@/components/Sidebar';
 import { AliasMark } from '@/components/Brand';
 import { Auth } from '@/pages/Auth';
@@ -26,8 +44,6 @@ import { Availability } from '@/pages/Availability';
 import { PublicConcierge } from '@/pages/PublicConcierge';
 import { ForgotPassword } from '@/pages/ForgotPassword';
 import { ResetPassword } from '@/pages/ResetPassword';
-import { option } from 'framer-motion/client';
-import { getRestaurants } from '@/lib/api';
 import { Support } from './pages/Support';
 import { WelcomeFlow } from '@/pages/WelcomeFlow';
 import { Landing } from '@/pages/Landing';
@@ -62,6 +78,30 @@ export default function App() {
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [restaurantName, setRestaurantName] = useState('Restaurant');
+  const [
+    aiSuggestions,
+    setAISuggestions,
+  ] = useState<AISuggestionResponse[]>([]);
+
+  const [
+    aiSuggestionReservations,
+    setAISuggestionReservations,
+  ] = useState<ReservationResponse[]>([]);
+
+  const [
+    aiSuggestionsOpen,
+    setAISuggestionsOpen,
+  ] = useState(false);
+
+  const [
+    loadingAISuggestions,
+    setLoadingAISuggestions,
+  ] = useState(false);
+
+  const [
+    dismissingSuggestionId,
+    setDismissingSuggestionId,
+  ] = useState<string | null>(null);
   const [language, setLanguage] = useState<LanguageCode>(
     detectDefaultLanguage(),
   );
@@ -74,6 +114,52 @@ export default function App() {
   const isTerms = window.location.pathname === '/terms';
   const [hasActiveBilling, setHasActiveBilling] = useState(false);
   const isAuthPage = window.location.pathname === '/auth';
+  const unreadAISuggestions =
+    aiSuggestions.filter(
+      (suggestion) => !suggestion.is_read,
+    ).length;
+
+  const loadAISuggestions = useCallback(
+    async (showLoading = false) => {
+      if (!authed) {
+        return;
+      }
+
+      try {
+        if (showLoading) {
+          setLoadingAISuggestions(true);
+        }
+
+        const [
+          suggestionResponse,
+          reservationResponse,
+        ] = await Promise.all([
+          getAISuggestions(20),
+          getReservations({
+            limit: 100,
+          }),
+        ]);
+
+        setAISuggestions(
+          suggestionResponse.suggestions,
+        );
+
+        setAISuggestionReservations(
+          reservationResponse,
+        );
+      } catch (error) {
+        console.error(
+          'Failed to load AI suggestions',
+          error,
+        );
+      } finally {
+        if (showLoading) {
+          setLoadingAISuggestions(false);
+        }
+      }
+    },
+    [authed],
+  );
   
 
   if (isPublicConcierge) {
@@ -188,6 +274,123 @@ export default function App() {
 
     loadRestaurantName();
   }, [authed]);
+
+  useEffect(() => {
+    if (!authed) {
+      setAISuggestions([]);
+      setAISuggestionReservations([]);
+      return;
+    }
+
+    void loadAISuggestions(true);
+
+    const intervalId = window.setInterval(
+      () => {
+        void loadAISuggestions();
+      },
+      30_000,
+    );
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, [authed, loadAISuggestions]);
+
+  async function handleOpenAISuggestions() {
+    setAISuggestionsOpen(true);
+
+    const unreadSuggestions =
+      aiSuggestions.filter(
+        (suggestion) => !suggestion.is_read,
+      );
+
+    if (unreadSuggestions.length === 0) {
+      return;
+    }
+
+    setAISuggestions((current) =>
+      current.map((suggestion) => ({
+        ...suggestion,
+        is_read: true,
+      })),
+    );
+
+    await Promise.allSettled(
+      unreadSuggestions.map((suggestion) =>
+        markAISuggestionRead(
+          suggestion.id,
+        ),
+      ),
+    );
+  }
+
+  async function handleDismissAISuggestion(
+    suggestion: AISuggestionResponse,
+  ) {
+    if (dismissingSuggestionId) {
+      return;
+    }
+
+    try {
+      setDismissingSuggestionId(
+        suggestion.id,
+      );
+
+      await dismissAISuggestion(
+        suggestion.id,
+      );
+
+      setAISuggestions((current) =>
+        current.filter(
+          (item) =>
+            item.id !== suggestion.id,
+        ),
+      );
+    } catch (error) {
+      console.error(
+        'Failed to dismiss AI suggestion',
+        error,
+      );
+    } finally {
+      setDismissingSuggestionId(null);
+    }
+  }
+
+  async function handleReviewAISuggestion(
+    suggestion: AISuggestionResponse,
+  ) {
+    if (!suggestion.is_read) {
+      try {
+        await markAISuggestionRead(
+          suggestion.id,
+        );
+      } catch (error) {
+        console.error(
+          'Failed to mark AI suggestion as read',
+          error,
+        );
+      }
+    }
+
+    sessionStorage.setItem(
+      'alias_ai_suggestion_review',
+      JSON.stringify(suggestion),
+    );
+
+    setAISuggestions((current) =>
+      current.map((item) =>
+        item.id === suggestion.id
+          ? {
+              ...item,
+              is_read: true,
+            }
+          : item,
+      ),
+    );
+
+    setAISuggestionsOpen(false);
+    setActive('reservations');
+  }
 
   function handleLogout() {
     localStorage.removeItem('alias_access_token');
@@ -344,6 +547,38 @@ if (!authed && isAuthPage) {
             </div>
 
             <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  void handleOpenAISuggestions();
+                }}
+                className="relative flex items-center justify-center rounded-full border border-white/10 bg-white/[.03] p-2.5 text-white/55 transition hover:border-white/20 hover:text-white"
+                aria-label="Open AI suggestions"
+              >
+                <Bell size={17} />
+
+                {aiSuggestions.length > 0 && (
+                  <span
+                    className="absolute -right-1.5 -top-1.5 flex min-h-5 min-w-5 items-center justify-center rounded-full px-1 text-[10px] font-semibold text-black"
+                    style={{
+                      background: cyan,
+                    }}
+                  >
+                    {aiSuggestions.length > 99
+                      ? '99+'
+                      : aiSuggestions.length}
+                  </span>
+                )}
+
+                {unreadAISuggestions > 0 && (
+                  <span
+                    className="absolute right-0 top-0 h-2.5 w-2.5 rounded-full border-2 border-ink"
+                    style={{
+                      background: cyan,
+                    }}
+                  />
+                )}
+              </button>
               <select
                 value={language}
                 onChange={(event) => {
@@ -395,6 +630,30 @@ if (!authed && isAuthPage) {
           </AnimatePresence>
         </main>
       </div>
+      <AISuggestionsPanel
+        open={aiSuggestionsOpen}
+        suggestions={aiSuggestions}
+        reservations={
+          aiSuggestionReservations
+        }
+        loading={loadingAISuggestions}
+        dismissingId={
+          dismissingSuggestionId
+        }
+        onClose={() =>
+          setAISuggestionsOpen(false)
+        }
+        onReview={(suggestion) => {
+          void handleReviewAISuggestion(
+            suggestion,
+          );
+        }}
+        onDismiss={(suggestion) => {
+          void handleDismissAISuggestion(
+            suggestion,
+          );
+        }}
+      />
     </div>
   );
 }
