@@ -570,7 +570,7 @@ export function Reservations() {
         `${form.reservation_date}T${form.reservation_time}:00`,
       );
 
-      await createReservation({
+      const createdReservation = await createReservation({
         customer_name: form.customer_name.trim(),
         customer_phone: form.customer_phone.trim(),
         customer_email: form.customer_email.trim(),
@@ -582,7 +582,72 @@ export function Reservations() {
 
       setForm(initialForm);
       setShowForm(false);
+
       await loadReservations();
+
+      const hasAssignedTables =
+        createdReservation.table_ids?.length ||
+        createdReservation.table_id;
+
+      if (
+        !hasAssignedTables &&
+        restaurantId
+      ) {
+        try {
+          setReoptimizingReservationId(
+            createdReservation.id,
+          );
+
+          setReoptimizationReservation(
+            createdReservation,
+          );
+
+          setReoptimizationPlan(null);
+          setReoptimizationError(null);
+
+          const result =
+            await reoptimizeReservation({
+              restaurant_id: restaurantId,
+              reservation_id: createdReservation.id,
+              requested_start:
+                createdReservation.reservation_time,
+              party_size:
+                createdReservation.party_size,
+              duration_minutes:
+                createdReservation.duration_minutes,
+              buffer_before_minutes: 0,
+              buffer_after_minutes: 0,
+              max_reservations_to_move: 1,
+              max_plans: 5,
+            });
+
+          if (
+            result.available &&
+            result.recommended
+          ) {
+            setReoptimizationPlan(
+              result.recommended,
+            );
+          } else {
+            setReoptimizationError(
+              'The reservation was created, but Alias could not find a safe seating plan.',
+            );
+          }
+        } catch (reoptimizationErr) {
+          console.error(
+            'Automatic reoptimization failed',
+            reoptimizationErr,
+          );
+
+          setReoptimizationError(
+            reoptimizationErr instanceof Error
+              ? reoptimizationErr.message
+              : 'The reservation was created, but Alias could not prepare a seating plan.',
+          );
+        } finally {
+          setReoptimizingReservationId(null);
+        }
+      }
     } catch (err) {
       setError(
         err instanceof Error ? err.message : 'Unable to create reservation.',
