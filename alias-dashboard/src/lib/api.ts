@@ -220,6 +220,60 @@ export type IntelligenceApplyReoptimizationResponse = {
   applied: boolean;
 };
 
+export type AISuggestionStatus =
+  | 'pending'
+  | 'accepted'
+  | 'dismissed'
+  | 'expired';
+
+export type AISuggestionType =
+  | 'reoptimization'
+  | 'capacity'
+  | 'table_release';
+
+export type AISuggestionReservationPayload = {
+  id: string;
+  customer_name: string;
+  party_size: number;
+  reservation_time: string;
+  duration_minutes: number;
+};
+
+export type AISuggestionPayload = {
+  reservation: AISuggestionReservationPayload;
+  plan: IntelligenceReoptimizationPlanResponse;
+  engine_version: string;
+  mode: string;
+};
+
+export type AISuggestionResponse = {
+  id: string;
+  restaurant_id: string;
+  reservation_id: string | null;
+  suggestion_type: AISuggestionType;
+  status: AISuggestionStatus;
+  title: string;
+  description: string;
+  score: number | null;
+  payload: AISuggestionPayload;
+  is_read: boolean;
+  expires_at: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type AISuggestionListResponse = {
+  suggestions: AISuggestionResponse[];
+  total: number;
+};
+
+export type AISuggestionActionResponse = {
+  id: string;
+  status: AISuggestionStatus;
+  is_read: boolean;
+  updated_at: string;
+};
+
 export type TableCombinationMemberResponse = {
   table_id: string;
   table_number: string;
@@ -1522,6 +1576,133 @@ export async function createCustomerPortal(): Promise<{ portal_url: string }> {
 
   if (!response.ok) {
     throw await parseApiError(response, 'Unable to open customer portal');
+  }
+
+  return response.json();
+}
+
+export async function getAISuggestions(
+  limit = 20,
+): Promise<AISuggestionListResponse> {
+  const token = getAuthToken();
+
+  if (!token) {
+    throw new Error(
+      'Authentication is required to load AI suggestions.',
+    );
+  }
+
+  const query = new URLSearchParams({
+    limit: String(limit),
+  });
+
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/ai-suggestions?${query.toString()}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+
+  if (!response.ok) {
+    throw await parseApiError(
+      response,
+      'Unable to load AI suggestions',
+    );
+  }
+
+  return response.json();
+}
+
+export async function markAISuggestionRead(
+  suggestionId: string,
+): Promise<AISuggestionActionResponse> {
+  const token = getAuthToken();
+
+  if (!token) {
+    throw new Error(
+      'Authentication is required to update AI suggestions.',
+    );
+  }
+
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/ai-suggestions/${suggestionId}/read`,
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+
+  if (!response.ok) {
+    throw await parseApiError(
+      response,
+      'Unable to mark AI suggestion as read',
+    );
+  }
+
+  return response.json();
+}
+
+export async function dismissAISuggestion(
+  suggestionId: string,
+): Promise<AISuggestionActionResponse> {
+  const token = getAuthToken();
+
+  if (!token) {
+    throw new Error(
+      'Authentication is required to dismiss AI suggestions.',
+    );
+  }
+
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/ai-suggestions/${suggestionId}/dismiss`,
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+
+  if (!response.ok) {
+    throw await parseApiError(
+      response,
+      'Unable to dismiss AI suggestion',
+    );
+  }
+
+  return response.json();
+}
+
+export async function acceptAISuggestion(
+  suggestionId: string,
+): Promise<AISuggestionActionResponse> {
+  const token = getAuthToken();
+
+  if (!token) {
+    throw new Error(
+      'Authentication is required to accept AI suggestions.',
+    );
+  }
+
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/ai-suggestions/${suggestionId}/accept`,
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+
+  if (!response.ok) {
+    throw await parseApiError(
+      response,
+      'Unable to accept AI suggestion',
+    );
   }
 
   return response.json();
