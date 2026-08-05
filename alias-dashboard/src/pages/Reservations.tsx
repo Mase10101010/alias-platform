@@ -1,4 +1,8 @@
-import { useEffect, useState } from 'react';
+import {
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import {
   LoaderCircle,
   Plus,
@@ -392,6 +396,106 @@ export function Reservations() {
 
     return sortDirection === 'asc' ? comparison : -comparison;
   });
+
+  const availableTables = useMemo(() => {
+    const partySize = Number(form.party_size);
+
+    if (
+      !form.reservation_date ||
+      !form.reservation_time ||
+      !Number.isFinite(partySize) ||
+      partySize < 1
+    ) {
+      return tables.filter(
+        (table) => table.seats >= Math.max(partySize || 1, 1),
+      );
+    }
+
+    const requestedStart = new Date(
+      `${form.reservation_date}T${form.reservation_time}:00`,
+    );
+
+    if (Number.isNaN(requestedStart.getTime())) {
+      return [];
+    }
+
+    // La creazione manuale usa attualmente la durata standard di 90 minuti.
+    const requestedEnd = new Date(
+      requestedStart.getTime() + 90 * 60 * 1000,
+    );
+
+    const occupiedTableIds = new Set<string>();
+
+    for (const reservation of reservations) {
+      if (
+        reservation.status === 'cancelled' ||
+        reservation.status === 'completed' ||
+        reservation.status === 'no_show'
+      ) {
+        continue;
+      }
+
+      const existingStart = new Date(
+        reservation.reservation_time,
+      );
+
+      const existingDuration =
+        reservation.duration_minutes || 90;
+
+      const existingEnd = new Date(
+        existingStart.getTime() +
+          existingDuration * 60 * 1000,
+      );
+
+      const overlaps =
+        existingStart < requestedEnd &&
+        existingEnd > requestedStart;
+
+      if (!overlaps) {
+        continue;
+      }
+
+      const assignedTableIds =
+        reservation.table_ids?.length
+          ? reservation.table_ids
+          : reservation.table_id
+            ? [reservation.table_id]
+            : [];
+
+      for (const tableId of assignedTableIds) {
+        occupiedTableIds.add(tableId);
+      }
+    }
+
+    return tables.filter(
+      (table) =>
+        table.seats >= partySize &&
+        !occupiedTableIds.has(table.id),
+    );
+  }, [
+    form.party_size,
+    form.reservation_date,
+    form.reservation_time,
+    reservations,
+    tables,
+  ]);
+
+  useEffect(() => {
+    if (!form.table_id) {
+      return;
+    }
+
+    const remainsAvailable = availableTables.some(
+      (table) => table.id === form.table_id,
+    );
+
+    if (!remainsAvailable) {
+      setForm((current) => ({
+        ...current,
+        table_id: '',
+      }));
+    }
+  }, [availableTables, form.table_id]);
 
   async function openConversation(reservation: ReservationResponse) {
     setSelectedReservation(reservation);
@@ -860,7 +964,7 @@ export function Reservations() {
                 Automatic table assignment
               </option>
 
-              {tables.map((table) => (
+              {availableTables.map((table) => (
                 <option
                   key={table.id}
                   value={table.id}
@@ -876,6 +980,28 @@ export function Reservations() {
                 </option>
               ))}
             </select>
+
+            <div className="text-xs leading-relaxed text-white/35">
+              {!form.reservation_date || !form.reservation_time ? (
+                <span>
+                  Select a date and time to check table availability.
+                </span>
+              ) : availableTables.length > 0 ? (
+                <span>
+                  {availableTables.length}{' '}
+                  {availableTables.length === 1
+                    ? 'suitable table is'
+                    : 'suitable tables are'}{' '}
+                  currently available.
+                </span>
+              ) : (
+                <span className="text-amber-200/70">
+                  No single table is available with enough capacity.
+                  Automatic assignment may still use an approved table
+                  combination.
+                </span>
+              )}
+            </div>
 
             <Input
               type="date"
