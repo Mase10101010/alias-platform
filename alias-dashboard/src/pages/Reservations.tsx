@@ -25,6 +25,8 @@ import {
   getRestaurants,
   getTables,
   cancelReservation,
+  getFloorPlans,
+  getServiceAreas,
   type IntelligenceAssignmentResponse,
   type IntelligenceReoptimizationPlanResponse,
   type ConversationHistoryResponse,
@@ -177,6 +179,62 @@ export function Reservations() {
     null,
   );
 
+  async function loadAllRestaurantTables(
+    currentRestaurantId: string,
+  ): Promise<TableResponse[]> {
+    const serviceAreas = await getServiceAreas(
+      currentRestaurantId,
+    );
+
+    const activeAreas = serviceAreas.filter(
+      (area) => area.is_active,
+    );
+
+    const floorPlanGroups = await Promise.all(
+      activeAreas.map((area) =>
+        getFloorPlans(
+          currentRestaurantId,
+          area.id,
+        ),
+      ),
+    );
+
+    const activeFloorPlans = floorPlanGroups
+      .flat()
+      .filter((floorPlan) => floorPlan.is_active);
+
+    const tableGroups = await Promise.all(
+      activeFloorPlans.map((floorPlan) =>
+        getTables(
+          currentRestaurantId,
+          floorPlan.id,
+        ),
+      ),
+    );
+
+    const uniqueTables = new Map<
+      string,
+      TableResponse
+    >();
+
+    for (const table of tableGroups.flat()) {
+      if (table.is_active) {
+        uniqueTables.set(table.id, table);
+      }
+    }
+
+    return [...uniqueTables.values()].sort(
+      (first, second) =>
+        first.table_number.localeCompare(
+          second.table_number,
+          undefined,
+          {
+            numeric: true,
+          },
+        ),
+    );
+  }
+
   async function loadReservations(showLoader = false) {
     try {
       if (showLoader) {
@@ -192,7 +250,9 @@ export function Reservations() {
           setRestaurantId(restaurant.id);
 
           const restaurantTables =
-            await getTables(restaurant.id);
+            await loadAllRestaurantTables(
+              restaurant.id,
+            );
 
           setTables(restaurantTables);
         } else {
@@ -750,23 +810,35 @@ export function Reservations() {
 
             <select
               value={form.table_id}
-              onChange={(event) => updateField('table_id', event.target.value)}
+              onChange={(event) =>
+                updateField(
+                  'table_id',
+                  event.target.value,
+                )
+              }
               className="w-full rounded-xl border border-white/10 bg-white/[.03] px-4 py-3 text-white outline-none transition focus:border-white/25"
             >
-              <option 
+              <option
                 value=""
-                style={{ backgroundColor: '#111827', color: 'white' }}
+                style={{
+                  backgroundColor: '#111827',
+                  color: 'white',
+                }}
               >
-                {t.automaticTableAssignment}
+                Automatic table assignment
               </option>
 
               {tables.map((table) => (
-                <option 
-                  key={table.id} 
+                <option
+                  key={table.id}
                   value={table.id}
-                  style={{ backgroundColor: '#111827', color: 'white' }}
+                  style={{
+                    backgroundColor: '#111827',
+                    color: 'white',
+                  }}
                 >
-                  {t.tableLabel} {table.table_number} · {table.seats} {t.seatsLabel}
+                  Table {table.table_number} ·{' '}
+                  {table.seats} seats
                 </option>
               ))}
             </select>
