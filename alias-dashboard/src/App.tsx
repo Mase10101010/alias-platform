@@ -345,25 +345,26 @@ export default function App() {
       const suggestion =
         customEvent.detail?.suggestion;
 
-      if (!suggestion) {
-        return;
+      if (suggestion) {
+        setAISuggestions((current) => {
+          const withoutDuplicate =
+            current.filter(
+              (item) =>
+                item.id !== suggestion.id,
+            );
+
+          return [
+            suggestion,
+            ...withoutDuplicate,
+          ];
+        });
       }
 
-      setAISuggestions((current) => {
-        const alreadyExists = current.some(
-          (item) =>
-            item.id === suggestion.id,
-        );
-
-        if (alreadyExists) {
-          return current;
-        }
-
-        return [
-          suggestion,
-          ...current,
-        ];
-      });
+      /*
+      * Sincronizza subito lo stato con il backend.
+      * Non aspetta il polling di 30 secondi.
+      */
+      void loadAISuggestions();
     }
 
     window.addEventListener(
@@ -377,7 +378,7 @@ export default function App() {
         handleSuggestionCreated,
       );
     };
-  }, []);
+  }, [loadAISuggestions]);
 
   async function handleOpenAISuggestions() {
     setAISuggestionsOpen(true);

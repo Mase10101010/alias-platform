@@ -33,6 +33,7 @@ import {
   getServiceAreas,
   acceptAISuggestion,
   analyzeAISuggestion,
+  moveReservation,
   type AISuggestionResponse,
   type IntelligenceAssignmentResponse,
   type IntelligenceReoptimizationPlanResponse,
@@ -126,6 +127,26 @@ export function Reservations() {
   const [
     cancellingReservationId,
     setCancellingReservationId,
+  ] = useState<string | null>(null);
+
+  const [
+    reservationToMove,
+    setReservationToMove,
+  ] = useState<ReservationResponse | null>(null);
+
+  const [
+    selectedMoveTableId,
+    setSelectedMoveTableId,
+  ] = useState('');
+
+  const [
+    movingReservation,
+    setMovingReservation,
+  ] = useState(false);
+
+  const [
+    moveReservationError,
+    setMoveReservationError,
   ] = useState<string | null>(null);
 
   const [
@@ -1034,6 +1055,24 @@ export function Reservations() {
     );
   }
 
+  function openMoveReservation(
+    reservation: ReservationResponse,
+  ) {
+    setReservationToMove(reservation);
+    setSelectedMoveTableId('');
+    setMoveReservationError(null);
+  }
+
+  function closeMoveReservation() {
+    if (movingReservation) {
+      return;
+    }
+
+    setReservationToMove(null);
+    setSelectedMoveTableId('');
+    setMoveReservationError(null);
+  }
+
   async function handleCancelReservation(
     reservation: ReservationResponse,
   ) {
@@ -1069,6 +1108,50 @@ export function Reservations() {
       );
     } finally {
       setCancellingReservationId(null);
+    }
+  }
+
+  async function handleMoveReservation() {
+    if (
+      !reservationToMove ||
+      !selectedMoveTableId ||
+      movingReservation
+    ) {
+      return;
+    }
+
+    try {
+      setMovingReservation(true);
+      setMoveReservationError(null);
+
+      await moveReservation(
+        reservationToMove.id,
+        selectedMoveTableId,
+      );
+
+      await loadReservations();
+
+      window.dispatchEvent(
+        new CustomEvent(
+          'alias-room-layout-changed',
+        ),
+      );
+
+      setReservationToMove(null);
+      setSelectedMoveTableId('');
+    } catch (error) {
+      console.error(
+        'Failed to move reservation',
+        error,
+      );
+
+      setMoveReservationError(
+        error instanceof Error
+          ? error.message
+          : 'Unable to move the reservation.',
+      );
+    } finally {
+      setMovingReservation(false);
     }
   }
 
@@ -1429,6 +1512,18 @@ export function Reservations() {
 
                 <button
                   type="button"
+                  onClick={() => {
+                    openMoveReservation(
+                      reservation,
+                    );
+                  }}
+                  className="flex items-center justify-center rounded-full border border-white/10 px-4 py-2 text-center text-xs uppercase tracking-[.16em] text-white/60 transition hover:border-cyanAlias/30 hover:text-cyanAlias"
+                >
+                  Move table
+                </button>
+
+                <button
+                  type="button"
                   disabled={
                     reoptimizingReservationId === reservation.id
                   }
@@ -1488,6 +1583,147 @@ export function Reservations() {
           ))
         )}
       </div>
+
+      {reservationToMove && (
+        <div className="fixed inset-0 z-[68] flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm">
+          <div className="w-full max-w-lg rounded-3xl border border-white/10 bg-ink p-6 shadow-2xl sm:p-8">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p
+                  className="text-xs uppercase tracking-[.22em]"
+                  style={{ color: cyan }}
+                >
+                  Move reservation
+                </p>
+
+                <h2 className="mt-3 font-display text-3xl font-light text-white">
+                  {reservationToMove.customer_name}
+                </h2>
+
+                <p className="mt-2 text-sm text-white/45">
+                  Party of {reservationToMove.party_size}
+                  {' · '}
+                  Current{' '}
+                  {reservationToMove.table_numbers?.length
+                    ? `Tables ${reservationToMove.table_numbers.join(
+                        ' + ',
+                      )}`
+                    : reservationToMove.table_number
+                      ? `Table ${reservationToMove.table_number}`
+                      : 'assignment unavailable'}
+                </p>
+              </div>
+
+              <button
+                type="button"
+                disabled={movingReservation}
+                onClick={closeMoveReservation}
+                className="rounded-full border border-white/10 p-2 text-white/45 transition hover:text-white disabled:opacity-40"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="mt-7">
+              <label className="text-xs uppercase tracking-[.18em] text-white/35">
+                Destination table
+              </label>
+
+              <select
+                value={selectedMoveTableId}
+                onChange={(event) => {
+                  setSelectedMoveTableId(
+                    event.target.value,
+                  );
+
+                  setMoveReservationError(null);
+                }}
+                className="mt-3 w-full rounded-xl border border-white/10 bg-white/[.03] px-4 py-3 text-white outline-none transition focus:border-white/25"
+              >
+                <option
+                  value=""
+                  style={{
+                    backgroundColor: '#111827',
+                    color: 'white',
+                  }}
+                >
+                  Select a table
+                </option>
+
+                {tables
+                  .filter(
+                    (table) =>
+                      table.id !==
+                        reservationToMove.table_id &&
+                      table.seats >=
+                        reservationToMove.party_size,
+                  )
+                  .map((table) => (
+                    <option
+                      key={table.id}
+                      value={table.id}
+                      style={{
+                        backgroundColor: '#111827',
+                        color: 'white',
+                      }}
+                    >
+                      Table {table.table_number} ·{' '}
+                      {table.seats} seats ·{' '}
+                      {table.service_area_name} /{' '}
+                      {table.floor_plan_name}
+                    </option>
+                  ))}
+              </select>
+
+              <p className="mt-3 text-xs leading-relaxed text-white/35">
+                Alias will verify that the selected table is
+                available for the complete reservation duration.
+              </p>
+            </div>
+
+            {moveReservationError && (
+              <div className="mt-5 rounded-2xl border border-red-400/20 bg-red-400/10 px-4 py-3 text-sm text-red-200">
+                {moveReservationError}
+              </div>
+            )}
+
+            <div className="mt-7 flex justify-end gap-3">
+              <button
+                type="button"
+                disabled={movingReservation}
+                onClick={closeMoveReservation}
+                className="rounded-full border border-white/10 px-5 py-3 text-sm text-white/55 transition hover:border-white/20 hover:text-white disabled:opacity-40"
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                disabled={
+                  !selectedMoveTableId ||
+                  movingReservation
+                }
+                onClick={() => {
+                  void handleMoveReservation();
+                }}
+                className="flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-medium text-black transition hover:opacity-90 disabled:opacity-50"
+                style={{ background: cyan }}
+              >
+                {movingReservation && (
+                  <LoaderCircle
+                    size={16}
+                    className="animate-spin"
+                  />
+                )}
+
+                {movingReservation
+                  ? 'Moving…'
+                  : 'Move reservation'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {optimizationReservation && (
         <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm">
