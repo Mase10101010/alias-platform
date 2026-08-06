@@ -32,6 +32,7 @@ import {
   getFloorPlans,
   getServiceAreas,
   acceptAISuggestion,
+  analyzeAISuggestion,
   type AISuggestionResponse,
   type IntelligenceAssignmentResponse,
   type IntelligenceReoptimizationPlanResponse,
@@ -935,6 +936,18 @@ export function Reservations() {
           await acceptAISuggestion(
             reviewingSuggestionId,
           );
+
+          window.dispatchEvent(
+            new CustomEvent(
+              'alias-ai-suggestion-resolved',
+              {
+                detail: {
+                  suggestionId:
+                    reviewingSuggestionId,
+                },
+              },
+            ),
+          );
         } catch (error) {
           console.error(
             'Seating plan applied, but AI suggestion could not be marked as accepted',
@@ -961,15 +974,56 @@ export function Reservations() {
     }
   }
 
-  function closeReoptimization() {
+  async function closeReoptimization() {
     if (applyingReoptimization) {
       return;
     }
+
+    const reservation =
+      reoptimizationReservation;
+
+    const shouldCreateSuggestion =
+      Boolean(
+        reservation &&
+          reoptimizationPlan &&
+          reoptimizationPlan
+            .moved_reservations_count > 0 &&
+          !reviewingSuggestionId,
+      );
 
     setReoptimizationReservation(null);
     setReoptimizationPlan(null);
     setReoptimizationError(null);
     setReviewingSuggestionId(null);
+
+    if (!shouldCreateSuggestion || !reservation) {
+      return;
+    }
+
+    try {
+      const result = await analyzeAISuggestion(
+        reservation.id,
+      );
+
+      if (result.created && result.suggestion) {
+        window.dispatchEvent(
+          new CustomEvent(
+            'alias-ai-suggestion-created',
+            {
+              detail: {
+                suggestion:
+                  result.suggestion,
+              },
+            },
+          ),
+        );
+      }
+    } catch (error) {
+      console.error(
+        'Unable to create AI suggestion after keeping the current layout',
+        error,
+      );
+    }
   }
 
   function getReservationName(reservationId: string) {

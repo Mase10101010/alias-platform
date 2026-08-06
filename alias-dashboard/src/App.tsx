@@ -296,6 +296,89 @@ export default function App() {
     };
   }, [authed, loadAISuggestions]);
 
+  useEffect(() => {
+    function handleSuggestionResolved(
+      event: Event,
+    ) {
+      const customEvent =
+        event as CustomEvent<{
+          suggestionId?: string;
+        }>;
+
+      const suggestionId =
+        customEvent.detail?.suggestionId;
+
+      if (!suggestionId) {
+        return;
+      }
+
+      setAISuggestions((current) =>
+        current.filter(
+          (suggestion) =>
+            suggestion.id !== suggestionId,
+        ),
+      );
+    }
+
+    window.addEventListener(
+      'alias-ai-suggestion-resolved',
+      handleSuggestionResolved,
+    );
+
+    return () => {
+      window.removeEventListener(
+        'alias-ai-suggestion-resolved',
+        handleSuggestionResolved,
+      );
+    };
+  }, []);
+
+  useEffect(() => {
+    function handleSuggestionCreated(
+      event: Event,
+    ) {
+      const customEvent =
+        event as CustomEvent<{
+          suggestion?: AISuggestionResponse;
+        }>;
+
+      const suggestion =
+        customEvent.detail?.suggestion;
+
+      if (!suggestion) {
+        return;
+      }
+
+      setAISuggestions((current) => {
+        const alreadyExists = current.some(
+          (item) =>
+            item.id === suggestion.id,
+        );
+
+        if (alreadyExists) {
+          return current;
+        }
+
+        return [
+          suggestion,
+          ...current,
+        ];
+      });
+    }
+
+    window.addEventListener(
+      'alias-ai-suggestion-created',
+      handleSuggestionCreated,
+    );
+
+    return () => {
+      window.removeEventListener(
+        'alias-ai-suggestion-created',
+        handleSuggestionCreated,
+      );
+    };
+  }, []);
+
   async function handleOpenAISuggestions() {
     setAISuggestionsOpen(true);
 

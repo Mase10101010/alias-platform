@@ -274,6 +274,42 @@ export type AISuggestionActionResponse = {
   updated_at: string;
 };
 
+export type AISuggestionAnalyzeResponse = {
+  created: boolean;
+  suggestion: AISuggestionResponse | null;
+};
+
+export async function analyzeAISuggestion(
+  reservationId: string,
+): Promise<AISuggestionAnalyzeResponse> {
+  const token = getAuthToken();
+
+  if (!token) {
+    throw new Error(
+      'Authentication is required to analyze AI suggestions.',
+    );
+  }
+
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/ai-suggestions/analyze/${reservationId}`,
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+
+  if (!response.ok) {
+    throw await parseApiError(
+      response,
+      'Unable to analyze AI suggestion',
+    );
+  }
+
+  return response.json();
+}
+
 export type TableCombinationMemberResponse = {
   table_id: string;
   table_number: string;
