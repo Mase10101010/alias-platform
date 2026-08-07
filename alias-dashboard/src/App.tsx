@@ -34,6 +34,7 @@ import {
 } from '@/lib/api';
 import { AISuggestionsPanel } from '@/components/AISuggestionsPanel';
 import { Sidebar } from '@/components/Sidebar';
+import { Intelligence } from '@/pages/Intelligence';
 import { AliasMark } from '@/components/Brand';
 import { Auth } from '@/pages/Auth';
 import { Overview } from '@/pages/Overview';
@@ -59,6 +60,9 @@ function Page({ active }: { active: string }) {
   if (active === 'support') return <Support />;
   if (active === 'settings') return <Settings />;
   if (active === 'tables') return <Tables />;
+  if (active === 'intelligence') {
+    return <Intelligence />;
+  }
   return <Overview />;
 }
 

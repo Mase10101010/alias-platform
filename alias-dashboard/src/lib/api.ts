@@ -49,6 +49,70 @@ export type RestaurantResponse = RestaurantCreate & {
   
 };
 
+export type IntelligenceInsight = {
+  code: string;
+  title: string;
+  description: string;
+  confidence: 'low' | 'medium' | 'high';
+  evidence_count: number;
+  value: string | number | boolean | null;
+};
+
+export type IntelligenceLearningSnapshot = {
+  suggestions_observed: number;
+  suggestions_read: number;
+  suggestions_accepted: number;
+  suggestions_dismissed: number;
+  suggestions_expired: number;
+  manager_decisions: number;
+  acceptance_rate: number;
+  dismissal_rate: number;
+  read_rate: number;
+  confidence_score: number;
+  profile_version: number;
+  last_processed_event_at: string | null;
+};
+
+export type IntelligenceBehaviourSnapshot = {
+  restaurant_id: string;
+  trust_level: string;
+  preferred_plan: string;
+  accepted_score_reference: number | null;
+  average_moves_accepted: number | null;
+  average_seat_waste_accepted: number | null;
+  total_suggestions_observed: number;
+  total_manager_decisions: number;
+  confidence: 'low' | 'medium' | 'high';
+  insights: IntelligenceInsight[];
+  generated_at: string;
+};
+
+export type IntelligencePolicySnapshot = {
+  restaurant_id: string;
+  move_penalty_weight: number;
+  seat_waste_penalty_weight: number;
+  score_weight: number;
+  single_move_bonus: number;
+  low_seat_waste_bonus: number;
+  minimum_recommended_score: number | null;
+  maximum_preferred_moves: number | null;
+  maximum_preferred_seat_waste: number | null;
+  automation_level:
+    | 'advisory_only'
+    | 'assisted'
+    | 'eligible_for_automation';
+  rationale: string[];
+  generated_at: string;
+};
+
+export type IntelligenceSnapshotResponse = {
+  restaurant_id: string;
+  learning: IntelligenceLearningSnapshot;
+  behaviour: IntelligenceBehaviourSnapshot;
+  policy: IntelligencePolicySnapshot | null;
+  generated_at: string;
+};
+
 export type ReservationCreate = {
   restaurant_id?: string;
   table_id?: string | null;
@@ -163,6 +227,11 @@ export type IntelligenceReoptimizationPlanResponse = {
   moves: IntelligenceReservationMoveResponse[];
 
   score: number;
+  base_score: number;
+  personalized_score: number;
+  personalization_applied: boolean;
+  personalization_reasons: string[];
+
   total_seat_waste: number;
   moved_reservations_count: number;
   explanation: string;
@@ -509,6 +578,34 @@ export async function getRestaurants(): Promise<RestaurantResponse[]> {
 
   if (!response.ok) {
     throw await parseApiError(response, 'Unable to load restaurants');
+  }
+
+  return response.json();
+}
+
+export async function getIntelligenceSnapshot(
+  restaurantId: string,
+): Promise<IntelligenceSnapshotResponse> {
+  const token = getAuthToken();
+
+  const query = new URLSearchParams({
+    restaurant_id: restaurantId,
+  });
+
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/intelligence/snapshot?${query.toString()}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+
+  if (!response.ok) {
+    throw await parseApiError(
+      response,
+      'Unable to load Alias Intelligence',
+    );
   }
 
   return response.json();

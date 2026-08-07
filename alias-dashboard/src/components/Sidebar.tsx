@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
-import { 
-  CalendarDays, 
+import {
+  BrainCircuit,
+  CalendarDays,
   LifeBuoy,
   Clock3,
   Home,
-  LayoutGrid, 
-  Settings,  
+  LayoutGrid,
+  Settings,
   Users,
 } from 'lucide-react';
 
@@ -16,12 +17,41 @@ import { cyan } from '@/lib/data';
 import { translations, type LanguageCode } from '@/lib/i18n';
 
 const items = [
-  { id: 'home', labelKey: 'overview', icon: Home },
-  { id: 'reservations', labelKey: 'reservations', icon: CalendarDays },
-  { id: 'availability', labelKey: 'availability', icon: Clock3 },
-  { id: 'tables', labelKey: 'floorPlan', icon: LayoutGrid },
-  { id: 'settings', labelKey: 'settings', icon: Settings },
-  { id: 'support', labelKey: 'support', icon: LifeBuoy},
+  {
+    id: 'home',
+    labelKey: 'overview',
+    icon: Home,
+  },
+  {
+    id: 'reservations',
+    labelKey: 'reservations',
+    icon: CalendarDays,
+  },
+  {
+    id: 'availability',
+    labelKey: 'availability',
+    icon: Clock3,
+  },
+  {
+    id: 'tables',
+    labelKey: 'floorPlan',
+    icon: LayoutGrid,
+  },
+  {
+    id: 'intelligence',
+    labelKey: 'intelligence',
+    icon: BrainCircuit,
+  },
+  {
+    id: 'settings',
+    labelKey: 'settings',
+    icon: Settings,
+  },
+  {
+    id: 'support',
+    labelKey: 'support',
+    icon: LifeBuoy,
+  },
 ] as const;
 
 export function Sidebar({
