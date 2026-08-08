@@ -102,6 +102,7 @@ function translateTrust(
 ) {
   const labels: Record<string, string> = {
     unknown: t.intelligenceUnknown,
+    developing: t.intelligenceDeveloping,
     low: t.intelligenceLow,
     medium: t.intelligenceMedium,
     high: t.intelligenceHigh,
@@ -124,6 +125,8 @@ function translateInsight(
     > = {
       unknown:
         t.intelligenceInsightManagerTrustUnknown,
+      developing:
+        t.intelligenceInsightManagerTrustDeveloping,
       low:
         t.intelligenceInsightManagerTrustLow,
       medium:

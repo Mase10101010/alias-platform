@@ -211,6 +211,8 @@ export const translations = {
     toneElegant: 'Elegant',
     toneCasual: 'Casual',
     toneModern: 'Modern',
+    intelligenceInsightManagerTrustDeveloping:
+      'Manager trust is still developing as Alias observes more seating decisions.',
     toneLuxuryDescription: 'Refined, exclusive and high-end language for premium dining.',
     toneElegantDescription: 'Polished, warm and graceful communication for refined service.',
     toneCasualDescription: 'Friendly, relaxed and approachable tone for informal hospitality.',
@@ -288,6 +290,10 @@ export const translations = {
     openingHoursLabel: 'Opening hours',
     businessType: 'Business type',
     conciergeTone: 'Concierge tone',
+    intelligenceInsightLowReviewRateTitle:
+      'Low suggestion review rate',
+    intelligenceInsightLowReviewRateDescription:
+      'Less than half of the generated suggestions have been reviewed.',
     trialActive: 'Trial active',
     billingNextPhase:
       'Billing integration will be connected in the next product phase.',
@@ -350,6 +356,7 @@ export const translations = {
     averagePartySize: 'Average party size',
     bookingsByHour: 'Bookings by hour',
     realTime: 'real-time',
+    intelligenceDeveloping: 'Developing',
     guests: 'guests',
     noAnalyticsData: 'No analytics data available yet.',
     statusConfirmed: 'Confirmed',
@@ -638,6 +645,8 @@ export const translations = {
     trialModeActive: 'Modalità prova attiva',
     statReservations: 'Prenotazioni',
     statConfirmed: 'Confermate',
+    intelligenceInsightManagerTrustDeveloping:
+      'La fiducia del manager è ancora in fase di sviluppo mentre Alias osserva altre decisioni sui tavoli.',
     statConcierge: 'Concierge',
     intelligenceInsightManagerTrustTitle:
       'Livello di fiducia del manager',
@@ -715,6 +724,10 @@ export const translations = {
     back: 'Indietro',
     launching: 'Avvio…',
     launchConcierge: 'Avvia concierge',
+    intelligenceInsightLowReviewRateTitle:
+      'Basso tasso di revisione dei suggerimenti',
+    intelligenceInsightLowReviewRateDescription:
+      'È stato revisionato meno della metà dei suggerimenti generati.',
     continue: 'Continua',
     floorPlan: 'Mappa Tavoli',
     businessStepTitle: 'Raccontaci il tuo locale',
@@ -726,6 +739,7 @@ export const translations = {
     openingHours: 'Orari di apertura',
     restaurantSchedule: 'Programma del ristorante',
     openingTime: 'Orario apertura',
+    intelligenceDeveloping: 'In sviluppo',
     closingTime: 'Orario chiusura',
     availabilityPageTitle: 'Disponibilità',
     openingDays: 'Giorni di apertura',
@@ -1133,6 +1147,8 @@ export const translations = {
       'Tu concierge AI está activo y gestionando solicitudes.',
     dashboard: 'Panel Alias',
     logout: 'Salir',
+    intelligenceInsightManagerTrustDeveloping:
+      'La confianza del gerente aún está en desarrollo mientras Alias observa más decisiones sobre las mesas.',
     publicWelcome: 'Bienvenido. Soy el concierge de {restaurantName}. Puedo ayudarte a reservar una mesa, comprobar disponibilidad o comunicar solicitudes especiales al equipo.',
     publicReserveTitle: 'Reserva tu mesa con el concierge del restaurante.',
     publicSecure: 'Los datos de tu reserva se envían de forma segura al equipo del restaurante.',
@@ -1149,6 +1165,11 @@ export const translations = {
     trialModeActive: 'Modo de prueba activo',
     statReservations: 'Reservas',
     statConfirmed: 'Confirmadas',
+    intelligenceInsightLowReviewRateTitle:
+      'Baja tasa de revisión de sugerencias',
+    intelligenceInsightLowReviewRateDescription:
+      'Se ha revisado menos de la mitad de las sugerencias generadas.',
+    intelligenceDeveloping: 'En desarrollo',
     statConcierge: 'Conserje',
     statSubscription: 'Suscripción',
     liveActivity: 'Actividad en vivo',
@@ -1685,18 +1706,24 @@ export const translations = {
     publicSecure: "Les détails de votre réservation sont envoyés de manière sécurisée à l'équipe du restaurant.",
     publicPlaceholder: 'Exemple : table pour 2 demain à 20h',
     publicPoweredBy: 'Powered by Alias Concierge AI',
-    publicLiveAI: 'AI en direct',
+    intelligenceInsightLowReviewRateTitle:
+      'Faible taux de consultation des suggestions',
+    intelligenceInsightLowReviewRateDescription:
+      'Moins de la moitié des suggestions générées ont été consultées.',
     publicChecking: 'Alias vérifie les disponibilités…',
     publicReservationConfirmed: 'Réservation confirmée',
     publicBookingRegistered: 'Votre réservation est maintenant enregistrée chez {restaurantName}.',
     publicReservationId: 'ID de réservation',
     overviewTitle: 'Vue générale',
     goodEvening: 'Bonsoir',
+    intelligenceDeveloping: 'En développement',
     overviewSubtitle: 'Vue opérationnelle en direct alimentée par Alias Concierge AI.',
     trialModeActive: 'Mode essai actif',
     statReservations: 'Réservations',
     statConfirmed: 'Confirmées',
     statConcierge: 'Concierge',
+    intelligenceInsightManagerTrustDeveloping:
+      'La confiance du manager est encore en développement pendant qu’Alias observe davantage de décisions concernant les tables.',
     statSubscription: 'Abonnement',
     intelligencePredictionQuality:
       'Qualité des prédictions',
@@ -2119,6 +2146,12 @@ export const translations = {
     statConfirmed: 'Bestätigt',
     statConcierge: 'Concierge',
     statSubscription: 'Abonnement',
+    intelligenceInsightLowReviewRateTitle:
+      'Niedrige Überprüfungsrate der Vorschläge',
+    intelligenceInsightLowReviewRateDescription:
+      'Weniger als die Hälfte der generierten Vorschläge wurde überprüft.',
+    intelligenceInsightManagerTrustDeveloping:
+      'Das Vertrauen des Managers befindet sich noch im Aufbau, während Alias weitere Tischentscheidungen beobachtet.',
     seatingPlanMatchPreferences:
       'Übereinstimmung mit Ihren Präferenzen',
     seatingPlanConfidence:
@@ -2280,6 +2313,7 @@ export const translations = {
     numberOfTables: 'Anzahl der Tische',
     seatsPerTable: 'Sitze pro Tisch',
     add: 'Hinzufügen',
+    intelligenceDeveloping: 'In Entwicklung',
     noTableConfigurations: 'Noch keine Tischkonfiguration hinzugefügt.',
     totalSeats: 'Gesamtsitze',
     remove: 'Entfernen',
