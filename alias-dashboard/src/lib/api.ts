@@ -21,6 +21,24 @@ export type SpecialClosure = {
   reason: string;
 };
 
+export type IntelligenceCalibrationSnapshot = {
+  restaurant_id: string;
+  predictions_evaluated: number;
+  correct_predictions: number;
+  prediction_accuracy: number;
+  average_absolute_error: number;
+  brier_score: number;
+  average_predicted_probability: number;
+  actual_acceptance_rate: number;
+  calibration_gap: number;
+  state:
+    | 'insufficient_data'
+    | 'overconfident'
+    | 'well_calibrated'
+    | 'underconfident';
+  generated_at: string;
+};
+
 export type RestaurantCreate = {
   name: string;
   slug: string;
@@ -110,6 +128,7 @@ export type IntelligenceSnapshotResponse = {
   learning: IntelligenceLearningSnapshot;
   behaviour: IntelligenceBehaviourSnapshot;
   policy: IntelligencePolicySnapshot | null;
+  calibration: IntelligenceCalibrationSnapshot;
   generated_at: string;
 };
 

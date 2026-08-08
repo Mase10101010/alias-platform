@@ -224,7 +224,17 @@ function translateAutomation(
     learning,
     behaviour,
     policy,
+    calibration,
   } = snapshot;
+
+  const calibrationGapPercent = Math.round(
+    calibration.calibration_gap * 100,
+  );
+
+  const calibrationGapLabel =
+    calibrationGapPercent > 0
+      ? `+${calibrationGapPercent}%`
+      : `${calibrationGapPercent}%`;
 
   const confidencePercent =
     Math.round(
@@ -468,6 +478,62 @@ function translateAutomation(
               </div>
             </div>
           )}
+        </section>
+
+        <section className="rounded-3xl border border-white/10 bg-white/[.025] p-6">
+          <div>
+            <p className="text-xs uppercase tracking-[.18em] text-white/30">
+              {t.intelligencePredictionQuality}
+            </p>
+
+            <h2 className="mt-1 text-lg font-medium text-white">
+              {t.intelligencePredictionReliability}
+            </h2>
+          </div>
+
+          <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <Metric
+              label={t.intelligencePredictionsEvaluated}
+              value={String(
+                calibration.predictions_evaluated,
+              )}
+            />
+
+            <Metric
+              label={t.intelligencePredictionAccuracy}
+              value={percentage(
+                calibration.prediction_accuracy,
+              )}
+            />
+
+            <Metric
+              label={t.intelligenceAverageConfidence}
+              value={percentage(
+                calibration.average_predicted_probability,
+              )}
+            />
+
+            <Metric
+              label={t.intelligenceCalibrationGap}
+              value={calibrationGapLabel}
+            />
+          </div>
+
+          <div className="mt-5 rounded-2xl border border-white/[.06] bg-white/[.02] p-5">
+            <p className="text-sm text-white/45">
+              {t.intelligenceCalibrationStatus}
+            </p>
+
+            <p className="mt-2 text-lg font-medium text-white">
+              {calibration.state === 'insufficient_data'
+                ? t.intelligenceCalibrationInsufficient
+                : calibration.state === 'overconfident'
+                  ? t.intelligenceCalibrationOverconfident
+                  : calibration.state === 'underconfident'
+                    ? t.intelligenceCalibrationUnderconfident
+                    : t.intelligenceCalibrationWellCalibrated}
+            </p>
+          </div>
         </section>
       </div>
 

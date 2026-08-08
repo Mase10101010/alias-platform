@@ -59,6 +59,27 @@ export const translations = {
     publicReservationId: 'Reservation ID',
     overviewTitle: 'Overview',
     goodEvening: 'Good evening',
+    intelligencePredictionQuality: 'Prediction quality',
+    intelligencePredictionReliability:
+      'How reliable Alias predictions are',
+    intelligencePredictionsEvaluated:
+      'Predictions evaluated',
+    intelligencePredictionAccuracy:
+      'Prediction accuracy',
+    intelligenceAverageConfidence:
+      'Average predicted probability',
+    intelligenceCalibrationGap:
+      'Calibration gap',
+    intelligenceCalibrationStatus:
+      'Calibration status',
+    intelligenceCalibrationInsufficient:
+      'Not enough data yet',
+    intelligenceCalibrationOverconfident:
+      'Alias is currently overconfident',
+    intelligenceCalibrationUnderconfident:
+      'Alias is currently underconfident',
+    intelligenceCalibrationWellCalibrated:
+      'Predictions are well calibrated',
     overviewSubtitle: 'Live operational overview powered by Alias Concierge AI.',
     trialModeActive: 'Trial Mode Active',
     statReservations: 'Reservations',
@@ -463,6 +484,28 @@ export const translations = {
     statConcierge: 'Concierge',
     statSubscription: 'Abbonamento',
     liveActivity: 'Attività live',
+    intelligencePredictionQuality:
+      'Qualità delle previsioni',
+    intelligencePredictionReliability:
+      'Quanto sono affidabili le previsioni di Alias',
+    intelligencePredictionsEvaluated:
+      'Previsioni valutate',
+    intelligencePredictionAccuracy:
+      'Accuratezza delle previsioni',
+    intelligenceAverageConfidence:
+      'Probabilità media prevista',
+    intelligenceCalibrationGap:
+      'Scarto di calibrazione',
+    intelligenceCalibrationStatus:
+      'Stato della calibrazione',
+    intelligenceCalibrationInsufficient:
+      'Dati ancora insufficienti',
+    intelligenceCalibrationOverconfident:
+      'Alias è attualmente troppo sicuro nelle sue previsioni',
+    intelligenceCalibrationUnderconfident:
+      'Alias è attualmente troppo prudente nelle sue previsioni',
+    intelligenceCalibrationWellCalibrated:
+      'Le previsioni sono ben calibrate',
     recentReservations: 'Prenotazioni recenti.',
     live: 'Live',
     loadingActivity: 'Caricamento attività...',
@@ -879,6 +922,28 @@ export const translations = {
     onboardingHeading: 'Configura tu concierge AI.',
     back: 'Atrás',
     launching: 'Lanzando…',
+    intelligencePredictionQuality:
+      'Calidad de las predicciones',
+    intelligencePredictionReliability:
+      'Qué tan fiables son las predicciones de Alias',
+    intelligencePredictionsEvaluated:
+      'Predicciones evaluadas',
+    intelligencePredictionAccuracy:
+      'Precisión de las predicciones',
+    intelligenceAverageConfidence:
+      'Probabilidad media prevista',
+    intelligenceCalibrationGap:
+      'Diferencia de calibración',
+    intelligenceCalibrationStatus:
+      'Estado de calibración',
+    intelligenceCalibrationInsufficient:
+      'Todavía no hay suficientes datos',
+    intelligenceCalibrationOverconfident:
+      'Alias está siendo demasiado confiado en sus predicciones',
+    intelligenceCalibrationUnderconfident:
+      'Alias está siendo demasiado prudente en sus predicciones',
+    intelligenceCalibrationWellCalibrated:
+      'Las predicciones están bien calibradas',
     launchConcierge: 'Lanzar concierge',
     continue: 'Continuar',
     floorPlan: 'Plano de Mesas',
@@ -1257,6 +1322,28 @@ export const translations = {
     statConfirmed: 'Confirmées',
     statConcierge: 'Concierge',
     statSubscription: 'Abonnement',
+    intelligencePredictionQuality:
+      'Qualité des prédictions',
+    intelligencePredictionReliability:
+      'Fiabilité des prédictions d’Alias',
+    intelligencePredictionsEvaluated:
+      'Prédictions évaluées',
+    intelligencePredictionAccuracy:
+      'Précision des prédictions',
+    intelligenceAverageConfidence:
+      'Probabilité moyenne prédite',
+    intelligenceCalibrationGap:
+      'Écart de calibration',
+    intelligenceCalibrationStatus:
+      'État de la calibration',
+    intelligenceCalibrationInsufficient:
+      'Pas encore assez de données',
+    intelligenceCalibrationOverconfident:
+      'Alias est actuellement trop confiant dans ses prédictions',
+    intelligenceCalibrationUnderconfident:
+      'Alias est actuellement trop prudent dans ses prédictions',
+    intelligenceCalibrationWellCalibrated:
+      'Les prédictions sont bien calibrées',
     liveActivity: 'Activité en direct',
     recentReservations: 'Réservations récentes.',
     live: 'En direct',
@@ -1679,6 +1766,28 @@ export const translations = {
     launching: 'Wird gestartet…',
     launchConcierge: 'Concierge starten',
     continue: 'Weiter',
+    intelligencePredictionQuality:
+      'Vorhersagequalität',
+    intelligencePredictionReliability:
+      'Wie zuverlässig die Vorhersagen von Alias sind',
+    intelligencePredictionsEvaluated:
+      'Ausgewertete Vorhersagen',
+    intelligencePredictionAccuracy:
+      'Vorhersagegenauigkeit',
+    intelligenceAverageConfidence:
+      'Durchschnittlich vorhergesagte Wahrscheinlichkeit',
+    intelligenceCalibrationGap:
+      'Kalibrierungsabweichung',
+    intelligenceCalibrationStatus:
+      'Kalibrierungsstatus',
+    intelligenceCalibrationInsufficient:
+      'Noch nicht genügend Daten',
+    intelligenceCalibrationOverconfident:
+      'Alias ist derzeit zu sicher in seinen Vorhersagen',
+    intelligenceCalibrationUnderconfident:
+      'Alias ist derzeit zu vorsichtig in seinen Vorhersagen',
+    intelligenceCalibrationWellCalibrated:
+      'Die Vorhersagen sind gut kalibriert',
     businessStepTitle: 'Erzählen Sie uns von Ihrem Betrieb',
     businessStepDescription:
       'Diese Details helfen Alias, Ihren Workspace einzurichten und das AI-Concierge-Erlebnis für Ihre Gäste zu personalisieren.',
