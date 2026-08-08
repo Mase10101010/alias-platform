@@ -234,6 +234,37 @@ export const translations = {
       'Use this public link on your website, Instagram bio, Google Business profile, QR code, or embed it directly with an iframe.',
     openConcierge: 'Open concierge',
     publicLink: 'Public link',
+    intelligenceInsightManagerTrustTitle:
+      'Manager trust level',
+    intelligenceInsightManagerTrustUnknown:
+      'There is not enough evidence yet to estimate manager trust reliably.',
+    intelligenceInsightManagerTrustLow:
+      'The manager currently accepts few of Alias’s seating suggestions.',
+    intelligenceInsightManagerTrustMedium:
+      'The manager accepts Alias suggestions with moderate frequency.',
+    intelligenceInsightManagerTrustHigh:
+      'The manager frequently accepts Alias seating suggestions.',
+
+    intelligenceInsightAcceptedScoreTitle:
+      'Accepted score reference',
+    intelligenceInsightAcceptedScoreDescription:
+      'Accepted seating plans currently have an average score of {value}.',
+
+    intelligenceInsightPreferredPlanTitle:
+      'Preferred plan structure',
+    intelligenceInsightPreferredPlanSingle:
+      'Accepted plans usually require only one existing reservation to be moved.',
+    intelligenceInsightPreferredPlanMulti:
+      'Accepted plans often involve multiple reservation moves.',
+    intelligenceInsightPreferredPlanLowWaste:
+      'Accepted plans usually minimise unused seating capacity.',
+    intelligenceInsightPreferredPlanFlexible:
+      'No dominant plan structure has emerged yet.',
+
+    intelligenceInsightExpiredTitle:
+      'Suggestions becoming obsolete',
+    intelligenceInsightExpiredDescription:
+      '{value} suggestion(s) became obsolete before a manager decision was recorded.',
     iframeEmbedCode: 'Iframe embed code',
     createRestaurantFirst: 'Create a restaurant first.',
     copied: 'Copied',
@@ -482,6 +513,37 @@ export const translations = {
     statReservations: 'Prenotazioni',
     statConfirmed: 'Confermate',
     statConcierge: 'Concierge',
+    intelligenceInsightManagerTrustTitle:
+      'Livello di fiducia del manager',
+    intelligenceInsightManagerTrustUnknown:
+      'Non ci sono ancora abbastanza dati per stimare in modo affidabile la fiducia del manager.',
+    intelligenceInsightManagerTrustLow:
+      'Il manager accetta attualmente poche proposte di disposizione dei tavoli generate da Alias.',
+    intelligenceInsightManagerTrustMedium:
+      'Il manager accetta le proposte di Alias con frequenza moderata.',
+    intelligenceInsightManagerTrustHigh:
+      'Il manager accetta frequentemente le proposte di disposizione dei tavoli generate da Alias.',
+
+    intelligenceInsightAcceptedScoreTitle:
+      'Punteggio medio accettato',
+    intelligenceInsightAcceptedScoreDescription:
+      'I piani di disposizione accettati hanno attualmente un punteggio medio di {value}.',
+
+    intelligenceInsightPreferredPlanTitle:
+      'Struttura del piano preferita',
+    intelligenceInsightPreferredPlanSingle:
+      'I piani accettati richiedono generalmente lo spostamento di una sola prenotazione esistente.',
+    intelligenceInsightPreferredPlanMulti:
+      'I piani accettati prevedono spesso più spostamenti di prenotazioni.',
+    intelligenceInsightPreferredPlanLowWaste:
+      'I piani accettati tendono a ridurre al minimo i posti inutilizzati.',
+    intelligenceInsightPreferredPlanFlexible:
+      'Non è ancora emersa una struttura di piano dominante.',
+
+    intelligenceInsightExpiredTitle:
+      'Suggerimenti diventati obsoleti',
+    intelligenceInsightExpiredDescription:
+      '{value} suggerimento/i sono diventati obsoleti prima che venisse registrata una decisione del manager.',
     statSubscription: 'Abbonamento',
     liveActivity: 'Attività live',
     intelligencePredictionQuality:
@@ -901,6 +963,37 @@ export const translations = {
     statConcierge: 'Conserje',
     statSubscription: 'Suscripción',
     liveActivity: 'Actividad en vivo',
+    intelligenceInsightManagerTrustTitle:
+      'Nivel de confianza del gerente',
+    intelligenceInsightManagerTrustUnknown:
+      'Todavía no hay suficientes datos para estimar de forma fiable la confianza del gerente.',
+    intelligenceInsightManagerTrustLow:
+      'El gerente acepta actualmente pocas sugerencias de distribución de mesas de Alias.',
+    intelligenceInsightManagerTrustMedium:
+      'El gerente acepta las sugerencias de Alias con una frecuencia moderada.',
+    intelligenceInsightManagerTrustHigh:
+      'El gerente acepta con frecuencia las sugerencias de distribución de mesas de Alias.',
+
+    intelligenceInsightAcceptedScoreTitle:
+      'Puntuación media aceptada',
+    intelligenceInsightAcceptedScoreDescription:
+      'Los planes de distribución aceptados tienen actualmente una puntuación media de {value}.',
+
+    intelligenceInsightPreferredPlanTitle:
+      'Estructura de plan preferida',
+    intelligenceInsightPreferredPlanSingle:
+      'Los planes aceptados suelen requerir mover una sola reserva existente.',
+    intelligenceInsightPreferredPlanMulti:
+      'Los planes aceptados suelen implicar varios movimientos de reservas.',
+    intelligenceInsightPreferredPlanLowWaste:
+      'Los planes aceptados suelen minimizar los asientos sin utilizar.',
+    intelligenceInsightPreferredPlanFlexible:
+      'Todavía no ha surgido una estructura de plan dominante.',
+
+    intelligenceInsightExpiredTitle:
+      'Sugerencias que quedan obsoletas',
+    intelligenceInsightExpiredDescription:
+      '{value} sugerencia(s) quedaron obsoletas antes de registrar una decisión del gerente.',
     recentReservations: 'Reservas recientes.',
     live: 'En vivo',
     loadingActivity: 'Cargando actividad...',
@@ -1300,6 +1393,37 @@ export const translations = {
     analytics: 'Analytiques',
     settings: 'Paramètres',
     trialDay: "Jour d'essai 3",
+    intelligenceInsightManagerTrustTitle:
+      'Niveau de confiance du manager',
+    intelligenceInsightManagerTrustUnknown:
+      'Il n’y a pas encore assez de données pour estimer de manière fiable la confiance du manager.',
+    intelligenceInsightManagerTrustLow:
+      'Le manager accepte actuellement peu de suggestions de placement proposées par Alias.',
+    intelligenceInsightManagerTrustMedium:
+      'Le manager accepte les suggestions d’Alias avec une fréquence modérée.',
+    intelligenceInsightManagerTrustHigh:
+      'Le manager accepte fréquemment les suggestions de placement d’Alias.',
+
+    intelligenceInsightAcceptedScoreTitle:
+      'Score moyen accepté',
+    intelligenceInsightAcceptedScoreDescription:
+      'Les plans de placement acceptés ont actuellement un score moyen de {value}.',
+
+    intelligenceInsightPreferredPlanTitle:
+      'Structure de plan préférée',
+    intelligenceInsightPreferredPlanSingle:
+      'Les plans acceptés nécessitent généralement le déplacement d’une seule réservation existante.',
+    intelligenceInsightPreferredPlanMulti:
+      'Les plans acceptés impliquent souvent plusieurs déplacements de réservations.',
+    intelligenceInsightPreferredPlanLowWaste:
+      'Les plans acceptés minimisent généralement les places inutilisées.',
+    intelligenceInsightPreferredPlanFlexible:
+      'Aucune structure de plan dominante ne s’est encore dégagée.',
+
+    intelligenceInsightExpiredTitle:
+      'Suggestions devenues obsolètes',
+    intelligenceInsightExpiredDescription:
+      '{value} suggestion(s) sont devenues obsolètes avant qu’une décision du manager ne soit enregistrée.',
     liveConcierge:
       'Votre concierge AI est actif et gère les demandes clients.',
     dashboard: 'Tableau de bord Alias',
@@ -1765,6 +1889,37 @@ export const translations = {
     back: 'Zurück',
     launching: 'Wird gestartet…',
     launchConcierge: 'Concierge starten',
+    intelligenceInsightManagerTrustTitle:
+      'Vertrauensniveau des Managers',
+    intelligenceInsightManagerTrustUnknown:
+      'Es liegen noch nicht genügend Daten vor, um das Vertrauen des Managers zuverlässig einzuschätzen.',
+    intelligenceInsightManagerTrustLow:
+      'Der Manager akzeptiert derzeit nur wenige Sitzplatzvorschläge von Alias.',
+    intelligenceInsightManagerTrustMedium:
+      'Der Manager akzeptiert Alias-Vorschläge mit mittlerer Häufigkeit.',
+    intelligenceInsightManagerTrustHigh:
+      'Der Manager akzeptiert Sitzplatzvorschläge von Alias häufig.',
+
+    intelligenceInsightAcceptedScoreTitle:
+      'Durchschnittlicher akzeptierter Score',
+    intelligenceInsightAcceptedScoreDescription:
+      'Akzeptierte Sitzpläne haben derzeit einen durchschnittlichen Score von {value}.',
+
+    intelligenceInsightPreferredPlanTitle:
+      'Bevorzugte Planstruktur',
+    intelligenceInsightPreferredPlanSingle:
+      'Akzeptierte Pläne erfordern normalerweise nur die Verschiebung einer bestehenden Reservierung.',
+    intelligenceInsightPreferredPlanMulti:
+      'Akzeptierte Pläne beinhalten häufig mehrere Reservierungsverschiebungen.',
+    intelligenceInsightPreferredPlanLowWaste:
+      'Akzeptierte Pläne minimieren normalerweise ungenutzte Sitzplätze.',
+    intelligenceInsightPreferredPlanFlexible:
+      'Es hat sich noch keine dominante Planstruktur herausgebildet.',
+
+    intelligenceInsightExpiredTitle:
+      'Veraltete Vorschläge',
+    intelligenceInsightExpiredDescription:
+      '{value} Vorschlag/Vorschläge wurden veraltet, bevor eine Managerentscheidung aufgezeichnet wurde.',
     continue: 'Weiter',
     intelligencePredictionQuality:
       'Vorhersagequalität',

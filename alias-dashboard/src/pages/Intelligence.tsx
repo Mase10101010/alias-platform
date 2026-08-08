@@ -18,6 +18,7 @@ import {
 import {
   getIntelligenceSnapshot,
   getRestaurants,
+  type IntelligenceInsight,
   type IntelligenceSnapshotResponse,
 } from '@/lib/api';
 
@@ -107,6 +108,106 @@ function translateTrust(
   };
 
   return labels[value] ?? value;
+}
+
+function translateInsight(
+  insight: IntelligenceInsight,
+) {
+  if (insight.code === 'manager_trust') {
+    const trust = String(
+      insight.value ?? 'unknown',
+    );
+
+    const descriptions: Record<
+      string,
+      string
+    > = {
+      unknown:
+        t.intelligenceInsightManagerTrustUnknown,
+      low:
+        t.intelligenceInsightManagerTrustLow,
+      medium:
+        t.intelligenceInsightManagerTrustMedium,
+      high:
+        t.intelligenceInsightManagerTrustHigh,
+    };
+
+    return {
+      title:
+        t.intelligenceInsightManagerTrustTitle,
+      description:
+        descriptions[trust]
+        ?? t.intelligenceInsightManagerTrustUnknown,
+    };
+  }
+
+  if (
+    insight.code
+    === 'accepted_score_reference'
+  ) {
+    return {
+      title:
+        t.intelligenceInsightAcceptedScoreTitle,
+      description:
+        t.intelligenceInsightAcceptedScoreDescription
+          .replace(
+            '{value}',
+            String(insight.value ?? '—'),
+          ),
+    };
+  }
+
+  if (
+    insight.code
+    === 'preferred_plan_structure'
+  ) {
+    const plan = String(
+      insight.value ?? 'unknown',
+    );
+
+    const descriptions: Record<
+      string,
+      string
+    > = {
+      single_move:
+        t.intelligenceInsightPreferredPlanSingle,
+      multi_move:
+        t.intelligenceInsightPreferredPlanMulti,
+      low_seat_waste:
+        t.intelligenceInsightPreferredPlanLowWaste,
+      flexible:
+        t.intelligenceInsightPreferredPlanFlexible,
+    };
+
+    return {
+      title:
+        t.intelligenceInsightPreferredPlanTitle,
+      description:
+        descriptions[plan]
+        ?? t.intelligenceInsightPreferredPlanFlexible,
+    };
+  }
+
+  if (
+    insight.code
+    === 'expired_suggestions'
+  ) {
+    return {
+      title:
+        t.intelligenceInsightExpiredTitle,
+      description:
+        t.intelligenceInsightExpiredDescription
+          .replace(
+            '{value}',
+            String(insight.value ?? 0),
+          ),
+    };
+  }
+
+  return {
+    title: insight.title,
+    description: insight.description,
+  };
 }
 
 function translateAutomation(
@@ -557,32 +658,39 @@ function translateAutomation(
 
         <div className="mt-6 grid gap-3 lg:grid-cols-3">
           {behaviour.insights.map(
-            (insight) => (
-              <div
-                key={insight.code}
-                className="rounded-2xl border border-white/[.06] bg-white/[.02] p-5"
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <p className="font-medium text-white/85">
-                    {insight.title}
+            (insight) => {
+              const translated =
+                translateInsight(insight);
+
+              return (
+                <div
+                  key={insight.code}
+                  className="rounded-2xl border border-white/[.06] bg-white/[.02] p-5"
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="font-medium text-white/85">
+                      {translated.title}
+                    </p>
+
+                    <span className="rounded-full border border-white/10 px-2.5 py-1 text-[10px] uppercase tracking-[.14em] text-white/35">
+                      {translateTrust(
+                        insight.confidence,
+                      )}
+                    </span>
+                  </div>
+
+                  <p className="mt-3 text-sm leading-6 text-white/40">
+                    {translated.description}
                   </p>
 
-                  <span className="rounded-full border border-white/10 px-2.5 py-1 text-[10px] uppercase tracking-[.14em] text-white/35">
-                    {insight.confidence}
-                  </span>
-                </div>
-
-                <p className="mt-3 text-sm leading-6 text-white/40">
-                  {insight.description}
-                </p>
-
-                <div className="mt-4 flex items-center gap-2 text-xs text-white/25">
-                  <Eye size={13} />
-                  {insight.evidence_count}{' '}
+                  <div className="mt-4 flex items-center gap-2 text-xs text-white/25">
+                    <Eye size={13} />
+                    {insight.evidence_count}{' '}
                     {t.intelligenceEvidence}
+                  </div>
                 </div>
-              </div>
-            ),
+              );
+            },
           )}
         </div>
       </section>
