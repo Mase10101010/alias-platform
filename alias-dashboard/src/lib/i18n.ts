@@ -108,6 +108,69 @@ export const translations = {
     back: 'Back',
     launching: 'Launching…',
     launchConcierge: 'Launch concierge',
+    seatingPlanMatchPreferences:
+      'Match with your preferences',
+    seatingPlanConfidence:
+      'Confidence',
+    seatingPlanPredictionDescription:
+      'This estimates how closely the plan matches the seating decisions Alias has observed for this restaurant.',
+    seatingPlanWhyRecommended:
+      'Why Alias recommends this',
+
+    seatingReasonNoMovesTitle:
+      'No reservation moves required',
+    seatingReasonNoMovesDescription:
+      'This plan can be applied without moving any existing reservation.',
+
+    seatingReasonPreferredSingleMoveTitle:
+      'Matches preferred move structure',
+    seatingReasonPreferredSingleMoveDescription:
+      'This plan requires moving only one reservation, which matches the manager’s observed preferences.',
+
+    seatingReasonPreferredMoveLimitTitle:
+      'Within preferred move limit',
+    seatingReasonPreferredMoveLimitDescription:
+      'The number of reservation moves is within the range currently preferred for this restaurant.',
+
+    seatingReasonAboveMoveLimitTitle:
+      'More moves than usually preferred',
+    seatingReasonAboveMoveLimitDescription:
+      'This plan requires more reservation moves than the current learned preference.',
+
+    seatingReasonExactFitTitle:
+      'Exact capacity fit',
+    seatingReasonExactFitDescription:
+      'This plan creates no unused seating capacity.',
+
+    seatingReasonSeatWasteWithinTitle:
+      'Seat waste within preferred range',
+    seatingReasonSeatWasteWithinDescription:
+      'Unused seating capacity remains within the restaurant’s learned preference.',
+
+    seatingReasonSeatWasteHighTitle:
+      'Higher seat waste than usual',
+    seatingReasonSeatWasteHighDescription:
+      'This plan leaves more unused seating capacity than plans usually accepted by the manager.',
+
+    seatingReasonStrongScoreTitle:
+      'Strong technical score',
+    seatingReasonStrongScoreDescription:
+      'The technical score is above the current learned recommendation reference.',
+
+    seatingReasonLowScoreTitle:
+      'Below learned score reference',
+    seatingReasonLowScoreDescription:
+      'The technical score is below the current learned reference, so manager review remains advisable.',
+
+    seatingReasonPersonalizationBonusTitle:
+      'Boosted by learned preferences',
+    seatingReasonPersonalizationBonusDescription:
+      'Alias ranked this plan higher after applying the restaurant’s learned preferences.',
+
+    seatingReasonPersonalizationPenaltyTitle:
+      'Reduced by learned preferences',
+    seatingReasonPersonalizationPenaltyDescription:
+      'Alias ranked this plan more cautiously after applying the restaurant’s learned preferences.',
     continue: 'Continue',
     businessStepTitle: 'Tell us about the establishment',
     businessStepDescription:
@@ -508,6 +571,69 @@ export const translations = {
     publicReservationId: 'ID prenotazione',
     overviewTitle: 'Panoramica',
     goodEvening: 'Buonasera',
+    seatingPlanMatchPreferences:
+      'Compatibilità con le tue preferenze',
+    seatingPlanConfidence:
+      'Confidenza',
+    seatingPlanPredictionDescription:
+      'Questa stima indica quanto il piano è coerente con le decisioni sui tavoli che Alias ha osservato per questo ristorante.',
+    seatingPlanWhyRecommended:
+      'Perché Alias consiglia questo piano',
+
+    seatingReasonNoMovesTitle:
+      'Nessuno spostamento necessario',
+    seatingReasonNoMovesDescription:
+      'Questo piano può essere applicato senza spostare alcuna prenotazione esistente.',
+
+    seatingReasonPreferredSingleMoveTitle:
+      'Rispetta la struttura di spostamento preferita',
+    seatingReasonPreferredSingleMoveDescription:
+      'Questo piano richiede lo spostamento di una sola prenotazione, in linea con le preferenze osservate del manager.',
+
+    seatingReasonPreferredMoveLimitTitle:
+      'Entro il limite di spostamenti preferito',
+    seatingReasonPreferredMoveLimitDescription:
+      'Il numero di spostamenti rientra nell’intervallo attualmente preferito per questo ristorante.',
+
+    seatingReasonAboveMoveLimitTitle:
+      'Più spostamenti del solito',
+    seatingReasonAboveMoveLimitDescription:
+      'Questo piano richiede più spostamenti rispetto alla preferenza attualmente appresa.',
+
+    seatingReasonExactFitTitle:
+      'Capienza perfettamente utilizzata',
+    seatingReasonExactFitDescription:
+      'Questo piano non crea posti inutilizzati.',
+
+    seatingReasonSeatWasteWithinTitle:
+      'Posti inutilizzati entro il limite preferito',
+    seatingReasonSeatWasteWithinDescription:
+      'I posti inutilizzati restano entro la preferenza appresa del ristorante.',
+
+    seatingReasonSeatWasteHighTitle:
+      'Più posti inutilizzati del solito',
+    seatingReasonSeatWasteHighDescription:
+      'Questo piano lascia più posti inutilizzati rispetto ai piani normalmente accettati dal manager.',
+
+    seatingReasonStrongScoreTitle:
+      'Punteggio tecnico elevato',
+    seatingReasonStrongScoreDescription:
+      'Il punteggio tecnico è superiore al riferimento appreso attuale.',
+
+    seatingReasonLowScoreTitle:
+      'Sotto il riferimento appreso',
+    seatingReasonLowScoreDescription:
+      'Il punteggio tecnico è inferiore al riferimento appreso attuale, quindi è consigliata la revisione del manager.',
+
+    seatingReasonPersonalizationBonusTitle:
+      'Favorito dalle preferenze apprese',
+    seatingReasonPersonalizationBonusDescription:
+      'Alias ha classificato questo piano più in alto dopo aver applicato le preferenze apprese del ristorante.',
+
+    seatingReasonPersonalizationPenaltyTitle:
+      'Ridotto dalle preferenze apprese',
+    seatingReasonPersonalizationPenaltyDescription:
+      'Alias ha classificato questo piano con maggiore cautela dopo aver applicato le preferenze apprese del ristorante.',
     overviewSubtitle: 'Panoramica operativa live alimentata da Alias Concierge AI.',
     trialModeActive: 'Modalità prova attiva',
     statReservations: 'Prenotazioni',
@@ -939,6 +1065,69 @@ export const translations = {
     availabilityTitle: 'Disponibilidad',
     analytics: 'Analíticas',
     settings: 'Configuración',
+    seatingPlanMatchPreferences:
+      'Compatibilidad con tus preferencias',
+    seatingPlanConfidence:
+      'Confianza',
+    seatingPlanPredictionDescription:
+      'Esta estimación indica hasta qué punto el plan coincide con las decisiones de mesas que Alias ha observado para este restaurante.',
+    seatingPlanWhyRecommended:
+      'Por qué Alias recomienda este plan',
+
+    seatingReasonNoMovesTitle:
+      'No es necesario mover reservas',
+    seatingReasonNoMovesDescription:
+      'Este plan puede aplicarse sin mover ninguna reserva existente.',
+
+    seatingReasonPreferredSingleMoveTitle:
+      'Coincide con la estructura de movimientos preferida',
+    seatingReasonPreferredSingleMoveDescription:
+      'Este plan requiere mover una sola reserva, en línea con las preferencias observadas del gerente.',
+
+    seatingReasonPreferredMoveLimitTitle:
+      'Dentro del límite de movimientos preferido',
+    seatingReasonPreferredMoveLimitDescription:
+      'El número de movimientos está dentro del rango actualmente preferido para este restaurante.',
+
+    seatingReasonAboveMoveLimitTitle:
+      'Más movimientos de los habituales',
+    seatingReasonAboveMoveLimitDescription:
+      'Este plan requiere más movimientos que la preferencia actualmente aprendida.',
+
+    seatingReasonExactFitTitle:
+      'Capacidad exacta',
+    seatingReasonExactFitDescription:
+      'Este plan no genera asientos sin utilizar.',
+
+    seatingReasonSeatWasteWithinTitle:
+      'Asientos sin utilizar dentro del rango preferido',
+    seatingReasonSeatWasteWithinDescription:
+      'La capacidad sin utilizar permanece dentro de la preferencia aprendida del restaurante.',
+
+    seatingReasonSeatWasteHighTitle:
+      'Más asientos sin utilizar de lo habitual',
+    seatingReasonSeatWasteHighDescription:
+      'Este plan deja más asientos sin utilizar que los planes normalmente aceptados por el gerente.',
+
+    seatingReasonStrongScoreTitle:
+      'Puntuación técnica alta',
+    seatingReasonStrongScoreDescription:
+      'La puntuación técnica está por encima de la referencia aprendida actual.',
+
+    seatingReasonLowScoreTitle:
+      'Por debajo de la referencia aprendida',
+    seatingReasonLowScoreDescription:
+      'La puntuación técnica está por debajo de la referencia aprendida actual, por lo que se recomienda revisión del gerente.',
+
+    seatingReasonPersonalizationBonusTitle:
+      'Favorecido por las preferencias aprendidas',
+    seatingReasonPersonalizationBonusDescription:
+      'Alias clasificó este plan más alto después de aplicar las preferencias aprendidas del restaurante.',
+
+    seatingReasonPersonalizationPenaltyTitle:
+      'Reducido por las preferencias aprendidas',
+    seatingReasonPersonalizationPenaltyDescription:
+      'Alias clasificó este plan con mayor cautela después de aplicar las preferencias aprendidas del restaurante.',
     trialDay: 'Día de prueba 3',
     liveConcierge:
       'Tu concierge AI está activo y gestionando solicitudes.',
@@ -1392,6 +1581,69 @@ export const translations = {
     availabilityTitle: 'Disponibilité',
     analytics: 'Analytiques',
     settings: 'Paramètres',
+    seatingPlanMatchPreferences:
+      'Compatibilité avec vos préférences',
+    seatingPlanConfidence:
+      'Confiance',
+    seatingPlanPredictionDescription:
+      'Cette estimation indique dans quelle mesure le plan correspond aux décisions de placement observées par Alias pour ce restaurant.',
+    seatingPlanWhyRecommended:
+      'Pourquoi Alias recommande ce plan',
+
+    seatingReasonNoMovesTitle:
+      'Aucun déplacement nécessaire',
+    seatingReasonNoMovesDescription:
+      'Ce plan peut être appliqué sans déplacer de réservation existante.',
+
+    seatingReasonPreferredSingleMoveTitle:
+      'Correspond à la structure de déplacement préférée',
+    seatingReasonPreferredSingleMoveDescription:
+      'Ce plan nécessite le déplacement d’une seule réservation, conformément aux préférences observées du manager.',
+
+    seatingReasonPreferredMoveLimitTitle:
+      'Dans la limite de déplacements préférée',
+    seatingReasonPreferredMoveLimitDescription:
+      'Le nombre de déplacements reste dans la plage actuellement préférée pour ce restaurant.',
+
+    seatingReasonAboveMoveLimitTitle:
+      'Plus de déplacements que d’habitude',
+    seatingReasonAboveMoveLimitDescription:
+      'Ce plan nécessite davantage de déplacements que la préférence actuellement apprise.',
+
+    seatingReasonExactFitTitle:
+      'Capacité parfaitement utilisée',
+    seatingReasonExactFitDescription:
+      'Ce plan ne crée aucune place inutilisée.',
+
+    seatingReasonSeatWasteWithinTitle:
+      'Places inutilisées dans la plage préférée',
+    seatingReasonSeatWasteWithinDescription:
+      'La capacité inutilisée reste dans la préférence apprise du restaurant.',
+
+    seatingReasonSeatWasteHighTitle:
+      'Plus de places inutilisées que d’habitude',
+    seatingReasonSeatWasteHighDescription:
+      'Ce plan laisse davantage de places inutilisées que les plans habituellement acceptés par le manager.',
+
+    seatingReasonStrongScoreTitle:
+      'Score technique élevé',
+    seatingReasonStrongScoreDescription:
+      'Le score technique est supérieur à la référence actuellement apprise.',
+
+    seatingReasonLowScoreTitle:
+      'Sous la référence apprise',
+    seatingReasonLowScoreDescription:
+      'Le score technique est inférieur à la référence actuelle, une validation du manager reste donc recommandée.',
+
+    seatingReasonPersonalizationBonusTitle:
+      'Favorisé par les préférences apprises',
+    seatingReasonPersonalizationBonusDescription:
+      'Alias a mieux classé ce plan après avoir appliqué les préférences apprises du restaurant.',
+
+    seatingReasonPersonalizationPenaltyTitle:
+      'Réduit par les préférences apprises',
+    seatingReasonPersonalizationPenaltyDescription:
+      'Alias a classé ce plan avec davantage de prudence après avoir appliqué les préférences apprises du restaurant.',
     trialDay: "Jour d'essai 3",
     intelligenceInsightManagerTrustTitle:
       'Niveau de confiance du manager',
@@ -1867,6 +2119,69 @@ export const translations = {
     statConfirmed: 'Bestätigt',
     statConcierge: 'Concierge',
     statSubscription: 'Abonnement',
+    seatingPlanMatchPreferences:
+      'Übereinstimmung mit Ihren Präferenzen',
+    seatingPlanConfidence:
+      'Konfidenz',
+    seatingPlanPredictionDescription:
+      'Diese Schätzung zeigt, wie gut der Plan zu den von Alias beobachteten Tischentscheidungen dieses Restaurants passt.',
+    seatingPlanWhyRecommended:
+      'Warum Alias diesen Plan empfiehlt',
+
+    seatingReasonNoMovesTitle:
+      'Keine Reservierungsverschiebung erforderlich',
+    seatingReasonNoMovesDescription:
+      'Dieser Plan kann ohne Verschiebung bestehender Reservierungen angewendet werden.',
+
+    seatingReasonPreferredSingleMoveTitle:
+      'Entspricht der bevorzugten Verschiebungsstruktur',
+    seatingReasonPreferredSingleMoveDescription:
+      'Dieser Plan erfordert nur die Verschiebung einer Reservierung und entspricht damit den beobachteten Präferenzen des Managers.',
+
+    seatingReasonPreferredMoveLimitTitle:
+      'Innerhalb der bevorzugten Verschiebungsgrenze',
+    seatingReasonPreferredMoveLimitDescription:
+      'Die Anzahl der Verschiebungen liegt im aktuell bevorzugten Bereich dieses Restaurants.',
+
+    seatingReasonAboveMoveLimitTitle:
+      'Mehr Verschiebungen als üblich',
+    seatingReasonAboveMoveLimitDescription:
+      'Dieser Plan erfordert mehr Verschiebungen als derzeit bevorzugt.',
+
+    seatingReasonExactFitTitle:
+      'Exakte Kapazitätsauslastung',
+    seatingReasonExactFitDescription:
+      'Dieser Plan erzeugt keine ungenutzten Sitzplätze.',
+
+    seatingReasonSeatWasteWithinTitle:
+      'Ungenutzte Plätze im bevorzugten Bereich',
+    seatingReasonSeatWasteWithinDescription:
+      'Die ungenutzte Kapazität bleibt innerhalb der gelernten Präferenz des Restaurants.',
+
+    seatingReasonSeatWasteHighTitle:
+      'Mehr ungenutzte Plätze als üblich',
+    seatingReasonSeatWasteHighDescription:
+      'Dieser Plan lässt mehr Sitzplätze ungenutzt als die üblicherweise vom Manager akzeptierten Pläne.',
+
+    seatingReasonStrongScoreTitle:
+      'Hoher technischer Score',
+    seatingReasonStrongScoreDescription:
+      'Der technische Score liegt über der aktuell gelernten Referenz.',
+
+    seatingReasonLowScoreTitle:
+      'Unterhalb der gelernten Referenz',
+    seatingReasonLowScoreDescription:
+      'Der technische Score liegt unter der aktuell gelernten Referenz, daher wird eine Managerprüfung empfohlen.',
+
+    seatingReasonPersonalizationBonusTitle:
+      'Durch gelernte Präferenzen aufgewertet',
+    seatingReasonPersonalizationBonusDescription:
+      'Alias hat diesen Plan nach Anwendung der gelernten Restaurantpräferenzen höher eingestuft.',
+
+    seatingReasonPersonalizationPenaltyTitle:
+      'Durch gelernte Präferenzen abgewertet',
+    seatingReasonPersonalizationPenaltyDescription:
+      'Alias hat diesen Plan nach Anwendung der gelernten Restaurantpräferenzen vorsichtiger eingestuft.',
     liveActivity: 'Live-Aktivität',
     recentReservations: 'Aktuelle Reservierungen.',
     live: 'Live',

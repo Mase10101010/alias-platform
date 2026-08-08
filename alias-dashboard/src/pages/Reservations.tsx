@@ -1055,6 +1055,104 @@ export function Reservations() {
     );
   }
 
+  function translateReason(
+    reason: {
+      code: string;
+      title: string;
+      description: string;
+    },
+  ) {
+    const translationsByCode: Record<
+      string,
+      {
+        title: string;
+        description: string;
+      }
+    > = {
+      no_moves_required: {
+        title: t.seatingReasonNoMovesTitle,
+        description:
+          t.seatingReasonNoMovesDescription,
+      },
+
+      preferred_single_move: {
+        title:
+          t.seatingReasonPreferredSingleMoveTitle,
+        description:
+          t.seatingReasonPreferredSingleMoveDescription,
+      },
+
+      within_preferred_move_limit: {
+        title:
+          t.seatingReasonPreferredMoveLimitTitle,
+        description:
+          t.seatingReasonPreferredMoveLimitDescription,
+      },
+
+      above_preferred_move_limit: {
+        title:
+          t.seatingReasonAboveMoveLimitTitle,
+        description:
+          t.seatingReasonAboveMoveLimitDescription,
+      },
+
+      exact_capacity_fit: {
+        title: t.seatingReasonExactFitTitle,
+        description:
+          t.seatingReasonExactFitDescription,
+      },
+
+      within_preferred_seat_waste: {
+        title:
+          t.seatingReasonSeatWasteWithinTitle,
+        description:
+          t.seatingReasonSeatWasteWithinDescription,
+      },
+
+      above_typical_seat_waste: {
+        title:
+          t.seatingReasonSeatWasteHighTitle,
+        description:
+          t.seatingReasonSeatWasteHighDescription,
+      },
+
+      above_learned_score_reference: {
+        title:
+          t.seatingReasonStrongScoreTitle,
+        description:
+          t.seatingReasonStrongScoreDescription,
+      },
+
+      below_learned_score_reference: {
+        title:
+          t.seatingReasonLowScoreTitle,
+        description:
+          t.seatingReasonLowScoreDescription,
+      },
+
+      personalization_bonus: {
+        title:
+          t.seatingReasonPersonalizationBonusTitle,
+        description:
+          t.seatingReasonPersonalizationBonusDescription,
+      },
+
+      personalization_penalty: {
+        title:
+          t.seatingReasonPersonalizationPenaltyTitle,
+        description:
+          t.seatingReasonPersonalizationPenaltyDescription,
+      },
+    };
+
+    return (
+      translationsByCode[reason.code] ?? {
+        title: reason.title,
+        description: reason.description,
+      }
+    );
+  }
+
   function openMoveReservation(
     reservation: ReservationResponse,
   ) {
@@ -2060,6 +2158,76 @@ export function Reservations() {
                     </p>
                   </div>
                 </div>
+
+                {reoptimizationPlan.acceptance_prediction && (
+                  <div className="mt-6 rounded-3xl border border-cyanAlias/20 bg-cyanAlias/[.05] p-5">
+                    <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+                      <div>
+                        <p className="text-xs uppercase tracking-[.18em] text-white/35">
+                          {t.seatingPlanMatchPreferences}
+                        </p>
+
+                        <p className="mt-2 font-display text-4xl font-light text-white">
+                          {Math.round(
+                            reoptimizationPlan
+                              .acceptance_prediction
+                              .acceptance_probability * 100,
+                          )}
+                          %
+                        </p>
+                      </div>
+
+                      <div className="self-start rounded-full border border-white/10 bg-black/20 px-3 py-2 text-xs text-white/50 sm:self-auto">
+                        {t.seatingPlanConfidence}:{' '}
+                        {reoptimizationPlan.acceptance_prediction.confidence}
+                      </div>
+                    </div>
+
+                    <p className="mt-4 text-xs leading-relaxed text-white/40">
+                      {t.seatingPlanPredictionDescription}
+                    </p>
+                  </div>
+                )}
+                {reoptimizationPlan.reasoning &&
+                  reoptimizationPlan.reasoning.reasons.length > 0 && (
+                    <div className="mt-6">
+                      <p className="text-xs uppercase tracking-[.18em] text-white/35">
+                        {t.seatingPlanWhyRecommended}
+                      </p>
+
+                      <div className="mt-3 space-y-3">
+                        {reoptimizationPlan.reasoning.reasons.map(
+                          (reason) => {
+                            const translated =
+                              translateReason(reason);
+
+                            return (
+                              <div
+                                key={reason.code}
+                                className="rounded-2xl border border-white/10 bg-white/[.025] p-4"
+                              >
+                                <div className="flex items-start gap-3">
+                                  <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-cyanAlias/20 bg-cyanAlias/10 text-xs text-cyanAlias">
+                                    ✓
+                                  </div>
+
+                                  <div>
+                                    <p className="text-sm font-medium text-white/85">
+                                      {translated.title}
+                                    </p>
+
+                                    <p className="mt-1 text-xs leading-relaxed text-white/40">
+                                      {translated.description}
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          },
+                        )}
+                      </div>
+                    </div>
+                  )}
 
                 <div className="mt-7 flex flex-col-reverse justify-end gap-3 sm:flex-row">
                   <button

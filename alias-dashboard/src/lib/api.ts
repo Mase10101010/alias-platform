@@ -132,6 +132,43 @@ export type IntelligenceSnapshotResponse = {
   generated_at: string;
 };
 
+export type IntelligenceReasonImportance =
+  | 'high'
+  | 'medium'
+  | 'low';
+
+export type IntelligenceReasonItem = {
+  code: string;
+  title: string;
+  description: string;
+  importance: IntelligenceReasonImportance;
+};
+
+export type IntelligenceRecommendationReasoning = {
+  restaurant_id: string;
+  reservation_id: string | null;
+  base_score: number;
+  personalized_score: number;
+  moved_reservations_count: number;
+  total_seat_waste: number;
+  reasons: IntelligenceReasonItem[];
+  generated_at: string;
+};
+
+export type IntelligencePredictionConfidence =
+  | 'low'
+  | 'medium'
+  | 'high';
+
+export type IntelligencePlanAcceptancePrediction = {
+  restaurant_id: string;
+  reservation_id: string | null;
+  acceptance_probability: number;
+  confidence: IntelligencePredictionConfidence;
+  explanation: string[];
+  generated_at: string;
+};
+
 export type ReservationCreate = {
   restaurant_id?: string;
   table_id?: string | null;
@@ -250,6 +287,14 @@ export type IntelligenceReoptimizationPlanResponse = {
   personalized_score: number;
   personalization_applied: boolean;
   personalization_reasons: string[];
+
+  reasoning:
+    | IntelligenceRecommendationReasoning
+    | null;
+
+  acceptance_prediction:
+    | IntelligencePlanAcceptancePrediction
+    | null;
 
   total_seat_waste: number;
   moved_reservations_count: number;
