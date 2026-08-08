@@ -34,6 +34,7 @@ import {
   acceptAISuggestion,
   analyzeAISuggestion,
   moveReservation,
+  dismissAISuggestion,
   type AISuggestionResponse,
   type IntelligenceAssignmentResponse,
   type IntelligenceReoptimizationPlanResponse,
@@ -713,6 +714,28 @@ export function Reservations() {
             setReoptimizationPlan(
               result.recommended,
             );
+
+            try {
+              const analysis =
+                await analyzeAISuggestion(
+                  createdReservation.id,
+                );
+
+              if (analysis.suggestion) {
+                setReviewingSuggestionId(
+                  analysis.suggestion.id,
+                );
+
+                setReoptimizationPlan(
+                  analysis.suggestion.payload.plan,
+                );
+              }
+            } catch (suggestionError) {
+              console.error(
+                'Seating plan created, but AI suggestion could not be linked',
+                suggestionError,
+              );
+            }
           } else {
             setReoptimizationError(
               'The reservation was created, but Alias could not find a safe seating plan.',
@@ -977,6 +1000,8 @@ export function Reservations() {
         }
       }
 
+      setReviewingSuggestionId(null);
+
       await loadReservations();
 
       setReoptimizationReservation(null);
@@ -993,6 +1018,36 @@ export function Reservations() {
     } finally {
       setApplyingReoptimization(false);
     }
+  }
+
+  async function handleKeepCurrentLayout() {
+    if (applyingReoptimization) {
+      return;
+    }
+
+    if (reviewingSuggestionId) {
+      try {
+        await dismissAISuggestion(
+          reviewingSuggestionId,
+        );
+      } catch (error) {
+        console.error(
+          'AI suggestion could not be marked as dismissed',
+          error,
+        );
+
+        setReoptimizationError(
+          'Unable to record the manager decision.',
+        );
+
+        return;
+      }
+    }
+
+    setReviewingSuggestionId(null);
+    setReoptimizationReservation(null);
+    setReoptimizationPlan(null);
+    setReoptimizationError(null);
   }
 
   async function closeReoptimization() {
@@ -1151,6 +1206,36 @@ export function Reservations() {
         description: reason.description,
       }
     );
+  }
+
+  function translateConfidence(
+    confidence: 'low' | 'medium' | 'high',
+  ) {
+    const labels = {
+      low: {
+        en: 'Low',
+        it: 'Bassa',
+        es: 'Baja',
+        fr: 'Faible',
+        de: 'Niedrig',
+      },
+      medium: {
+        en: 'Medium',
+        it: 'Media',
+        es: 'Media',
+        fr: 'Moyenne',
+        de: 'Mittel',
+      },
+      high: {
+        en: 'High',
+        it: 'Alta',
+        es: 'Alta',
+        fr: 'Élevée',
+        de: 'Hoch',
+      },
+    } as const;
+
+    return labels[confidence][language];
   }
 
   function openMoveReservation(
@@ -2179,7 +2264,9 @@ export function Reservations() {
 
                       <div className="self-start rounded-full border border-white/10 bg-black/20 px-3 py-2 text-xs text-white/50 sm:self-auto">
                         {t.seatingPlanConfidence}:{' '}
-                        {reoptimizationPlan.acceptance_prediction.confidence}
+                        {translateConfidence(
+                          reoptimizationPlan.acceptance_prediction.confidence,
+                        )}
                       </div>
                     </div>
 
@@ -2233,7 +2320,9 @@ export function Reservations() {
                   <button
                     type="button"
                     disabled={applyingReoptimization}
-                    onClick={closeReoptimization}
+                    onClick={() => {
+                      void handleKeepCurrentLayout();
+                    }}
                     className="rounded-full border border-white/10 px-5 py-3 text-sm text-white/55 transition hover:border-white/20 hover:text-white disabled:opacity-40"
                   >
                     Keep current layout
