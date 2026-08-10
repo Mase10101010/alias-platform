@@ -207,6 +207,28 @@ function translateInsight(
     };
   }
 
+  if (
+    insight.code === 'low_review_rate'
+  ) {
+    return {
+      title:
+        t.intelligenceInsightLowReviewRateTitle,
+      description:
+        t.intelligenceInsightLowReviewRateDescription,
+    };
+  }
+
+  if (
+    insight.code === 'low_review_rate'
+  ) {
+    return {
+      title:
+        t.intelligenceInsightLowReviewRateTitle,
+      description:
+        t.intelligenceInsightLowReviewRateDescription,
+    };
+  }
+
   return {
     title: insight.title,
     description: insight.description,
