@@ -2318,10 +2318,16 @@ export function Reservations() {
                       )}
                     </p>
 
-                    {reoptimizationPlan.decision.reasons.length > 0 && (
+                    {reoptimizationPlan.decision.reasons.some(
+                      (reason) =>
+                        reason.code === 'calibration_not_mature',
+                    ) && (
                       <div className="mt-4 space-y-2">
                         {reoptimizationPlan.decision.reasons
-                          .slice(0, 3)
+                          .filter(
+                            (reason) =>
+                              reason.code === 'calibration_not_mature',
+                          )
                           .map((reason) => (
                             <div
                               key={reason.code}
