@@ -1256,6 +1256,26 @@ export function Reservations() {
     return labels[level];
   }
 
+  function decisionLevelClasses(
+    level:
+      | 'review_recommended'
+      | 'recommended'
+      | 'strong_recommendation',
+  ) {
+    const classes = {
+      review_recommended:
+        'border-amber-400/20 bg-amber-400/[.06] text-amber-200',
+
+      recommended:
+        'border-cyanAlias/20 bg-cyanAlias/10 text-cyanAlias',
+
+      strong_recommendation:
+        'border-emerald-400/20 bg-emerald-400/[.08] text-emerald-300',
+    } as const;
+
+    return classes[level];
+  }
+
   function translateDecisionSummary(
   level:
     | 'review_recommended'
@@ -2306,7 +2326,11 @@ export function Reservations() {
                 
                 {reoptimizationPlan.decision && (
                   <div className="mt-6 rounded-3xl border border-cyanAlias/20 bg-cyanAlias/[.05] p-5">
-                    <span className="inline-flex rounded-full border border-cyanAlias/20 bg-cyanAlias/10 px-3 py-2 text-xs font-medium text-cyanAlias">
+                    <span
+                      className={`inline-flex rounded-full border px-3 py-2 text-xs font-medium ${decisionLevelClasses(
+                        reoptimizationPlan.decision.level,
+                      )}`}
+                    >
                       {translateDecisionLevel(
                         reoptimizationPlan.decision.level,
                       )}
