@@ -169,6 +169,30 @@ export type IntelligencePlanAcceptancePrediction = {
   generated_at: string;
 };
 
+export type IntelligenceRecommendationDecisionLevel =
+  | 'review_recommended'
+  | 'recommended'
+  | 'strong_recommendation';
+
+export type IntelligenceRecommendationDecisionReason = {
+  code: string;
+  description: string;
+};
+
+export type IntelligenceRecommendationDecision = {
+  restaurant_id: string;
+  reservation_id: string | null;
+
+  level: IntelligenceRecommendationDecisionLevel;
+  confidence: IntelligencePredictionConfidence;
+
+  summary: string;
+
+  reasons: IntelligenceRecommendationDecisionReason[];
+
+  generated_at: string;
+};
+
 export type ReservationCreate = {
   restaurant_id?: string;
   table_id?: string | null;
@@ -295,6 +319,10 @@ export type IntelligenceReoptimizationPlanResponse = {
   acceptance_prediction:
     | IntelligencePlanAcceptancePrediction
     | null;
+  
+  decision:
+  | IntelligenceRecommendationDecision
+  | null;
 
   total_seat_waste: number;
   moved_reservations_count: number;

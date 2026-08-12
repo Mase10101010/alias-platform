@@ -1238,6 +1238,66 @@ export function Reservations() {
     return labels[confidence][language];
   }
 
+  function translateDecisionLevel(
+    level:
+      | 'review_recommended'
+      | 'recommended'
+      | 'strong_recommendation',
+  ) {
+    const labels = {
+      review_recommended:
+        t.seatingDecisionReviewRecommended,
+      recommended:
+        t.seatingDecisionRecommended,
+      strong_recommendation:
+        t.seatingDecisionStrongRecommendation,
+    } as const;
+
+    return labels[level];
+  }
+
+  function translateDecisionSummary(
+  level:
+    | 'review_recommended'
+    | 'recommended'
+    | 'strong_recommendation',
+) {
+  const labels = {
+    review_recommended:
+      t.seatingDecisionSummaryReview,
+    recommended:
+      t.seatingDecisionSummaryRecommended,
+    strong_recommendation:
+      t.seatingDecisionSummaryStrong,
+  } as const;
+
+  return labels[level];
+}
+
+  function translateDecisionReason(
+    code: string,
+    fallback: string,
+  ) {
+    const labels: Record<string, string> = {
+      calibration_not_mature:
+        t.seatingDecisionReasonCalibrationNotMature,
+      high_acceptance_probability:
+        t.seatingDecisionReasonHighAcceptanceProbability,
+      low_acceptance_probability:
+        t.seatingDecisionReasonLowAcceptanceProbability,
+      no_moves_required:
+        t.seatingDecisionReasonNoMovesRequired,
+      above_preferred_move_limit:
+        t.seatingDecisionReasonAbovePreferredMoveLimit,
+      exact_capacity_fit:
+        t.seatingDecisionReasonExactCapacityFit,
+      below_recommended_score:
+        t.seatingDecisionReasonBelowRecommendedScore,
+    };
+
+    return labels[code] ?? fallback;
+  }
+
   function openMoveReservation(
     reservation: ReservationResponse,
   ) {
@@ -2243,6 +2303,44 @@ export function Reservations() {
                     </p>
                   </div>
                 </div>
+                
+                {reoptimizationPlan.decision && (
+                  <div className="mt-6 rounded-3xl border border-cyanAlias/20 bg-cyanAlias/[.05] p-5">
+                    <span className="inline-flex rounded-full border border-cyanAlias/20 bg-cyanAlias/10 px-3 py-2 text-xs font-medium text-cyanAlias">
+                      {translateDecisionLevel(
+                        reoptimizationPlan.decision.level,
+                      )}
+                    </span>
+
+                    <p className="mt-3 text-sm leading-relaxed text-white/60">
+                      {translateDecisionSummary(
+                        reoptimizationPlan.decision.level,
+                      )}
+                    </p>
+
+                    {reoptimizationPlan.decision.reasons.length > 0 && (
+                      <div className="mt-4 space-y-2">
+                        {reoptimizationPlan.decision.reasons
+                          .slice(0, 3)
+                          .map((reason) => (
+                            <div
+                              key={reason.code}
+                              className="flex items-start gap-2 text-xs leading-relaxed text-white/40"
+                            >
+                              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-cyanAlias/60" />
+
+                              <span>
+                                {translateDecisionReason(
+                                  reason.code,
+                                  reason.description,
+                                )}
+                              </span>
+                            </div>
+                          ))}
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {reoptimizationPlan.acceptance_prediction && (
                   <div className="mt-6 rounded-3xl border border-cyanAlias/20 bg-cyanAlias/[.05] p-5">

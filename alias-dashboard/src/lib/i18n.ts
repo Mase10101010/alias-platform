@@ -43,6 +43,12 @@ export const translations = {
     analytics: 'Analytics',
     settings: 'Settings',
     trialDay: 'Trial day 3',
+    seatingDecisionReviewRecommended:
+      'Manager review recommended',
+    seatingDecisionRecommended:
+      'Recommended by Alias',
+    seatingDecisionStrongRecommendation:
+      'Strong recommendation',
     liveConcierge:
       'Your AI concierge is live and handling guest requests.',
     dashboard: 'Alias Dashboard',
@@ -461,6 +467,27 @@ export const translations = {
     manageSubscription: 'Manage subscription',
     freeTrial: 'Free trial',
     activeSubscription: 'Active subscription',
+    seatingDecisionSummaryReview:
+      'Alias recommends manager review before accepting this plan.',
+    seatingDecisionSummaryRecommended:
+      'Alias recommends this plan, but the current evidence still calls for explicit manager review.',
+    seatingDecisionSummaryStrong:
+      'Alias considers this a strong recommendation based on the current evidence and learned preferences.',
+
+    seatingDecisionReasonCalibrationNotMature:
+      'Alias does not yet have enough evaluated predictions to treat this recommendation as highly reliable.',
+    seatingDecisionReasonHighAcceptanceProbability:
+      'The plan closely matches the manager’s observed seating preferences.',
+    seatingDecisionReasonLowAcceptanceProbability:
+      'The plan has a relatively weak match with the manager’s observed decisions.',
+    seatingDecisionReasonNoMovesRequired:
+      'The plan does not require moving any existing reservation.',
+    seatingDecisionReasonAbovePreferredMoveLimit:
+      'The plan requires more reservation moves than the learned preference.',
+    seatingDecisionReasonExactCapacityFit:
+      'The plan creates no unused seating capacity.',
+    seatingDecisionReasonBelowRecommendedScore:
+      'The technical score is below the current learned recommendation reference.',
     lifetimeSubscription: 'Lifetime subscription',
     inactiveSubscription: 'Inactive subscription',
     trialEnds: 'Trial ends',
@@ -562,6 +589,12 @@ export const translations = {
     analytics: 'Analytics',
     settings: 'Impostazioni',
     trialDay: 'Giorno di prova 3',
+    seatingDecisionReviewRecommended:
+      'Revisione del manager consigliata',
+    seatingDecisionRecommended:
+      'Consigliato da Alias',
+    seatingDecisionStrongRecommendation:
+      'Fortemente consigliato',
     liveConcierge:
       'Il tuo concierge AI è attivo e gestisce le richieste dei clienti.',
     dashboard: 'Dashboard Alias',
@@ -708,6 +741,27 @@ export const translations = {
     loadingActivity: 'Caricamento attività...',
     noActivity: 'Nessuna attività ancora.',
     partyOf: 'Tavolo per',
+    seatingDecisionSummaryReview:
+      'Alias consiglia una revisione del manager prima di accettare questo piano.',
+    seatingDecisionSummaryRecommended:
+      'Alias consiglia questo piano, ma le evidenze attuali richiedono ancora una revisione esplicita del manager.',
+    seatingDecisionSummaryStrong:
+      'Alias considera questo piano fortemente consigliato in base alle evidenze attuali e alle preferenze apprese.',
+
+    seatingDecisionReasonCalibrationNotMature:
+      'Alias non dispone ancora di un numero sufficiente di previsioni valutate per considerare questa raccomandazione altamente affidabile.',
+    seatingDecisionReasonHighAcceptanceProbability:
+      'Il piano è molto coerente con le preferenze sui tavoli osservate del manager.',
+    seatingDecisionReasonLowAcceptanceProbability:
+      'Il piano mostra una compatibilità relativamente debole con le decisioni osservate del manager.',
+    seatingDecisionReasonNoMovesRequired:
+      'Il piano non richiede lo spostamento di prenotazioni esistenti.',
+    seatingDecisionReasonAbovePreferredMoveLimit:
+      'Il piano richiede più spostamenti rispetto alla preferenza appresa.',
+    seatingDecisionReasonExactCapacityFit:
+      'Il piano non crea posti inutilizzati.',
+    seatingDecisionReasonBelowRecommendedScore:
+      'Il punteggio tecnico è inferiore al riferimento di raccomandazione attualmente appreso.',
     conciergeTitle: 'Concierge AI',
     conciergeHeading: 'Conversazioni con gli ospiti.',
     conciergeSubtitle:
@@ -1079,6 +1133,12 @@ export const translations = {
     availabilityTitle: 'Disponibilidad',
     analytics: 'Analíticas',
     settings: 'Configuración',
+    seatingDecisionReviewRecommended:
+      'Se recomienda revisión del gerente',
+    seatingDecisionRecommended:
+      'Recomendado por Alias',
+    seatingDecisionStrongRecommendation:
+      'Recomendación fuerte',
     seatingPlanMatchPreferences:
       'Compatibilidad con tus preferencias',
     seatingPlanConfidence:
@@ -1165,6 +1225,27 @@ export const translations = {
     trialModeActive: 'Modo de prueba activo',
     statReservations: 'Reservas',
     statConfirmed: 'Confirmadas',
+    seatingDecisionSummaryReview:
+      'Alias recomienda una revisión del gerente antes de aceptar este plan.',
+    seatingDecisionSummaryRecommended:
+      'Alias recomienda este plan, pero la evidencia actual todavía requiere una revisión explícita del gerente.',
+    seatingDecisionSummaryStrong:
+      'Alias considera este plan una recomendación fuerte según la evidencia actual y las preferencias aprendidas.',
+
+    seatingDecisionReasonCalibrationNotMature:
+      'Alias todavía no dispone de suficientes predicciones evaluadas para considerar esta recomendación altamente fiable.',
+    seatingDecisionReasonHighAcceptanceProbability:
+      'El plan coincide estrechamente con las preferencias de mesas observadas del gerente.',
+    seatingDecisionReasonLowAcceptanceProbability:
+      'El plan tiene una coincidencia relativamente débil con las decisiones observadas del gerente.',
+    seatingDecisionReasonNoMovesRequired:
+      'El plan no requiere mover ninguna reserva existente.',
+    seatingDecisionReasonAbovePreferredMoveLimit:
+      'El plan requiere más movimientos de reservas que la preferencia aprendida.',
+    seatingDecisionReasonExactCapacityFit:
+      'El plan no genera asientos sin utilizar.',
+    seatingDecisionReasonBelowRecommendedScore:
+      'La puntuación técnica está por debajo de la referencia de recomendación aprendida actual.',
     intelligenceInsightLowReviewRateTitle:
       'Baja tasa de revisión de sugerencias',
     intelligenceInsightLowReviewRateDescription:
@@ -1602,6 +1683,12 @@ export const translations = {
     availabilityTitle: 'Disponibilité',
     analytics: 'Analytiques',
     settings: 'Paramètres',
+    seatingDecisionReviewRecommended:
+      'Révision du manager recommandée',
+    seatingDecisionRecommended:
+      'Recommandé par Alias',
+    seatingDecisionStrongRecommendation:
+      'Forte recommandation',
     seatingPlanMatchPreferences:
       'Compatibilité avec vos préférences',
     seatingPlanConfidence:
@@ -1717,6 +1804,27 @@ export const translations = {
     overviewTitle: 'Vue générale',
     goodEvening: 'Bonsoir',
     intelligenceDeveloping: 'En développement',
+    seatingDecisionSummaryReview:
+      'Alias recommande une révision par le manager avant d’accepter ce plan.',
+    seatingDecisionSummaryRecommended:
+      'Alias recommande ce plan, mais les données actuelles nécessitent encore une validation explicite du manager.',
+    seatingDecisionSummaryStrong:
+      'Alias considère ce plan comme fortement recommandé au vu des données actuelles et des préférences apprises.',
+
+    seatingDecisionReasonCalibrationNotMature:
+      'Alias ne dispose pas encore de suffisamment de prédictions évaluées pour considérer cette recommandation comme très fiable.',
+    seatingDecisionReasonHighAcceptanceProbability:
+      'Le plan correspond étroitement aux préférences de placement observées du manager.',
+    seatingDecisionReasonLowAcceptanceProbability:
+      'Le plan correspond relativement peu aux décisions observées du manager.',
+    seatingDecisionReasonNoMovesRequired:
+      'Le plan ne nécessite le déplacement d’aucune réservation existante.',
+    seatingDecisionReasonAbovePreferredMoveLimit:
+      'Le plan nécessite davantage de déplacements de réservations que la préférence apprise.',
+    seatingDecisionReasonExactCapacityFit:
+      'Le plan ne crée aucune place inutilisée.',
+    seatingDecisionReasonBelowRecommendedScore:
+      'Le score technique est inférieur à la référence de recommandation actuellement apprise.',
     overviewSubtitle: 'Vue opérationnelle en direct alimentée par Alias Concierge AI.',
     trialModeActive: 'Mode essai actif',
     statReservations: 'Réservations',
@@ -2124,6 +2232,12 @@ export const translations = {
     analytics: 'Analysen',
     settings: 'Einstellungen',
     trialDay: 'Testtag 3',
+    seatingDecisionReviewRecommended:
+      'Überprüfung durch den Manager empfohlen',
+    seatingDecisionRecommended:
+      'Von Alias empfohlen',
+    seatingDecisionStrongRecommendation:
+      'Starke Empfehlung',
     liveConcierge:
       'Ihr AI-Concierge ist aktiv und bearbeitet Gästeanfragen.',
     dashboard: 'Alias Dashboard',
@@ -2313,6 +2427,27 @@ export const translations = {
     numberOfTables: 'Anzahl der Tische',
     seatsPerTable: 'Sitze pro Tisch',
     add: 'Hinzufügen',
+    seatingDecisionSummaryReview:
+      'Alias empfiehlt eine Überprüfung durch den Manager, bevor dieser Plan angenommen wird.',
+    seatingDecisionSummaryRecommended:
+      'Alias empfiehlt diesen Plan, aber die aktuelle Datenlage erfordert weiterhin eine ausdrückliche Überprüfung durch den Manager.',
+    seatingDecisionSummaryStrong:
+      'Alias stuft diesen Plan auf Grundlage der aktuellen Daten und erlernten Präferenzen als starke Empfehlung ein.',
+
+    seatingDecisionReasonCalibrationNotMature:
+      'Alias verfügt noch nicht über genügend ausgewertete Vorhersagen, um diese Empfehlung als besonders zuverlässig einzustufen.',
+    seatingDecisionReasonHighAcceptanceProbability:
+      'Der Plan entspricht eng den beobachteten Tischpräferenzen des Managers.',
+    seatingDecisionReasonLowAcceptanceProbability:
+      'Der Plan stimmt nur relativ schwach mit den beobachteten Entscheidungen des Managers überein.',
+    seatingDecisionReasonNoMovesRequired:
+      'Der Plan erfordert keine Verschiebung bestehender Reservierungen.',
+    seatingDecisionReasonAbovePreferredMoveLimit:
+      'Der Plan erfordert mehr Reservierungsverschiebungen als die erlernte Präferenz.',
+    seatingDecisionReasonExactCapacityFit:
+      'Der Plan erzeugt keine ungenutzten Sitzplätze.',
+    seatingDecisionReasonBelowRecommendedScore:
+      'Der technische Score liegt unter der aktuell erlernten Empfehlungsschwelle.',
     intelligenceDeveloping: 'In Entwicklung',
     noTableConfigurations: 'Noch keine Tischkonfiguration hinzugefügt.',
     totalSeats: 'Gesamtsitze',
