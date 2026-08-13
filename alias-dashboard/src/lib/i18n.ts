@@ -91,6 +91,12 @@ export const translations = {
     statReservations: 'Reservations',
     statConfirmed: 'Confirmed',
     statConcierge: 'Concierge',
+    seatingExecutionBlocked:
+      'Blocked',
+    seatingExecutionManagerConfirmation:
+      'Manager confirmation required',
+    seatingExecutionEligible:
+      'Eligible for automatic execution',
     statSubscription: 'Subscription',
     liveActivity: 'Live Activity',
     recentReservations: 'Recent reservations.',
@@ -211,6 +217,18 @@ export const translations = {
     saturday: 'Sat',
     sunday: 'Sun',
     tonePickerTitle: 'Choose a concierge tone',
+    seatingExecutionStatus:
+      'Operational status',
+    seatingExecutionReasonPolicyAdvisory:
+      'Alias is currently operating in advisory-only mode.',
+    seatingExecutionReasonManagerConfirmation:
+      'Manager confirmation is required before this plan can be applied.',
+    seatingExecutionReasonDecisionNotStrong:
+      'The current recommendation is not strong enough for automatic execution.',
+    seatingExecutionReasonConfidenceNotHigh:
+      'Prediction confidence is not high enough for automatic execution.',
+    seatingExecutionReasonEligible:
+      'This plan currently meets the requirements for future automatic execution.',
     tonePickerDescription: 'Select how the AI concierge should communicate with your guests.',
     toneCardDescription: 'Premium communication profile for guest interactions.',
     toneLuxury: 'Luxury',
@@ -605,12 +623,30 @@ export const translations = {
     publicPlaceholder: 'Esempio: tavolo per 2 domani alle 20',
     publicPoweredBy: 'Powered by Alias Concierge AI',
     publicLiveAI: 'AI live',
+    seatingExecutionStatus:
+      'Stato operativo',
+    seatingExecutionReasonPolicyAdvisory:
+      'Alias è attualmente in modalità solo consulenza.',
+    seatingExecutionReasonManagerConfirmation:
+      'È richiesta la conferma del manager prima di applicare questo piano.',
+    seatingExecutionReasonDecisionNotStrong:
+      'La raccomandazione attuale non è abbastanza forte per l’esecuzione automatica.',
+    seatingExecutionReasonConfidenceNotHigh:
+      'La confidenza della previsione non è abbastanza alta per l’esecuzione automatica.',
+    seatingExecutionReasonEligible:
+      'Questo piano soddisfa attualmente i requisiti per una futura esecuzione automatica.',
     publicChecking: 'Alias sta controllando la disponibilità…',
     publicReservationConfirmed: 'Prenotazione confermata',
     publicBookingRegistered: 'La tua prenotazione è ora registrata presso {restaurantName}.',
     publicReservationId: 'ID prenotazione',
     overviewTitle: 'Panoramica',
     goodEvening: 'Buonasera',
+    seatingExecutionBlocked:
+      'Bloccato',
+    seatingExecutionManagerConfirmation:
+      'Conferma del manager richiesta',
+    seatingExecutionEligible:
+      'Idoneo all’esecuzione automatica',
     seatingPlanMatchPreferences:
       'Compatibilità con le tue preferenze',
     seatingPlanConfidence:
@@ -1132,6 +1168,18 @@ export const translations = {
     availability: 'Disponibilidad',
     availabilityTitle: 'Disponibilidad',
     analytics: 'Analíticas',
+    seatingExecutionStatus:
+      'Estado operativo',
+    seatingExecutionReasonPolicyAdvisory:
+      'Alias está actualmente en modo solo asesoramiento.',
+    seatingExecutionReasonManagerConfirmation:
+      'Se requiere la confirmación del gerente antes de aplicar este plan.',
+    seatingExecutionReasonDecisionNotStrong:
+      'La recomendación actual no es lo suficientemente fuerte para la ejecución automática.',
+    seatingExecutionReasonConfidenceNotHigh:
+      'La confianza de la predicción no es lo suficientemente alta para la ejecución automática.',
+    seatingExecutionReasonEligible:
+      'Este plan cumple actualmente los requisitos para una futura ejecución automática.',
     settings: 'Configuración',
     seatingDecisionReviewRecommended:
       'Se recomienda revisión del gerente',
@@ -1215,6 +1263,12 @@ export const translations = {
     publicPlaceholder: 'Ejemplo: mesa para 2 mañana a las 20:00',
     publicPoweredBy: 'Powered by Alias Concierge AI',
     publicLiveAI: 'AI en vivo',
+    seatingExecutionBlocked:
+      'Bloqueado',
+    seatingExecutionManagerConfirmation:
+      'Se requiere confirmación del gerente',
+    seatingExecutionEligible:
+      'Apto para ejecución automática',
     publicChecking: 'Alias está comprobando la disponibilidad…',
     publicReservationConfirmed: 'Reserva confirmada',
     publicBookingRegistered: 'Tu reserva ya está registrada en {restaurantName}.',
@@ -1682,6 +1736,18 @@ export const translations = {
     availability: 'Disponibilité',
     availabilityTitle: 'Disponibilité',
     analytics: 'Analytiques',
+    seatingExecutionStatus:
+      'Statut opérationnel',
+    seatingExecutionReasonPolicyAdvisory:
+      'Alias fonctionne actuellement en mode conseil uniquement.',
+    seatingExecutionReasonManagerConfirmation:
+      'La confirmation du manager est requise avant d’appliquer ce plan.',
+    seatingExecutionReasonDecisionNotStrong:
+      'La recommandation actuelle n’est pas assez forte pour une exécution automatique.',
+    seatingExecutionReasonConfidenceNotHigh:
+      'Le niveau de confiance de la prédiction n’est pas assez élevé pour une exécution automatique.',
+    seatingExecutionReasonEligible:
+      'Ce plan remplit actuellement les conditions requises pour une future exécution automatique.',
     settings: 'Paramètres',
     seatingDecisionReviewRecommended:
       'Révision du manager recommandée',
@@ -1823,6 +1889,12 @@ export const translations = {
       'Le plan nécessite davantage de déplacements de réservations que la préférence apprise.',
     seatingDecisionReasonExactCapacityFit:
       'Le plan ne crée aucune place inutilisée.',
+    seatingExecutionBlocked:
+      'Bloqué',
+    seatingExecutionManagerConfirmation:
+      'Confirmation du manager requise',
+    seatingExecutionEligible:
+      'Éligible à l’exécution automatique',
     seatingDecisionReasonBelowRecommendedScore:
       'Le score technique est inférieur à la référence de recommandation actuellement apprise.',
     overviewSubtitle: 'Vue opérationnelle en direct alimentée par Alias Concierge AI.',
@@ -2231,6 +2303,18 @@ export const translations = {
     availabilityTitle: 'Verfügbarkeit',
     analytics: 'Analysen',
     settings: 'Einstellungen',
+    seatingExecutionStatus:
+      'Betriebsstatus',
+    seatingExecutionReasonPolicyAdvisory:
+      'Alias arbeitet derzeit ausschließlich im Beratungsmodus.',
+    seatingExecutionReasonManagerConfirmation:
+      'Vor der Anwendung dieses Plans ist die Bestätigung durch den Manager erforderlich.',
+    seatingExecutionReasonDecisionNotStrong:
+      'Die aktuelle Empfehlung ist nicht stark genug für eine automatische Ausführung.',
+    seatingExecutionReasonConfidenceNotHigh:
+      'Die Vorhersagekonfidenz ist nicht hoch genug für eine automatische Ausführung.',
+    seatingExecutionReasonEligible:
+      'Dieser Plan erfüllt derzeit die Voraussetzungen für eine zukünftige automatische Ausführung.',
     trialDay: 'Testtag 3',
     seatingDecisionReviewRecommended:
       'Überprüfung durch den Manager empfohlen',
@@ -2416,6 +2500,12 @@ export const translations = {
     openingTime: 'Öffnungszeit',
     closingTime: 'Schließzeit',
     availabilityPageTitle: 'Verfügbarkeit',
+    seatingExecutionBlocked:
+      'Blockiert',
+    seatingExecutionManagerConfirmation:
+      'Bestätigung durch den Manager erforderlich',
+    seatingExecutionEligible:
+      'Für automatische Ausführung geeignet',
     openingDays: 'Öffnungstage',
     openingDaysDescription:
       'Wählen Sie die Tage aus, an denen das Restaurant geöffnet ist.',

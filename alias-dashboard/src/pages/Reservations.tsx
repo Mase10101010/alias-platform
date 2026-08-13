@@ -1318,6 +1318,44 @@ export function Reservations() {
     return labels[code] ?? fallback;
   }
 
+  function translateExecutionEligibility(
+    eligibility:
+      | 'blocked'
+      | 'manager_confirmation_required'
+      | 'eligible_for_automatic_execution',
+  ) {
+    const labels = {
+      blocked:
+        t.seatingExecutionBlocked,
+      manager_confirmation_required:
+        t.seatingExecutionManagerConfirmation,
+      eligible_for_automatic_execution:
+        t.seatingExecutionEligible,
+    } as const;
+
+    return labels[eligibility];
+  }
+
+  function translateExecutionReason(
+    code: string,
+    fallback: string,
+  ) {
+    const labels: Record<string, string> = {
+      policy_advisory_only:
+        t.seatingExecutionReasonPolicyAdvisory,
+      manager_confirmation_required:
+        t.seatingExecutionReasonManagerConfirmation,
+      decision_not_strong_enough:
+        t.seatingExecutionReasonDecisionNotStrong,
+      prediction_confidence_not_high:
+        t.seatingExecutionReasonConfidenceNotHigh,
+      automatic_execution_eligible:
+        t.seatingExecutionReasonEligible,
+    };
+
+    return labels[code] ?? fallback;
+  }
+
   function openMoveReservation(
     reservation: ReservationResponse,
   ) {
@@ -2369,6 +2407,35 @@ export function Reservations() {
                           ))}
                       </div>
                     )}
+                  </div>
+                )}
+
+                {reoptimizationPlan.execution_eligibility && (
+                  <div className="mt-4 rounded-2xl border border-white/10 bg-white/[.02] px-4 py-4">
+                    <p className="text-[10px] uppercase tracking-[.15em] text-white/30">
+                      {t.seatingExecutionStatus}
+                    </p>
+
+                    <p className="mt-2 text-sm font-medium text-white/70">
+                      {translateExecutionEligibility(
+                        reoptimizationPlan.execution_eligibility
+                          .eligibility,
+                      )}
+                    </p>
+
+                    {reoptimizationPlan.execution_eligibility.reasons
+                      .slice(0, 1)
+                      .map((reason) => (
+                        <p
+                          key={reason.code}
+                          className="mt-2 text-xs leading-relaxed text-white/40"
+                        >
+                          {translateExecutionReason(
+                            reason.code,
+                            reason.description,
+                          )}
+                        </p>
+                        ))}
                   </div>
                 )}
 

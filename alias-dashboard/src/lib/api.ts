@@ -193,6 +193,27 @@ export type IntelligenceRecommendationDecision = {
   generated_at: string;
 };
 
+export type IntelligenceExecutionEligibility =
+  | 'blocked'
+  | 'manager_confirmation_required'
+  | 'eligible_for_automatic_execution';
+
+export type IntelligenceExecutionEligibilityReason = {
+  code: string;
+  description: string;
+};
+
+export type IntelligenceExecutionEligibilityResult = {
+  restaurant_id: string;
+  reservation_id: string | null;
+
+  eligibility: IntelligenceExecutionEligibility;
+
+  reasons: IntelligenceExecutionEligibilityReason[];
+
+  generated_at: string;
+};
+
 export type ReservationCreate = {
   restaurant_id?: string;
   table_id?: string | null;
@@ -322,6 +343,10 @@ export type IntelligenceReoptimizationPlanResponse = {
   
   decision:
   | IntelligenceRecommendationDecision
+  | null;
+
+  execution_eligibility:
+  | IntelligenceExecutionEligibilityResult
   | null;
 
   total_seat_waste: number;
