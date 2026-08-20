@@ -678,12 +678,54 @@ function translateAutomation(
                         {requirement.satisfied ? '✓' : '○'}
                       </div>
 
-                      <p className="text-sm leading-6 text-white/50">
-                        {translateAutomationRequirement(
-                          requirement.code,
-                          requirement.description,
-                        )}
-                      </p>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm leading-6 text-white/50">
+                          {translateAutomationRequirement(
+                            requirement.code,
+                            requirement.description,
+                          )}
+                        </p>
+
+                        {requirement.current_value !== null &&
+                          requirement.target_value !== null &&
+                          requirement.progress !== null && (
+                            <div className="mt-3">
+                              <div className="flex items-center justify-between gap-3 text-xs text-white/35">
+                                <span>
+                                  {Math.round(
+                                    requirement.current_value,
+                                  )}{' '}
+                                  /{' '}
+                                  {Math.round(
+                                    requirement.target_value,
+                                  )}
+                                </span>
+
+                                <span>
+                                  {Math.round(
+                                    requirement.progress * 100,
+                                  )}
+                                  %
+                                </span>
+                              </div>
+
+                              <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/[.06]">
+                                <div
+                                  className="h-full rounded-full bg-cyan-300/60 transition-all"
+                                  style={{
+                                    width: `${Math.min(
+                                      Math.max(
+                                        requirement.progress * 100,
+                                        0,
+                                      ),
+                                      100,
+                                    )}%`,
+                                  }}
+                                />
+                              </div>
+                            </div>
+                          )}
+                      </div>
                     </div>
                   ),
                 )}

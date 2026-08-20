@@ -50,17 +50,17 @@ export const translations = {
     intelligenceNextLevel:
       'Next level',
     intelligenceRequirementBehaviourConfidence:
-      'Behaviour confidence is above the low level.',
+      'Behaviour confidence above the low level.',
     intelligenceRequirementCalibrationData:
-      'Alias has enough evaluated predictions to move beyond insufficient calibration data.',
+      'Sufficient calibration data.',
     intelligenceRequirementManagerTrustHigh:
-      'Manager trust has reached the high level.',
+      'Manager trust at the high level.',
     intelligenceRequirementBehaviourConfidenceHigh:
-      'Behaviour confidence has reached the high level.',
+      'Behaviour confidence at the high level.',
     intelligenceRequirementCalibrationWellCalibrated:
-      'Prediction calibration is well calibrated.',
+      'Predictions well calibrated.',
     intelligenceRequirementAutomationReached:
-      'Automation eligibility requirements have been reached.',
+      'Automation eligibility requirements reached.',
     seatingDecisionReviewRecommended:
       'Manager review recommended',
     seatingDecisionRecommended:
@@ -631,17 +631,17 @@ export const translations = {
     intelligenceNextLevel:
       'Prossimo livello',
     intelligenceRequirementBehaviourConfidence:
-      'La confidenza del comportamento è superiore al livello basso.',
+      'Confidenza del comportamento superiore al livello basso.',
     intelligenceRequirementCalibrationData:
-      'Alias dispone di abbastanza previsioni valutate per superare lo stato di calibrazione con dati insufficienti.',
+      'Dati di calibrazione sufficienti.',
     intelligenceRequirementManagerTrustHigh:
-      'La fiducia del manager ha raggiunto il livello alto.',
+      'Fiducia del manager al livello alto.',
     intelligenceRequirementBehaviourConfidenceHigh:
-      'La confidenza del comportamento ha raggiunto il livello alto.',
+      'Confidenza del comportamento al livello alto.',
     intelligenceRequirementCalibrationWellCalibrated:
-      'La calibrazione delle previsioni è ben calibrata.',
+      'Previsioni ben calibrate.',
     intelligenceRequirementAutomationReached:
-      'I requisiti per l’idoneità all’automazione sono stati raggiunti.',
+      'Requisiti per l’idoneità all’automazione raggiunti.',
     trialDay: 'Giorno di prova 3',
     seatingDecisionReviewRecommended:
       'Revisione del manager consigliata',
@@ -1210,17 +1210,17 @@ export const translations = {
     intelligenceNextLevel:
       'Siguiente nivel',
     intelligenceRequirementBehaviourConfidence:
-      'La confianza del comportamiento está por encima del nivel bajo.',
+      'Confianza del comportamiento superior al nivel bajo.',
     intelligenceRequirementCalibrationData:
-      'Alias dispone de suficientes predicciones evaluadas para superar el estado de calibración con datos insuficientes.',
+      'Datos de calibración suficientes.',
     intelligenceRequirementManagerTrustHigh:
-      'La confianza del gerente ha alcanzado el nivel alto.',
+      'Confianza del gerente en el nivel alto.',
     intelligenceRequirementBehaviourConfidenceHigh:
-      'La confianza del comportamiento ha alcanzado el nivel alto.',
+      'Confianza del comportamiento en el nivel alto.',
     intelligenceRequirementCalibrationWellCalibrated:
-      'La calibración de las predicciones está bien calibrada.',
+      'Predicciones bien calibradas.',
     intelligenceRequirementAutomationReached:
-      'Se han alcanzado los requisitos de elegibilidad para la automatización.',
+      'Requisitos de elegibilidad para la automatización alcanzados.',
     analytics: 'Analíticas',
     seatingExecutionStatus:
       'Estado operativo',
@@ -1797,17 +1797,17 @@ export const translations = {
     intelligenceNextLevel:
       'Niveau suivant',
     intelligenceRequirementBehaviourConfidence:
-      'Le niveau de confiance du comportement est supérieur au niveau faible.',
+      'Confiance comportementale supérieure au niveau faible.',
     intelligenceRequirementCalibrationData:
-      'Alias dispose de suffisamment de prédictions évaluées pour dépasser l’état de calibration avec données insuffisantes.',
+      'Données de calibration suffisantes.',
     intelligenceRequirementManagerTrustHigh:
-      'La confiance du manager a atteint le niveau élevé.',
+      'Confiance du manager au niveau élevé.',
     intelligenceRequirementBehaviourConfidenceHigh:
-      'Le niveau de confiance du comportement a atteint le niveau élevé.',
+      'Confiance comportementale au niveau élevé.',
     intelligenceRequirementCalibrationWellCalibrated:
-      'La calibration des prédictions est bien calibrée.',
+      'Prédictions bien calibrées.',
     intelligenceRequirementAutomationReached:
-      'Les conditions d’éligibilité à l’automatisation sont remplies.',
+      'Conditions d’éligibilité à l’automatisation remplies.',
     seatingExecutionStatus:
       'Statut opérationnel',
     seatingExecutionReasonPolicyAdvisory:
@@ -2381,17 +2381,17 @@ export const translations = {
     intelligenceNextLevel:
       'Nächste Stufe',
     intelligenceRequirementBehaviourConfidence:
-      'Die Verhaltenskonfidenz liegt über dem niedrigen Niveau.',
+      'Verhaltenskonfidenz über dem niedrigen Niveau.',
     intelligenceRequirementCalibrationData:
-      'Alias verfügt über genügend ausgewertete Vorhersagen, um den Kalibrierungsstatus mit unzureichenden Daten zu verlassen.',
+      'Ausreichende Kalibrierungsdaten.',
     intelligenceRequirementManagerTrustHigh:
-      'Das Vertrauen des Managers hat ein hohes Niveau erreicht.',
+      'Vertrauen des Managers auf hohem Niveau.',
     intelligenceRequirementBehaviourConfidenceHigh:
-      'Die Verhaltenskonfidenz hat ein hohes Niveau erreicht.',
+      'Verhaltenskonfidenz auf hohem Niveau.',
     intelligenceRequirementCalibrationWellCalibrated:
-      'Die Vorhersagekalibrierung ist gut kalibriert.',
+      'Gut kalibrierte Vorhersagen.',
     intelligenceRequirementAutomationReached:
-      'Die Voraussetzungen für die Automatisierungsberechtigung sind erfüllt.',
+      'Voraussetzungen für die Automatisierungsberechtigung erfüllt.',
     settings: 'Einstellungen',
     seatingExecutionStatus:
       'Betriebsstatus',

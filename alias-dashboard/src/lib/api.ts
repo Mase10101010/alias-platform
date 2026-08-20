@@ -43,6 +43,10 @@ export type IntelligenceAutomationPathRequirement = {
   code: string;
   description: string;
   satisfied: boolean;
+
+  current_value: number | null;
+  target_value: number | null;
+  progress: number | null;
 };
 
 export type IntelligenceAutomationPath = {
