@@ -413,6 +413,8 @@ export type IntelligenceReoptimizationMoveApply = {
 };
 
 export type IntelligenceApplyReoptimizationRequest = {
+  suggestion_id?: string | null;
+
   new_reservation_id: string;
 
   new_reservation_table_ids: string[];

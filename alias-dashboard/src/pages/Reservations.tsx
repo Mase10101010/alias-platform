@@ -31,7 +31,6 @@ import {
   cancelReservation,
   getFloorPlans,
   getServiceAreas,
-  acceptAISuggestion,
   analyzeAISuggestion,
   moveReservation,
   dismissAISuggestion,
@@ -965,6 +964,8 @@ export function Reservations() {
       setReoptimizationError(null);
 
       await applyIntelligenceReoptimization({
+        suggestion_id: reviewingSuggestionId,
+        
         new_reservation_id: reoptimizationReservation.id,
         new_reservation_table_ids: assignment.table_ids,
         new_reservation_primary_table_id: primaryTableId,
@@ -976,28 +977,17 @@ export function Reservations() {
       });
 
       if (reviewingSuggestionId) {
-        try {
-          await acceptAISuggestion(
-            reviewingSuggestionId,
-          );
-
-          window.dispatchEvent(
-            new CustomEvent(
-              'alias-ai-suggestion-resolved',
-              {
-                detail: {
-                  suggestionId:
-                    reviewingSuggestionId,
-                },
+        window.dispatchEvent(
+          new CustomEvent(
+            'alias-ai-suggestion-resolved',
+            {
+              detail: {
+                suggestionId:
+                  reviewingSuggestionId,
               },
-            ),
-          );
-        } catch (error) {
-          console.error(
-            'Seating plan applied, but AI suggestion could not be marked as accepted',
-            error,
-          );
-        }
+            },
+          ),
+        );
       }
 
       setReviewingSuggestionId(null);
