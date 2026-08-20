@@ -39,6 +39,32 @@ export type IntelligenceCalibrationSnapshot = {
   generated_at: string;
 };
 
+export type IntelligenceAutomationPathRequirement = {
+  code: string;
+  description: string;
+  satisfied: boolean;
+};
+
+export type IntelligenceAutomationPath = {
+  restaurant_id: string;
+
+  current_level:
+    | 'advisory_only'
+    | 'assisted'
+    | 'eligible_for_automation';
+
+  next_level:
+    | 'advisory_only'
+    | 'assisted'
+    | 'eligible_for_automation'
+    | null;
+
+  requirements:
+    IntelligenceAutomationPathRequirement[];
+
+  generated_at: string;
+};
+
 export type RestaurantCreate = {
   name: string;
   slug: string;
@@ -129,6 +155,11 @@ export type IntelligenceSnapshotResponse = {
   behaviour: IntelligenceBehaviourSnapshot;
   policy: IntelligencePolicySnapshot | null;
   calibration: IntelligenceCalibrationSnapshot;
+
+  automation_path:
+    | IntelligenceAutomationPath
+    | null;
+
   generated_at: string;
 };
 

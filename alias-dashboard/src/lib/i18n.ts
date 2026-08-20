@@ -43,6 +43,24 @@ export const translations = {
     analytics: 'Analytics',
     settings: 'Settings',
     trialDay: 'Trial day 3',
+    intelligenceAutomationPath:
+      'Path to automation',
+    intelligenceCurrentLevel:
+      'Current level',
+    intelligenceNextLevel:
+      'Next level',
+    intelligenceRequirementBehaviourConfidence:
+      'Behaviour confidence is above the low level.',
+    intelligenceRequirementCalibrationData:
+      'Alias has enough evaluated predictions to move beyond insufficient calibration data.',
+    intelligenceRequirementManagerTrustHigh:
+      'Manager trust has reached the high level.',
+    intelligenceRequirementBehaviourConfidenceHigh:
+      'Behaviour confidence has reached the high level.',
+    intelligenceRequirementCalibrationWellCalibrated:
+      'Prediction calibration is well calibrated.',
+    intelligenceRequirementAutomationReached:
+      'Automation eligibility requirements have been reached.',
     seatingDecisionReviewRecommended:
       'Manager review recommended',
     seatingDecisionRecommended:
@@ -606,6 +624,24 @@ export const translations = {
     availabilityTitle: 'Disponibilità',
     analytics: 'Analytics',
     settings: 'Impostazioni',
+    intelligenceAutomationPath:
+      'Percorso verso l’automazione',
+    intelligenceCurrentLevel:
+      'Stato attuale',
+    intelligenceNextLevel:
+      'Prossimo livello',
+    intelligenceRequirementBehaviourConfidence:
+      'La confidenza del comportamento è superiore al livello basso.',
+    intelligenceRequirementCalibrationData:
+      'Alias dispone di abbastanza previsioni valutate per superare lo stato di calibrazione con dati insufficienti.',
+    intelligenceRequirementManagerTrustHigh:
+      'La fiducia del manager ha raggiunto il livello alto.',
+    intelligenceRequirementBehaviourConfidenceHigh:
+      'La confidenza del comportamento ha raggiunto il livello alto.',
+    intelligenceRequirementCalibrationWellCalibrated:
+      'La calibrazione delle previsioni è ben calibrata.',
+    intelligenceRequirementAutomationReached:
+      'I requisiti per l’idoneità all’automazione sono stati raggiunti.',
     trialDay: 'Giorno di prova 3',
     seatingDecisionReviewRecommended:
       'Revisione del manager consigliata',
@@ -1167,6 +1203,24 @@ export const translations = {
     reservations: 'Reservas',
     availability: 'Disponibilidad',
     availabilityTitle: 'Disponibilidad',
+    intelligenceAutomationPath:
+      'Camino hacia la automatización',
+    intelligenceCurrentLevel:
+      'Nivel actual',
+    intelligenceNextLevel:
+      'Siguiente nivel',
+    intelligenceRequirementBehaviourConfidence:
+      'La confianza del comportamiento está por encima del nivel bajo.',
+    intelligenceRequirementCalibrationData:
+      'Alias dispone de suficientes predicciones evaluadas para superar el estado de calibración con datos insuficientes.',
+    intelligenceRequirementManagerTrustHigh:
+      'La confianza del gerente ha alcanzado el nivel alto.',
+    intelligenceRequirementBehaviourConfidenceHigh:
+      'La confianza del comportamiento ha alcanzado el nivel alto.',
+    intelligenceRequirementCalibrationWellCalibrated:
+      'La calibración de las predicciones está bien calibrada.',
+    intelligenceRequirementAutomationReached:
+      'Se han alcanzado los requisitos de elegibilidad para la automatización.',
     analytics: 'Analíticas',
     seatingExecutionStatus:
       'Estado operativo',
@@ -1736,6 +1790,24 @@ export const translations = {
     availability: 'Disponibilité',
     availabilityTitle: 'Disponibilité',
     analytics: 'Analytiques',
+    intelligenceAutomationPath:
+      'Parcours vers l’automatisation',
+    intelligenceCurrentLevel:
+      'Niveau actuel',
+    intelligenceNextLevel:
+      'Niveau suivant',
+    intelligenceRequirementBehaviourConfidence:
+      'Le niveau de confiance du comportement est supérieur au niveau faible.',
+    intelligenceRequirementCalibrationData:
+      'Alias dispose de suffisamment de prédictions évaluées pour dépasser l’état de calibration avec données insuffisantes.',
+    intelligenceRequirementManagerTrustHigh:
+      'La confiance du manager a atteint le niveau élevé.',
+    intelligenceRequirementBehaviourConfidenceHigh:
+      'Le niveau de confiance du comportement a atteint le niveau élevé.',
+    intelligenceRequirementCalibrationWellCalibrated:
+      'La calibration des prédictions est bien calibrée.',
+    intelligenceRequirementAutomationReached:
+      'Les conditions d’éligibilité à l’automatisation sont remplies.',
     seatingExecutionStatus:
       'Statut opérationnel',
     seatingExecutionReasonPolicyAdvisory:
@@ -2302,6 +2374,24 @@ export const translations = {
     availability: 'Verfügbarkeit',
     availabilityTitle: 'Verfügbarkeit',
     analytics: 'Analysen',
+    intelligenceAutomationPath:
+      'Weg zur Automatisierung',
+    intelligenceCurrentLevel:
+      'Aktueller Stand',
+    intelligenceNextLevel:
+      'Nächste Stufe',
+    intelligenceRequirementBehaviourConfidence:
+      'Die Verhaltenskonfidenz liegt über dem niedrigen Niveau.',
+    intelligenceRequirementCalibrationData:
+      'Alias verfügt über genügend ausgewertete Vorhersagen, um den Kalibrierungsstatus mit unzureichenden Daten zu verlassen.',
+    intelligenceRequirementManagerTrustHigh:
+      'Das Vertrauen des Managers hat ein hohes Niveau erreicht.',
+    intelligenceRequirementBehaviourConfidenceHigh:
+      'Die Verhaltenskonfidenz hat ein hohes Niveau erreicht.',
+    intelligenceRequirementCalibrationWellCalibrated:
+      'Die Vorhersagekalibrierung ist gut kalibriert.',
+    intelligenceRequirementAutomationReached:
+      'Die Voraussetzungen für die Automatisierungsberechtigung sind erfüllt.',
     settings: 'Einstellungen',
     seatingExecutionStatus:
       'Betriebsstatus',

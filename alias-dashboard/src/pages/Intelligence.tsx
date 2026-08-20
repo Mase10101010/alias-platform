@@ -235,6 +235,28 @@ function translateInsight(
   };
 }
 
+function translateAutomationRequirement(
+  code: string,
+  fallback: string,
+) {
+  const labels: Record<string, string> = {
+    behaviour_confidence_above_low:
+      t.intelligenceRequirementBehaviourConfidence,
+    calibration_data_sufficient:
+      t.intelligenceRequirementCalibrationData,
+    manager_trust_high:
+      t.intelligenceRequirementManagerTrustHigh,
+    behaviour_confidence_high:
+      t.intelligenceRequirementBehaviourConfidenceHigh,
+    calibration_well_calibrated:
+      t.intelligenceRequirementCalibrationWellCalibrated,
+    automation_eligibility_reached:
+      t.intelligenceRequirementAutomationReached,
+  };
+
+  return labels[code] ?? fallback;
+}
+
 function translateAutomation(
   value: string,
 ) {
@@ -601,6 +623,70 @@ function translateAutomation(
                   {policy.maximum_preferred_seat_waste
                     ?? '—'}
                 </p>
+              </div>
+            </div>
+          )}
+
+          {snapshot.automation_path && (
+            <div className="mt-7 border-t border-white/[.06] pt-7">
+              <p className="text-xs uppercase tracking-[.18em] text-white/30">
+                {t.intelligenceAutomationPath}
+              </p>
+
+              <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div className="rounded-2xl bg-white/[.025] p-4">
+                  <p className="text-xs text-white/35">
+                    {t.intelligenceCurrentLevel}
+                  </p>
+
+                  <p className="mt-2 text-sm font-medium text-white/75">
+                    {translateAutomation(
+                      snapshot.automation_path.current_level,
+                    )}
+                  </p>
+                </div>
+
+                <div className="rounded-2xl bg-white/[.025] p-4">
+                  <p className="text-xs text-white/35">
+                    {t.intelligenceNextLevel}
+                  </p>
+
+                  <p className="mt-2 text-sm font-medium text-white/75">
+                    {snapshot.automation_path.next_level
+                      ? translateAutomation(
+                          snapshot.automation_path.next_level,
+                        )
+                      : '—'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-4 space-y-3">
+                {snapshot.automation_path.requirements.map(
+                  (requirement) => (
+                    <div
+                      key={requirement.code}
+                      className="flex items-start gap-3 rounded-2xl border border-white/[.06] bg-white/[.02] px-4 py-3"
+                    >
+                      <div
+                        className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-[10px] ${
+                          requirement.satisfied
+                            ? 'border-emerald-400/25 bg-emerald-400/10 text-emerald-300'
+                            : 'border-white/10 bg-white/[.03] text-white/30'
+                        }`}
+                      >
+                        {requirement.satisfied ? '✓' : '○'}
+                      </div>
+
+                      <p className="text-sm leading-6 text-white/50">
+                        {translateAutomationRequirement(
+                          requirement.code,
+                          requirement.description,
+                        )}
+                      </p>
+                    </div>
+                  ),
+                )}
               </div>
             </div>
           )}
