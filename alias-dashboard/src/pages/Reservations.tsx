@@ -2510,7 +2510,7 @@ export function Reservations() {
                     }}
                     className="rounded-full border border-white/10 px-5 py-3 text-sm text-white/55 transition hover:border-white/20 hover:text-white disabled:opacity-40"
                   >
-                    Keep current layout
+                    {t.seatingKeepCurrentLayout}
                   </button>
 
                   <button
@@ -2531,7 +2531,11 @@ export function Reservations() {
 
                     {applyingReoptimization
                       ? 'Applying changes…'
-                      : 'Apply seating plan'}
+                      : reoptimizationPlan.execution_eligibility
+                            ?.eligibility ===
+                          'manager_confirmation_required'
+                        ? t.seatingConfirmAndApplyPlan
+                        : t.seatingApplyPlan}
                   </button>
                 </div>
               </>

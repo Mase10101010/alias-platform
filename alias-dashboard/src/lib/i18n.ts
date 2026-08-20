@@ -82,6 +82,12 @@ export const translations = {
     publicBookingRegistered: 'Your booking is now registered with {restaurantName}.',
     publicReservationId: 'Reservation ID',
     overviewTitle: 'Overview',
+    seatingKeepCurrentLayout:
+      'Keep current layout',
+    seatingApplyPlan:
+      'Apply seating plan',
+    seatingConfirmAndApplyPlan:
+      'Confirm & apply seating plan',
     goodEvening: 'Good evening',
     intelligencePredictionQuality: 'Prediction quality',
     intelligencePredictionReliability:
@@ -849,6 +855,12 @@ export const translations = {
     onboardingHeading: 'Configura il tuo concierge AI.',
     back: 'Indietro',
     launching: 'Avvio…',
+    seatingKeepCurrentLayout:
+      'Mantieni disposizione attuale',
+    seatingApplyPlan:
+      'Applica piano tavoli',
+    seatingConfirmAndApplyPlan:
+      'Conferma e applica il piano',
     launchConcierge: 'Avvia concierge',
     intelligenceInsightLowReviewRateTitle:
       'Basso tasso di revisione dei suggerimenti',
@@ -1202,6 +1214,12 @@ export const translations = {
     onboarding: 'Onboarding',
     reservations: 'Reservas',
     availability: 'Disponibilidad',
+    seatingKeepCurrentLayout:
+      'Mantener distribución actual',
+    seatingApplyPlan:
+      'Aplicar plan de mesas',
+    seatingConfirmAndApplyPlan:
+      'Confirmar y aplicar el plan',
     availabilityTitle: 'Disponibilidad',
     intelligenceAutomationPath:
       'Camino hacia la automatización',
@@ -1790,6 +1808,12 @@ export const translations = {
     availability: 'Disponibilité',
     availabilityTitle: 'Disponibilité',
     analytics: 'Analytiques',
+    seatingKeepCurrentLayout:
+      'Conserver la disposition actuelle',
+    seatingApplyPlan:
+      'Appliquer le plan de tables',
+    seatingConfirmAndApplyPlan:
+      'Confirmer et appliquer le plan',
     intelligenceAutomationPath:
       'Parcours vers l’automatisation',
     intelligenceCurrentLevel:
@@ -2374,6 +2398,12 @@ export const translations = {
     availability: 'Verfügbarkeit',
     availabilityTitle: 'Verfügbarkeit',
     analytics: 'Analysen',
+    seatingKeepCurrentLayout:
+      'Aktuelle Tischordnung beibehalten',
+    seatingApplyPlan:
+      'Tischplan anwenden',
+    seatingConfirmAndApplyPlan:
+      'Bestätigen und Tischplan anwenden',
     intelligenceAutomationPath:
       'Weg zur Automatisierung',
     intelligenceCurrentLevel:
