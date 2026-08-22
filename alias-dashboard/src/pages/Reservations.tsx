@@ -1228,6 +1228,83 @@ export function Reservations() {
     return labels[confidence][language];
   }
 
+  function translateLearnedSignalStrength(
+    strength: 'none' | 'low' | 'medium' | 'high',
+  ) {
+    const labels = {
+      none: {
+        en: 'No evidence yet',
+        it: 'Nessuna evidenza ancora',
+        es: 'Sin evidencia todavía',
+        fr: 'Pas encore de preuve',
+        de: 'Noch keine Evidenz',
+      },
+      low: {
+        en: 'Low',
+        it: 'Bassa',
+        es: 'Baja',
+        fr: 'Faible',
+        de: 'Niedrig',
+      },
+      medium: {
+        en: 'Medium',
+        it: 'Media',
+        es: 'Media',
+        fr: 'Moyenne',
+        de: 'Mittel',
+      },
+      high: {
+        en: 'High',
+        it: 'Alta',
+        es: 'Alta',
+        fr: 'Élevée',
+        de: 'Hoch',
+      },
+    } as const;
+
+    return labels[strength][language];
+  }
+
+  function translateLearnedSignalTitle(
+    code: string,
+    fallback: string,
+  ) {
+    const labels: Record<
+      string,
+      Record<
+        'en' | 'it' | 'es' | 'fr' | 'de',
+        string
+      >
+    > = {
+      move_structure: {
+        en: 'Plan structure',
+        it: 'Struttura del piano',
+        es: 'Estructura del plan',
+        fr: 'Structure du plan',
+        de: 'Planstruktur',
+      },
+      seat_waste: {
+        en: 'Capacity usage',
+        it: 'Uso della capacità',
+        es: 'Uso de la capacidad',
+        fr: 'Utilisation de la capacité',
+        de: 'Kapazitätsnutzung',
+      },
+      technical_score: {
+        en: 'Technical score',
+        it: 'Punteggio tecnico',
+        es: 'Puntuación técnica',
+        fr: 'Score technique',
+        de: 'Technischer Score',
+      },
+    };
+
+    return (
+      labels[code]?.[language]
+      ?? fallback
+    );
+  }
+
   function translateDecisionLevel(
     level:
       | 'review_recommended'
@@ -2460,6 +2537,92 @@ export function Reservations() {
                     </p>
                   </div>
                 )}
+                {reoptimizationPlan.reasoning?.learned_signals &&
+                  reoptimizationPlan.reasoning.learned_signals.length > 0 && (
+                    <div className="mt-6">
+                      <p className="text-xs uppercase tracking-[.18em] text-white/35">
+                        {
+                          language === 'it'
+                            ? 'Cosa sta pesando di più'
+                            : language === 'es'
+                              ? 'Qué está pesando más'
+                              : language === 'fr'
+                                ? 'Ce qui pèse le plus'
+                                : language === 'de'
+                                  ? 'Was derzeit am stärksten gewichtet wird'
+                                  : 'What is weighing most'
+                        }
+                      </p>
+
+                      <div className="mt-3 space-y-3">
+                        {reoptimizationPlan.reasoning.learned_signals.map(
+                          (signal) => (
+                            <div
+                              key={signal.code}
+                              className="rounded-2xl border border-white/10 bg-white/[.025] p-4"
+                            >
+                              <div className="flex items-start justify-between gap-4">
+                                <div>
+                                  <p className="text-sm font-medium text-white/85">
+                                    {translateLearnedSignalTitle(
+                                      signal.code,
+                                      signal.title,
+                                    )}
+                                  </p>
+
+                                  <p className="mt-1 text-[11px] uppercase tracking-[.14em] text-white/30">
+                                    {
+                                      language === 'it'
+                                        ? 'Forza appresa'
+                                        : language === 'es'
+                                          ? 'Fuerza aprendida'
+                                          : language === 'fr'
+                                            ? 'Force apprise'
+                                            : language === 'de'
+                                              ? 'Gelernte Stärke'
+                                              : 'Learned strength'
+                                    }
+                                    {' · '}
+                                    {translateLearnedSignalStrength(
+                                      signal.strength,
+                                    )}
+                                  </p>
+                                </div>
+
+                                <div className="text-right">
+                                  <p className="text-sm font-medium text-white/70">
+                                    {Math.round(
+                                      signal.strength_value * 100,
+                                    )}
+                                    %
+                                  </p>
+                                </div>
+                              </div>
+
+                              <p className="mt-3 text-xs leading-relaxed text-white/40">
+                                {signal.description}
+                              </p>
+
+                              {signal.accepted_value !== null &&
+                                signal.dismissed_value !== null && (
+                                  <div className="mt-3 flex gap-4 text-[11px] text-white/30">
+                                    <span>
+                                      Accepted:{' '}
+                                      {signal.accepted_value.toFixed(2)}
+                                    </span>
+
+                                    <span>
+                                      Dismissed:{' '}
+                                      {signal.dismissed_value.toFixed(2)}
+                                    </span>
+                                  </div>
+                                )}
+                            </div>
+                          ),
+                        )}
+                      </div>
+                    </div>
+                  )}
                 {reoptimizationPlan.reasoning &&
                   reoptimizationPlan.reasoning.reasons.length > 0 && (
                     <div className="mt-6">

@@ -179,14 +179,46 @@ export type IntelligenceReasonItem = {
   importance: IntelligenceReasonImportance;
 };
 
+export type IntelligenceLearnedSignalStrength =
+  | 'none'
+  | 'low'
+  | 'medium'
+  | 'high';
+
+export type IntelligenceLearnedSignalDirection =
+  | 'neutral'
+  | 'preferred'
+  | 'avoided';
+
+export type IntelligenceLearnedSignal = {
+  code: string;
+  title: string;
+
+  strength: IntelligenceLearnedSignalStrength;
+  direction: IntelligenceLearnedSignalDirection;
+
+  strength_value: number;
+
+  accepted_value: number | null;
+  dismissed_value: number | null;
+
+  description: string;
+};
+
 export type IntelligenceRecommendationReasoning = {
   restaurant_id: string;
   reservation_id: string | null;
+
   base_score: number;
   personalized_score: number;
+
   moved_reservations_count: number;
   total_seat_waste: number;
+
   reasons: IntelligenceReasonItem[];
+
+  learned_signals?: IntelligenceLearnedSignal[];
+
   generated_at: string;
 };
 
