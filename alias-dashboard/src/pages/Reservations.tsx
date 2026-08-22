@@ -1127,6 +1127,37 @@ export function Reservations() {
           t.seatingReasonPreferredSingleMoveDescription,
       },
 
+      single_move_profile_match: {
+        title:
+          language === 'it'
+            ? 'Struttura coerente con lo storico'
+            : 'Matches current plan profile',
+        description:
+          language === 'it'
+            ? (
+                'Questo piano richiede un solo spostamento, '
+                + 'come i piani accettati finora. Tuttavia, '
+                + 'le decisioni accettate e rifiutate non '
+                + 'dimostrano ancora che il numero di '
+                + 'spostamenti determini realmente '
+                + 'la scelta del manager.'
+              )
+            : (
+                'This plan requires moving only one '
+                + 'reservation, matching plans accepted so '
+                + 'far. However, accepted and dismissed '
+                + 'decisions do not yet show that move count '
+                + 'itself drives manager acceptance.'
+              ),
+      },
+
+      within_preferred_move_limit: {
+        title:
+          t.seatingReasonPreferredMoveLimitTitle,
+        description:
+          t.seatingReasonPreferredMoveLimitDescription,
+      },
+
       within_preferred_move_limit: {
         title:
           t.seatingReasonPreferredMoveLimitTitle,
