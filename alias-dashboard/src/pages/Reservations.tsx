@@ -1158,13 +1158,6 @@ export function Reservations() {
           t.seatingReasonPreferredMoveLimitDescription,
       },
 
-      within_preferred_move_limit: {
-        title:
-          t.seatingReasonPreferredMoveLimitTitle,
-        description:
-          t.seatingReasonPreferredMoveLimitDescription,
-      },
-
       above_preferred_move_limit: {
         title:
           t.seatingReasonAboveMoveLimitTitle,
@@ -1321,6 +1314,13 @@ export function Reservations() {
         fr: 'Utilisation de la capacité',
         de: 'Kapazitätsnutzung',
       },
+      move_complexity: {
+        en: 'Plan complexity',
+        it: 'Complessità del piano',
+        es: 'Complejidad del plan',
+        fr: 'Complexité du plan',
+        de: 'Plankomplexität',
+      },
       technical_score: {
         en: 'Technical score',
         it: 'Punteggio tecnico',
@@ -1334,6 +1334,172 @@ export function Reservations() {
       labels[code]?.[language]
       ?? fallback
     );
+  }
+
+  function translateLearnedSignalDescription(
+    code: string,
+    direction:
+      | 'neutral'
+      | 'preferred'
+      | 'avoided',
+    acceptedValue: number | null,
+    dismissedValue: number | null,
+    fallback: string,
+  ) {
+    if (language !== 'it') {
+      return fallback;
+    }
+
+    if (
+      code === 'move_complexity'
+      && (
+        acceptedValue === null
+        || dismissedValue === null
+      )
+    ) {
+      return (
+        `Non ci sono ancora abbastanza decisioni `
+        + `comparabili per capire se la complessità `
+        + `degli spostamenti influenza le scelte `
+        + `del manager.`
+      );
+    }
+
+    if (
+      acceptedValue === null
+      || dismissedValue === null
+    ) {
+      return fallback;
+    }
+
+    if (code === 'move_structure') {
+      if (direction === 'neutral') {
+        return (
+          `I piani accettati e rifiutati richiedono `
+          + `in media circa ${acceptedValue.toFixed(2)} `
+          + `spostamenti. Per ora questo segnale non `
+          + `distingue le decisioni del manager.`
+        );
+      }
+
+      if (direction === 'preferred') {
+        return (
+          `I piani accettati richiedono in media `
+          + `${acceptedValue.toFixed(2)} spostamenti, `
+          + `contro ${dismissedValue.toFixed(2)} nei `
+          + `piani rifiutati. Il manager sembra `
+          + `preferire piani con meno spostamenti.`
+        );
+      }
+
+      return (
+        `I piani accettati richiedono in media `
+        + `${acceptedValue.toFixed(2)} spostamenti, `
+        + `contro ${dismissedValue.toFixed(2)} nei `
+        + `piani rifiutati. Un numero più basso di `
+        + `spostamenti non sembra guidare `
+        + `l'accettazione.`
+      );
+    }
+
+    if (code === 'seat_waste') {
+      if (direction === 'neutral') {
+        return (
+          `I piani accettati e rifiutati lasciano `
+          + `in media circa ${acceptedValue.toFixed(2)} `
+          + `posti inutilizzati. Per ora questo `
+          + `segnale non distingue le decisioni `
+          + `del manager.`
+        );
+      }
+
+      if (direction === 'preferred') {
+        return (
+          `I piani accettati lasciano in media `
+          + `${acceptedValue.toFixed(2)} posti `
+          + `inutilizzati, contro `
+          + `${dismissedValue.toFixed(2)} nei piani `
+          + `rifiutati. Il manager sembra preferire `
+          + `un uso più efficiente della capacità.`
+        );
+      }
+
+      return (
+        `I piani accettati lasciano in media `
+        + `${acceptedValue.toFixed(2)} posti `
+        + `inutilizzati, contro `
+        + `${dismissedValue.toFixed(2)} nei piani `
+        + `rifiutati. Un minor spreco di capacità `
+        + `non sembra guidare l'accettazione.`
+      );
+    }
+
+    if (code === 'move_complexity') {
+      if (direction === 'neutral') {
+        return (
+          `I piani accettati hanno una complessità `
+          + `media di ${acceptedValue.toFixed(2)}, `
+          + `contro ${dismissedValue.toFixed(2)} nei `
+          + `piani rifiutati. Per ora questo segnale `
+          + `non distingue in modo significativo le `
+          + `decisioni del manager.`
+        );
+      }
+
+      if (direction === 'preferred') {
+        return (
+          `I piani accettati hanno una complessità `
+          + `media di ${acceptedValue.toFixed(2)}, `
+          + `contro ${dismissedValue.toFixed(2)} nei `
+          + `piani rifiutati. Il manager sembra `
+          + `preferire piani con spostamenti meno `
+          + `complessi.`
+        );
+      }
+
+      return (
+        `I piani accettati hanno una complessità `
+        + `media di ${acceptedValue.toFixed(2)}, `
+        + `contro ${dismissedValue.toFixed(2)} nei `
+        + `piani rifiutati. Una minore complessità `
+        + `degli spostamenti non sembra guidare `
+        + `l'accettazione.`
+      );
+    }
+
+    if (code === 'technical_score') {
+      if (direction === 'neutral') {
+        return (
+          `I piani accettati e rifiutati hanno `
+          + `lo stesso punteggio tecnico medio: `
+          + `${acceptedValue.toFixed(2)}. Per ora `
+          + `lo score non distingue le decisioni `
+          + `del manager.`
+        );
+      }
+
+      if (direction === 'preferred') {
+        return (
+          `I piani accettati hanno uno score medio `
+          + `di ${acceptedValue.toFixed(2)}, contro `
+          + `${dismissedValue.toFixed(2)} nei piani `
+          + `rifiutati. Score più alti sembrano `
+          + `allinearsi maggiormente alle decisioni `
+          + `del manager.`
+        );
+      }
+
+      return (
+        `I piani accettati hanno uno score medio `
+        + `di ${acceptedValue.toFixed(2)}, contro `
+        + `${dismissedValue.toFixed(2)} nei piani `
+        + `rifiutati. Score tecnici più alti non `
+        + `sembrano predire, per ora, `
+        + `l'accettazione del manager.`
+      );
+    }
+
+    return fallback;
   }
 
   function translateDecisionLevel(
@@ -2631,21 +2797,45 @@ export function Reservations() {
                               </div>
 
                               <p className="mt-3 text-xs leading-relaxed text-white/40">
-                                {signal.description}
+                                {translateLearnedSignalDescription(
+                                  signal.code,
+                                  signal.direction,
+                                  signal.accepted_value,
+                                  signal.dismissed_value,
+                                  signal.description,
+                                )}
                               </p>
 
                               {signal.accepted_value !== null &&
                                 signal.dismissed_value !== null && (
-                                  <div className="mt-3 flex gap-4 text-[11px] text-white/30">
-                                    <span>
-                                      Accepted:{' '}
-                                      {signal.accepted_value.toFixed(2)}
-                                    </span>
+                                  <div className="mt-3 grid grid-cols-2 gap-3">
+                                    <div className="rounded-xl border border-white/5 bg-white/[.02] px-3 py-2">
+                                      <p className="text-[10px] uppercase tracking-[.12em] text-white/25">
+                                        {
+                                          language === 'it'
+                                            ? 'Accettati'
+                                            : 'Accepted'
+                                        }
+                                      </p>
 
-                                    <span>
-                                      Dismissed:{' '}
-                                      {signal.dismissed_value.toFixed(2)}
-                                    </span>
+                                      <p className="mt-1 text-xs font-medium text-white/60">
+                                        {signal.accepted_value.toFixed(2)}
+                                      </p>
+                                    </div>
+
+                                    <div className="rounded-xl border border-white/5 bg-white/[.02] px-3 py-2">
+                                      <p className="text-[10px] uppercase tracking-[.12em] text-white/25">
+                                        {
+                                          language === 'it'
+                                            ? 'Rifiutati'
+                                            : 'Dismissed'
+                                        }
+                                      </p>
+
+                                      <p className="mt-1 text-xs font-medium text-white/60">
+                                        {signal.dismissed_value.toFixed(2)}
+                                      </p>
+                                    </div>
                                   </div>
                                 )}
                             </div>
