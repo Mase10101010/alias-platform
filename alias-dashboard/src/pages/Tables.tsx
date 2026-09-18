@@ -20,6 +20,9 @@ import {
   createServiceArea,
   getFloorPlans,
   getTableCombinations,
+  analyzeSmartLayout,
+  getSmartLayoutRules,
+  updateSmartLayoutRuleStatus,
   getTables,
   moveReservation,
   optimizeReservation,
@@ -34,6 +37,8 @@ import {
   type ReservationStatus,
   type ServiceAreaType,
   type TableResponse,
+  type SmartLayoutRuleResponse,
+  type SmartLayoutRuleStatus,
 } from '@/lib/api';
 
 import { cyan } from '@/lib/data';
@@ -45,6 +50,8 @@ import {
 import {
   LiveReservationPanel,
 } from '@/components/floorplan/LiveReservationPanel';
+
+import { SmartLayoutPanel } from '@/components/floorplan/SmartLayoutPanel';
 
 import {
   LiveFloorControls,
@@ -258,6 +265,27 @@ export function Tables({
   
   
   const [error, setError] = useState('');
+
+  const [
+    smartLayoutRules,
+    setSmartLayoutRules,
+  ] = useState<SmartLayoutRuleResponse[]>([]);
+
+  const [
+    smartLayoutLoading,
+    setSmartLayoutLoading,
+  ] = useState(false);
+
+  const [
+    smartLayoutAnalyzing,
+    setSmartLayoutAnalyzing,
+  ] = useState(false);
+
+  const [
+    updatingSmartLayoutRuleId,
+    setUpdatingSmartLayoutRuleId,
+  ] = useState<string | null>(null);
+
   const [createAreaOpen, setCreateAreaOpen] =
     useState(false);
 
@@ -334,6 +362,52 @@ export function Tables({
   useEffect(() => {
     void loadTableCombinations();
   }, [loadTableCombinations]);
+
+  const loadSmartLayoutRules = useCallback(async () => {
+    if (
+      !restaurantId ||
+      !selectedAreaId ||
+      !selectedFloorPlanId
+    ) {
+      setSmartLayoutRules([]);
+      return;
+    }
+
+    try {
+      setSmartLayoutLoading(true);
+
+      const rules = await getSmartLayoutRules(
+        restaurantId,
+        selectedAreaId,
+        selectedFloorPlanId,
+      );
+
+      setSmartLayoutRules(rules);
+    } catch (error) {
+      console.error(
+        'Failed to load smart layout rules',
+        error,
+      );
+
+      setSmartLayoutRules([]);
+
+      setError(
+        error instanceof Error
+          ? error.message
+          : 'Unable to load smart table combinations.',
+      );
+    } finally {
+      setSmartLayoutLoading(false);
+    }
+  }, [
+    restaurantId,
+    selectedAreaId,
+    selectedFloorPlanId,
+  ]);
+
+  useEffect(() => {
+    void loadSmartLayoutRules();
+  }, [loadSmartLayoutRules]);
 
   const loadAllRestaurantTables = useCallback(async () => {
     if (!restaurantId) {
@@ -1658,6 +1732,91 @@ export function Tables({
     }
   }
 
+  async function handleAnalyzeSmartLayout() {
+    if (
+      !restaurantId ||
+      !selectedAreaId ||
+      !selectedFloorPlanId ||
+      smartLayoutAnalyzing
+    ) {
+      return;
+    }
+
+    try {
+      setSmartLayoutAnalyzing(true);
+      setError('');
+
+      await analyzeSmartLayout(
+        restaurantId,
+        selectedAreaId,
+        selectedFloorPlanId,
+      );
+
+      await Promise.all([
+        loadSmartLayoutRules(),
+        loadTableCombinations(),
+      ]);
+    } catch (error) {
+      console.error(
+        'Failed to analyze smart layout',
+        error,
+      );
+
+      setError(
+        error instanceof Error
+          ? error.message
+          : 'Unable to analyze table layout.',
+      );
+    } finally {
+      setSmartLayoutAnalyzing(false);
+    }
+  }
+
+  async function handleSmartLayoutStatusChange(
+    ruleId: string,
+    status: SmartLayoutRuleStatus,
+  ) {
+    if (
+      !restaurantId ||
+      !selectedAreaId ||
+      !selectedFloorPlanId ||
+      updatingSmartLayoutRuleId
+    ) {
+      return;
+    }
+
+    try {
+      setUpdatingSmartLayoutRuleId(ruleId);
+      setError('');
+
+      await updateSmartLayoutRuleStatus(
+        restaurantId,
+        selectedAreaId,
+        selectedFloorPlanId,
+        ruleId,
+        status,
+      );
+
+      await Promise.all([
+        loadSmartLayoutRules(),
+        loadTableCombinations(),
+      ]);
+    } catch (error) {
+      console.error(
+        'Failed to update smart layout rule',
+        error,
+      );
+
+      setError(
+        error instanceof Error
+          ? error.message
+          : 'Unable to update smart table combination.',
+      );
+    } finally {
+      setUpdatingSmartLayoutRuleId(null);
+    }
+  }
+
   return (
     <section className="rounded-3xl border border-white/10 bg-white/[.03] p-5 sm:p-8">
       <div>
@@ -1743,6 +1902,29 @@ export function Tables({
             : undefined
         }
       />
+
+      {floorMode === 'edit' &&
+        selectedAreaId &&
+        selectedFloorPlanId && (
+          <div className="mt-6">
+            <SmartLayoutPanel
+              rules={smartLayoutRules}
+              tables={tables}
+              loading={smartLayoutLoading}
+              analyzing={smartLayoutAnalyzing}
+              updatingRuleId={updatingSmartLayoutRuleId}
+              onAnalyze={() => {
+                void handleAnalyzeSmartLayout();
+              }}
+              onStatusChange={(ruleId, status) => {
+                void handleSmartLayoutStatusChange(
+                  ruleId,
+                  status,
+                );
+              }}
+            />
+          </div>
+        )}
 
       {floorMode === 'edit' && (
         <Toolbar

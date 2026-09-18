@@ -1384,6 +1384,35 @@ export type FloorPlanResponse = {
   updated_at: string;
 };
 
+export type SmartLayoutRuleStatus =
+  | 'auto'
+  | 'confirmed'
+  | 'blocked';
+
+export type SmartLayoutRuleMemberResponse = {
+  table_id: string;
+  sort_order: number;
+};
+
+export type SmartLayoutRuleResponse = {
+  id: string;
+  restaurant_id: string;
+  service_area_id: string;
+  floor_plan_id: string;
+  member_key: string;
+  status: SmartLayoutRuleStatus;
+  members: SmartLayoutRuleMemberResponse[];
+};
+
+export type SmartLayoutAnalysisResponse = {
+  discovered_count: number;
+  created_auto_count: number;
+  preserved_auto_count: number;
+  preserved_confirmed_count: number;
+  preserved_blocked_count: number;
+  deleted_obsolete_auto_count: number;
+};
+
 export type FloorPlanCreate = {
   name?: string;
   width?: number;
@@ -1599,6 +1628,92 @@ export async function getFloorPlans(
     throw await parseApiError(
       response,
       'Unable to load floor plans',
+    );
+  }
+
+  return response.json();
+}
+
+export async function analyzeSmartLayout(
+  restaurantId: string,
+  areaId: string,
+  floorPlanId: string,
+): Promise<SmartLayoutAnalysisResponse> {
+  const token = getAuthToken();
+
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/restaurants/${restaurantId}/service-areas/${areaId}/floor-plans/${floorPlanId}/smart-layout/analyze`,
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+
+  if (!response.ok) {
+    throw await parseApiError(
+      response,
+      'Unable to analyze table layout',
+    );
+  }
+
+  return response.json();
+}
+
+export async function getSmartLayoutRules(
+  restaurantId: string,
+  areaId: string,
+  floorPlanId: string,
+): Promise<SmartLayoutRuleResponse[]> {
+  const token = getAuthToken();
+
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/restaurants/${restaurantId}/service-areas/${areaId}/floor-plans/${floorPlanId}/smart-layout/rules`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+
+  if (!response.ok) {
+    throw await parseApiError(
+      response,
+      'Unable to load smart table combinations',
+    );
+  }
+
+  return response.json();
+}
+
+export async function updateSmartLayoutRuleStatus(
+  restaurantId: string,
+  areaId: string,
+  floorPlanId: string,
+  ruleId: string,
+  status: SmartLayoutRuleStatus,
+): Promise<SmartLayoutRuleResponse | null> {
+  const token = getAuthToken();
+
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/restaurants/${restaurantId}/service-areas/${areaId}/floor-plans/${floorPlanId}/smart-layout/rules/${ruleId}`,
+    {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        status,
+      }),
+    },
+  );
+
+  if (!response.ok) {
+    throw await parseApiError(
+      response,
+      'Unable to update smart table combination',
     );
   }
 
