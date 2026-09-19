@@ -51,7 +51,7 @@ function getRuleLabel(
     .map((member) =>
       getTableLabel(member.table_id, tables),
     )
-    .join(' + ');
+    .join(' ↔ ');
 }
 
 function getStatusCopy(
@@ -64,13 +64,13 @@ function getStatusCopy(
     case 'confirmed':
       return {
         label: 'Confirmed',
-        description: 'Confirmed by your team.',
+        description: 'Confirmed as a valid physical join.',
       };
 
     case 'blocked':
       return {
         label: 'Blocked',
-        description: 'Alias will not use this combination.',
+        description: 'Alias will never join these tables.',
       };
 
     case 'auto':
@@ -107,7 +107,7 @@ export function SmartLayoutPanel({
             />
 
             <p className="text-[10px] uppercase tracking-[.24em] text-white/30">
-              Smart combinations
+              Smart Table Joins
             </p>
           </div>
 
@@ -116,10 +116,10 @@ export function SmartLayoutPanel({
           </h2>
 
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-white/40">
-            Alias detects nearby tables that can be joined
-            for larger parties. Automatic combinations work
-            immediately, and you only need to correct
-            exceptions.
+            Alias detects which neighboring tables can
+            physically be joined. These joins are used
+            automatically to build larger table configurations
+            when needed. You only need to correct exceptions.
           </p>
         </div>
 
@@ -151,7 +151,7 @@ export function SmartLayoutPanel({
               size={17}
               className="animate-spin text-cyanAlias"
             />
-            Loading smart combinations...
+            Loading smart table joins...
           </div>
         ) : rules.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-white/10 bg-black/10 px-5 py-7 text-center">
@@ -161,12 +161,12 @@ export function SmartLayoutPanel({
             />
 
             <p className="mt-3 text-sm text-white/60">
-              No smart combinations detected yet.
+              No smart table joins detected yet.
             </p>
 
             <p className="mx-auto mt-1 max-w-lg text-xs leading-relaxed text-white/30">
               Analyze this layout and Alias will look for
-              physically plausible table combinations.
+              neighboring tables that can plausibly be joined.
             </p>
           </div>
         ) : (
@@ -175,8 +175,8 @@ export function SmartLayoutPanel({
               <p className="text-sm text-white/55">
                 {rules.length}{' '}
                 {rules.length === 1
-                  ? 'combination'
-                  : 'combinations'}
+                  ? 'physical join'
+                  : 'physical joins'}
               </p>
 
               <p className="text-xs text-white/25">
