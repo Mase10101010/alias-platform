@@ -581,6 +581,8 @@ export type TableCombinationResponse = {
   max_capacity: number;
   setup_minutes: number;
   is_active: boolean;
+  smart_layout_rule_id: string | null;
+  smart_layout_key: string | null;
   members: TableCombinationMemberResponse[];
 };
 

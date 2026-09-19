@@ -163,6 +163,16 @@ export function Tables({
     setTableCombinations,
   ] = useState<TableCombinationResponse[]>([]);
 
+  const manualTableCombinations = useMemo(
+    () =>
+      tableCombinations.filter(
+        (combination) =>
+          combination.smart_layout_rule_id === null &&
+          combination.smart_layout_key === null,
+      ),
+    [tableCombinations],
+  );
+
   const [
     editingCombination,
     setEditingCombination,
@@ -1948,35 +1958,33 @@ export function Tables({
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <p className="text-xs uppercase tracking-[.22em] text-white/30">
-                Table combinations
+                Manual combinations
               </p>
 
               <h2 className="mt-2 font-display text-2xl font-light text-white">
-                Configured joins
+                Custom table combinations
               </h2>
 
               <p className="mt-2 max-w-2xl text-sm leading-relaxed text-white/40">
-                Alias uses only these approved physical table
-                combinations when optimizing reservations.
+                Create custom table combinations only when you need an exception beyond Alias Smart Table Joins.
               </p>
             </div>
 
             <div className="rounded-full border border-white/10 bg-black/20 px-4 py-2 text-xs text-white/40">
-              {tableCombinations.length}{' '}
-              {tableCombinations.length === 1
-                ? 'combination'
-                : 'combinations'}
+              {manualTableCombinations.length}{' '}
+              {manualTableCombinations.length === 1
+                ? 'manual combination'
+                : 'manual combinations'}
             </div>
           </div>
 
-          {tableCombinations.length === 0 ? (
+          {manualTableCombinations.length === 0 ? (
             <div className="mt-5 rounded-2xl border border-dashed border-white/10 px-4 py-6 text-sm text-white/35">
-              Select at least two tables with Ctrl or Cmd, then
-              choose Create combination.
+              No manual combinations yet. Select at least two tables with Ctrl or Cmd, then choose Create combination if you need a custom setup.
             </div>
           ) : (
             <div className="mt-5 grid gap-3 xl:grid-cols-2">
-              {tableCombinations.map((combination) => {
+              {manualTableCombinations.map((combination) => {
                 const deleting =
                   deletingCombinationId ===
                   combination.id;
