@@ -2426,10 +2426,10 @@ export function Tables({
           <span>Positions save automatically</span>
           <span>•</span>
           <span>
-            {tableCombinations.length}{' '}
-            {tableCombinations.length === 1
-              ? 'combination configured'
-              : 'combinations configured'}
+            {manualTableCombinations.length}{' '}
+            {manualTableCombinations.length === 1
+              ? 'manual combination'
+              : 'manual combinations'}
           </span>
         </div>
       )}
