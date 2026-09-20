@@ -110,7 +110,21 @@ export function useFloorHistory({
           table.id === entry.before.tableId
             ? {
                 ...table,
-                placement: updated,
+                ...(
+                  entry.before.type === 'move'
+                    ? {
+                        x: updated.x,
+                        y: updated.y,
+                      }
+                    : entry.before.type === 'resize'
+                      ? {
+                          width: updated.width,
+                          height: updated.height,
+                        }
+                      : {
+                          rotation: updated.rotation,
+                        }
+                ),
               }
             : table,
         ),
@@ -151,7 +165,21 @@ export function useFloorHistory({
           table.id === entry.after.tableId
             ? {
                 ...table,
-                placement: updated,
+                ...(
+                  entry.after.type === 'move'
+                    ? {
+                        x: updated.x,
+                        y: updated.y,
+                      }
+                    : entry.after.type === 'resize'
+                      ? {
+                          width: updated.width,
+                          height: updated.height,
+                        }
+                      : {
+                          rotation: updated.rotation,
+                        }
+                ),
               }
             : table,
         ),
