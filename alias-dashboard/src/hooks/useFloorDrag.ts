@@ -8,12 +8,17 @@ import {
   updateTablePlacement,
   type TableResponse,
 } from '@/lib/api';
+
 import {
   clampTablePosition,
   floorRectsOverlap,
   snapToGrid,
   type FloorBounds,
 } from '@/hooks/useFloorGeometry';
+
+import type {
+  PanPosition,
+} from '@/hooks/useFloorViewport';
 
 export type GuideLines = {
   vertical: number | null;
@@ -23,10 +28,13 @@ export type GuideLines = {
 type DragState = {
   tableId: string;
   pointerId: number;
-  startPointerX: number;
-  startPointerY: number;
+
+  startPointerFloorX: number;
+  startPointerFloorY: number;
+
   startTableX: number;
   startTableY: number;
+
   currentX: number;
   currentY: number;
 };
@@ -34,23 +42,37 @@ type DragState = {
 type UseFloorDragOptions = {
   restaurantId: string | null;
   zoom: number;
+  pan: PanPosition;
+  setPan: (
+    next:
+      | PanPosition
+      | ((current: PanPosition) => PanPosition),
+  ) => void;
+
   floorPlanId: string | null;
   floorBounds: FloorBounds | null;
   tables: TableResponse[];
+
   canvasRef: RefObject<HTMLDivElement | null>;
+
   enabled: boolean;
   savingTableId: string | null;
+
   setTables: React.Dispatch<
     React.SetStateAction<TableResponse[]>
   >;
+
   setSavingTableId: React.Dispatch<
     React.SetStateAction<string | null>
   >;
+
   setGuideLines: React.Dispatch<
     React.SetStateAction<GuideLines>
   >;
+
   selectTable: (tableId: string) => void;
   onError: (message: string) => void;
+
   onMoveSaved: (
     table: TableResponse,
     before: {
@@ -64,6 +86,9 @@ type UseFloorDragOptions = {
   ) => void;
 };
 
+const AUTO_PAN_EDGE = 80;
+const AUTO_PAN_SPEED = 18;
+
 export function useFloorDrag({
   restaurantId,
   floorPlanId,
@@ -72,6 +97,8 @@ export function useFloorDrag({
   canvasRef,
   enabled,
   zoom,
+  pan,
+  setPan,
   savingTableId,
   setTables,
   setSavingTableId,
@@ -82,6 +109,73 @@ export function useFloorDrag({
 }: UseFloorDragOptions) {
   const dragRef = useRef<DragState | null>(null);
 
+  function pointerToFloor(
+    clientX: number,
+    clientY: number,
+  ) {
+    const canvas = canvasRef.current;
+
+    if (!canvas) {
+      return null;
+    }
+
+    const rect = canvas.getBoundingClientRect();
+
+    return {
+      x: (clientX - rect.left - pan.x) / zoom,
+      y: (clientY - rect.top - pan.y) / zoom,
+    };
+  }
+
+  function autoPanViewport(
+    clientX: number,
+    clientY: number,
+  ) {
+    const canvas = canvasRef.current;
+
+    if (!canvas) {
+      return;
+    }
+
+    const rect = canvas.getBoundingClientRect();
+
+    let deltaX = 0;
+    let deltaY = 0;
+
+    if (
+      clientX <
+      rect.left + AUTO_PAN_EDGE
+    ) {
+      deltaX = AUTO_PAN_SPEED;
+    } else if (
+      clientX >
+      rect.right - AUTO_PAN_EDGE
+    ) {
+      deltaX = -AUTO_PAN_SPEED;
+    }
+
+    if (
+      clientY <
+      rect.top + AUTO_PAN_EDGE
+    ) {
+      deltaY = AUTO_PAN_SPEED;
+    } else if (
+      clientY >
+      rect.bottom - AUTO_PAN_EDGE
+    ) {
+      deltaY = -AUTO_PAN_SPEED;
+    }
+
+    if (deltaX === 0 && deltaY === 0) {
+      return;
+    }
+
+    setPan((current) => ({
+      x: current.x + deltaX,
+      y: current.y + deltaY,
+    }));
+  }
+
   function handlePointerDown(
     event: ReactPointerEvent<HTMLDivElement>,
     table: TableResponse,
@@ -90,18 +184,33 @@ export function useFloorDrag({
       return;
     }
 
+    const pointer = pointerToFloor(
+      event.clientX,
+      event.clientY,
+    );
+
+    if (!pointer) {
+      return;
+    }
+
     event.preventDefault();
-    event.currentTarget.setPointerCapture(event.pointerId);
+
+    event.currentTarget.setPointerCapture(
+      event.pointerId,
+    );
 
     selectTable(table.id);
 
     dragRef.current = {
       tableId: table.id,
       pointerId: event.pointerId,
-      startPointerX: event.clientX,
-      startPointerY: event.clientY,
+
+      startPointerFloorX: pointer.x,
+      startPointerFloorY: pointer.y,
+
       startTableX: table.x,
       startTableY: table.y,
+
       currentX: table.x,
       currentY: table.y,
     };
@@ -121,11 +230,25 @@ export function useFloorDrag({
       return;
     }
 
-    const deltaX = 
-      (event.clientX - drag.startPointerX) / zoom;
+    autoPanViewport(
+      event.clientX,
+      event.clientY,
+    );
 
-    const deltaY = 
-      (event.clientY - drag.startPointerY) / zoom;
+    const pointer = pointerToFloor(
+      event.clientX,
+      event.clientY,
+    );
+
+    if (!pointer) {
+      return;
+    }
+
+    const deltaX =
+      pointer.x - drag.startPointerFloorX;
+
+    const deltaY =
+      pointer.y - drag.startPointerFloorY;
 
     const position = floorBounds
       ? clampTablePosition(
@@ -135,8 +258,14 @@ export function useFloorDrag({
           drag.startTableY + deltaY,
         )
       : {
-          x: Math.max(0, drag.startTableX + deltaX),
-          y: Math.max(0, drag.startTableY + deltaY),
+          x: Math.max(
+            0,
+            drag.startTableX + deltaX,
+          ),
+          y: Math.max(
+            0,
+            drag.startTableY + deltaY,
+          ),
         };
 
     const nextX = snapToGrid(position.x);
@@ -147,21 +276,23 @@ export function useFloorDrag({
       horizontal: nextY,
     });
 
-    const collides = tables.some((otherTable) => {
-      if (otherTable.id === table.id) {
-        return false;
-      }
+    const collides = tables.some(
+      (otherTable) => {
+        if (otherTable.id === table.id) {
+          return false;
+        }
 
-      return floorRectsOverlap(
-        {
-          x: nextX,
-          y: nextY,
-          width: table.width,
-          height: table.height,
-        },
-        otherTable,
-      );
-    });
+        return floorRectsOverlap(
+          {
+            x: nextX,
+            y: nextY,
+            width: table.width,
+            height: table.height,
+          },
+          otherTable,
+        );
+      },
+    );
 
     if (collides) {
       return;
@@ -204,8 +335,14 @@ export function useFloorDrag({
       horizontal: null,
     });
 
-    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-      event.currentTarget.releasePointerCapture(event.pointerId);
+    if (
+      event.currentTarget.hasPointerCapture(
+        event.pointerId,
+      )
+    ) {
+      event.currentTarget.releasePointerCapture(
+        event.pointerId,
+      );
     }
 
     const hasMoved =
@@ -213,7 +350,7 @@ export function useFloorDrag({
       drag.currentY !== drag.startTableY;
 
     if (
-      !restaurantId || 
+      !restaurantId ||
       !floorPlanId ||
       !hasMoved
     ) {
@@ -224,23 +361,24 @@ export function useFloorDrag({
       setSavingTableId(table.id);
       onError('');
 
-      const updated = await updateTablePlacement(
-        restaurantId,
-        floorPlanId,
-        table.id,
-        {
-          x: drag.currentX,
-          y: drag.currentY,
-        },
-      );
+      const updated =
+        await updateTablePlacement(
+          restaurantId,
+          floorPlanId,
+          table.id,
+          {
+            x: drag.currentX,
+            y: drag.currentY,
+          },
+        );
 
       setTables((current) =>
         current.map((item) =>
           item.id === table.id
-              ? {
-                    ...item,
-                    x: updated.x,
-                    y: updated.y,
+            ? {
+                ...item,
+                x: updated.x,
+                y: updated.y,
               }
             : item,
         ),
@@ -258,7 +396,10 @@ export function useFloorDrag({
         },
       );
     } catch (error) {
-      console.error('Failed to save table position', error);
+      console.error(
+        'Failed to save table position',
+        error,
+      );
 
       setTables((current) =>
         current.map((item) =>

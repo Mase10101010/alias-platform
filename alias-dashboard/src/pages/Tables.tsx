@@ -583,6 +583,7 @@ export function Tables({
     canZoomIn,
     canZoomOut,
     pan,
+    setPan,
     isPanning,
     spacePressed,
     zoomIn,
@@ -665,6 +666,8 @@ export function Tables({
     floorBounds,
     tables,
     canvasRef,
+    pan,
+    setPan,
     enabled: 
       floorMode === 'edit' &&
       activeTool === 'select' &&

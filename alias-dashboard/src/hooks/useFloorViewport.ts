@@ -10,8 +10,9 @@ import {
 const MIN_ZOOM = 0.5;
 const MAX_ZOOM = 2;
 const ZOOM_STEP = 0.1;
+const PAN_LIMIT = 1200;
 
-type PanPosition = {
+export type PanPosition = {
   x: number;
   y: number;
 };
@@ -43,7 +44,7 @@ function clampPanValue(
 export function useFloorViewport() {
   const [zoom, setZoom] = useState(1);
 
-  const [pan, setPan] = useState<PanPosition>({
+  const [pan, setPanState] = useState<PanPosition>({
     x: 0,
     y: 0,
   });
@@ -52,7 +53,6 @@ export function useFloorViewport() {
   const [spacePressed, setSpacePressed] = useState(false);
 
   const panRef = useRef<PanState | null>(null);
-
   const suppressNextClickRef = useRef(false);
 
   useEffect(() => {
@@ -98,6 +98,35 @@ export function useFloorViewport() {
     };
   }, []);
 
+  const setPan = useCallback(
+    (
+      next:
+        | PanPosition
+        | ((current: PanPosition) => PanPosition),
+    ) => {
+      setPanState((current) => {
+        const resolved =
+          typeof next === 'function'
+            ? next(current)
+            : next;
+
+        return {
+          x: clampPanValue(
+            resolved.x,
+            -PAN_LIMIT,
+            PAN_LIMIT,
+          ),
+          y: clampPanValue(
+            resolved.y,
+            -PAN_LIMIT,
+            PAN_LIMIT,
+          ),
+        };
+      });
+    },
+    [],
+  );
+
   const zoomIn = useCallback(() => {
     setZoom((current) =>
       clampZoom(current + ZOOM_STEP),
@@ -112,7 +141,7 @@ export function useFloorViewport() {
 
   const resetViewport = useCallback(() => {
     setZoom(1);
-    setPan({
+    setPanState({
       x: 0,
       y: 0,
     });
@@ -140,7 +169,8 @@ export function useFloorViewport() {
     event: ReactPointerEvent<HTMLDivElement>,
   ) {
     const isMiddleMouse = event.button === 1;
-    const isSpaceDrag = spacePressed && event.button === 0;
+    const isSpaceDrag =
+      spacePressed && event.button === 0;
 
     if (!isMiddleMouse && !isSpaceDrag) {
       return;
@@ -149,7 +179,9 @@ export function useFloorViewport() {
     event.preventDefault();
     event.stopPropagation();
 
-    event.currentTarget.setPointerCapture(event.pointerId);
+    event.currentTarget.setPointerCapture(
+      event.pointerId,
+    );
 
     panRef.current = {
       pointerId: event.pointerId,
@@ -183,19 +215,20 @@ export function useFloorViewport() {
 
     if (
       Math.abs(deltaX) >= 3 ||
-      Math.abs(deltaY) >+ 3
+      Math.abs(deltaY) >= 3
     ) {
       currentPan.hasMoved = true;
     }
 
-    const nextX = currentPan.startPanX + deltaX;
-    const nextY = currentPan.startPanY + deltaY;
+    const nextX =
+      currentPan.startPanX + deltaX;
 
-    const panLimit = 1200;
+    const nextY =
+      currentPan.startPanY + deltaY;
 
     setPan({
-      x: clampPanValue(nextX, -panLimit, panLimit),
-      y: clampPanValue(nextY, -panLimit, panLimit),
+      x: nextX,
+      y: nextY,
     });
   }
 
@@ -212,14 +245,16 @@ export function useFloorViewport() {
     }
 
     if (currentPan.hasMoved) {
-      suppressNextClickRef.current = true
+      suppressNextClickRef.current = true;
     }
 
     panRef.current = null;
     setIsPanning(false);
 
     if (
-      event.currentTarget.hasPointerCapture(event.pointerId)
+      event.currentTarget.hasPointerCapture(
+        event.pointerId,
+      )
     ) {
       event.currentTarget.releasePointerCapture(
         event.pointerId,
@@ -243,6 +278,7 @@ export function useFloorViewport() {
     canZoomOut: zoom > MIN_ZOOM,
 
     pan,
+    setPan,
     isPanning,
     spacePressed,
 
