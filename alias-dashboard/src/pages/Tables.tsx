@@ -641,6 +641,17 @@ export function Tables({
       vertical: null,
       horizontal: null,
     });
+
+  const refreshSmartLayoutAfterGeometryChange =
+    useCallback(async () => {
+      await Promise.all([
+        loadSmartLayoutRules(),
+        loadTableCombinations(),
+      ]);
+    }, [
+      loadSmartLayoutRules,
+      loadTableCombinations,
+    ]);
   
   const {
     record,
@@ -654,18 +665,10 @@ export function Tables({
     floorPlanId: selectedFloorPlanId,
     setTables,
     onError: setError,
+    onSaved: refreshSmartLayoutAfterGeometryChange,
   });
 
-  const refreshSmartLayoutAfterGeometryChange =
-    useCallback(async () => {
-      await Promise.all([
-        loadSmartLayoutRules(),
-        loadTableCombinations(),
-      ]);
-    }, [
-      loadSmartLayoutRules,
-      loadTableCombinations,
-    ]);
+  
 
   const {
     handlePointerDown,

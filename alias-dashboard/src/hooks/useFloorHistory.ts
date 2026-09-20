@@ -32,6 +32,7 @@ type UseFloorHistoryOptions = {
   floorPlanId: string | null;
   setTables: React.Dispatch<React.SetStateAction<any[]>>;
   onError(message: string): void;
+  onSaved?(): void | Promise<void>;
 };
 
 export function useFloorHistory({
@@ -39,6 +40,7 @@ export function useFloorHistory({
   floorPlanId,
   setTables,
   onError,
+  onSaved,
 }: UseFloorHistoryOptions) {
   const [undoStack, setUndoStack] = useState<HistoryEntry[]>([]);
   const [redoStack, setRedoStack] = useState<HistoryEntry[]>([]);
@@ -101,9 +103,16 @@ export function useFloorHistory({
 
       const updated = await apply(entry.before);
 
+      await onSaved?.();
+
       setTables((current) =>
         current.map((table: any) =>
           table.id === entry.before.tableId
+            ? {
+                ...table,
+                placement: updated,
+              }
+            : table,
         ),
       );
 
@@ -135,9 +144,16 @@ export function useFloorHistory({
 
       const updated = await apply(entry.after);
 
+      await onSaved?.();
+
       setTables((current) =>
         current.map((table: any) =>
           table.id === entry.after.tableId
+            ? {
+                ...table,
+                placement: updated,
+              }
+            : table,
         ),
       );
 
