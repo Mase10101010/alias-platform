@@ -68,11 +68,9 @@ export const FloorCanvas = forwardRef<
       className={`relative h-[650px] w-full touch-none overflow-hidden rounded-3xl border border-white/10 bg-black/25 ${
         isPanning
           ? 'cursor-grabbing'
-          : spacePressed
+          : activeToolIsSelect
             ? 'cursor-grab'
-            : activeToolIsSelect
-              ? 'cursor-default'
-              : 'cursor-crosshair'
+            : 'cursor-crosshair'
       }`}
     >
 

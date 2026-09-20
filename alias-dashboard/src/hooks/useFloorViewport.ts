@@ -169,10 +169,9 @@ export function useFloorViewport() {
     event: ReactPointerEvent<HTMLDivElement>,
   ) {
     const isMiddleMouse = event.button === 1;
-    const isSpaceDrag =
-      spacePressed && event.button === 0;
+    const isLeftMouse = event.button === 0;
 
-    if (!isMiddleMouse && !isSpaceDrag) {
+    if (!isMiddleMouse && !isLeftMouse) {
       return;
     }
 
