@@ -14,6 +14,8 @@ type FloorCanvasProps = {
   tablesCount: number;
   activeToolIsSelect: boolean;
   zoom: number;
+  floorWidth: number;
+  floorHeight: number;
   onCanvasClick: MouseEventHandler<HTMLDivElement>;
   onWheel: WheelEventHandler<HTMLDivElement>;
   children: ReactNode;
@@ -37,6 +39,8 @@ export const FloorCanvas = forwardRef<
   {
     loading,
     tablesCount,
+    floorWidth,
+    floorHeight,
     activeToolIsSelect,
     zoom,
     pan,
@@ -71,17 +75,21 @@ export const FloorCanvas = forwardRef<
               : 'cursor-crosshair'
       }`}
     >
-      <div
-        className="absolute inset-0 origin-top-left"
-        style={{
-          transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
-          backgroundImage:
-            'linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px)',
-          backgroundSize: '20px 20px',
-        }}
-      >
-        {children}
-      </div>
+
+        <div
+          className="absolute left-0 top-0 origin-top-left"
+          style={{
+            width: floorWidth,
+            height: floorHeight,
+            transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
+            backgroundImage:
+              'linear-gradient(rgba(255,255,255,0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.045) 1px, transparent 1px)',
+            backgroundSize: '20px 20px',
+          }}
+        >
+          {children}
+        </div>
+
 
       {loading && (
         <div className="absolute inset-0 z-40 flex items-center justify-center bg-black/10">

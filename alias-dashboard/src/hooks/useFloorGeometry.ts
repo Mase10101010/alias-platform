@@ -5,6 +5,11 @@ export type FloorRect = {
   height: number;
 };
 
+export type FloorBounds = {
+  width: number;
+  height: number;
+};
+
 export function snapToGrid(value: number, grid = 20) {
   return Math.round(value / grid) * grid;
 }
@@ -22,32 +27,20 @@ export function floorRectsOverlap(
   );
 }
 
-import type { RefObject } from 'react';
-import type { TableResponse } from '@/lib/api';
-
 export function clampTablePosition(
-  canvasRef: RefObject<HTMLDivElement | null>,
-  table: TableResponse,
+  floorBounds: FloorBounds,
+  table: FloorRect,
   nextX: number,
   nextY: number,
 ) {
-  const canvas = canvasRef.current;
-
-  if (!canvas) {
-    return {
-      x: Math.max(0, nextX),
-      y: Math.max(0, nextY),
-    };
-  }
-
   const maxX = Math.max(
     0,
-    canvas.clientWidth - table.width,
+    floorBounds.width - table.width,
   );
 
   const maxY = Math.max(
     0,
-    canvas.clientHeight - table.height,
+    floorBounds.height - table.height,
   );
 
   return {

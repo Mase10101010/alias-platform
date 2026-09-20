@@ -12,6 +12,7 @@ import {
   clampTablePosition,
   floorRectsOverlap,
   snapToGrid,
+  type FloorBounds,
 } from '@/hooks/useFloorGeometry';
 
 export type GuideLines = {
@@ -34,6 +35,7 @@ type UseFloorDragOptions = {
   restaurantId: string | null;
   zoom: number;
   floorPlanId: string | null;
+  floorBounds: FloorBounds | null;
   tables: TableResponse[];
   canvasRef: RefObject<HTMLDivElement | null>;
   enabled: boolean;
@@ -65,6 +67,7 @@ type UseFloorDragOptions = {
 export function useFloorDrag({
   restaurantId,
   floorPlanId,
+  floorBounds,
   tables,
   canvasRef,
   enabled,
@@ -122,14 +125,19 @@ export function useFloorDrag({
       (event.clientX - drag.startPointerX) / zoom;
 
     const deltaY = 
-    (event.clientY - drag.startPointerY) / zoom;
+      (event.clientY - drag.startPointerY) / zoom;
 
-    const position = clampTablePosition(
-      canvasRef,
-      table,
-      drag.startTableX + deltaX,
-      drag.startTableY + deltaY,
-    );
+    const position = floorBounds
+      ? clampTablePosition(
+          floorBounds,
+          table,
+          drag.startTableX + deltaX,
+          drag.startTableY + deltaY,
+        )
+      : {
+          x: Math.max(0, drag.startTableX + deltaX),
+          y: Math.max(0, drag.startTableY + deltaY),
+        };
 
     const nextX = snapToGrid(position.x);
     const nextY = snapToGrid(position.y);

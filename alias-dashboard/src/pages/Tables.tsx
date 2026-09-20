@@ -342,6 +342,25 @@ export function Tables({
     onError: setError,
   });
 
+  const selectedFloorPlan = useMemo(
+    () =>
+      floorPlans.find(
+        (floorPlan) => floorPlan.id === selectedFloorPlanId,
+      ) ?? null,
+    [floorPlans, selectedFloorPlanId],
+  );
+
+  const floorBounds = useMemo(
+    () =>
+      selectedFloorPlan
+        ? {
+            width: selectedFloorPlan.width,
+            height: selectedFloorPlan.height,
+          }
+        : null,
+    [selectedFloorPlan],
+  );
+
   const loadTableCombinations = useCallback(async () => {
     if (!restaurantId || !selectedAreaId) {
       setTableCombinations([]);
@@ -643,6 +662,7 @@ export function Tables({
   } = useFloorDrag({
     restaurantId,
     floorPlanId: selectedFloorPlanId,
+    floorBounds,
     tables,
     canvasRef,
     enabled: 
@@ -2117,6 +2137,8 @@ export function Tables({
             ref={canvasRef}
             loading={loading || liveLoading}
             tablesCount={tables.length}
+            floorWidth={selectedFloorPlan?.width ?? 0}
+            floorHeight={selectedFloorPlan?.height ?? 0}
             activeToolIsSelect={
               floorMode === 'edit' &&
               activeTool === 'select'
