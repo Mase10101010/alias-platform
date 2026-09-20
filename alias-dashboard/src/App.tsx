@@ -497,14 +497,7 @@ export default function App() {
 
   if (checkingAuth) {
     return (
-      <main className="grain flex min-h-screen items-center justify-center bg-ink text-white">
-        <div className="text-center">
-          <AliasMark />
-          <p className="mt-6 text-sm uppercase tracking-[.28em] text-white/35">
-            Securing workspace
-          </p>
-        </div>
-      </main>
+      <main className="grain min-h-screen bg-ink" />
     );
   }
 
