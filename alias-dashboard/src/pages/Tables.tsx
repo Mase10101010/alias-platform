@@ -656,6 +656,17 @@ export function Tables({
     onError: setError,
   });
 
+  const refreshSmartLayoutAfterGeometryChange =
+    useCallback(async () => {
+      await Promise.all([
+        loadSmartLayoutRules(),
+        loadTableCombinations(),
+      ]);
+    }, [
+      loadSmartLayoutRules,
+      loadTableCombinations,
+    ]);
+
   const {
     handlePointerDown,
     handlePointerMove,
@@ -696,6 +707,8 @@ export function Tables({
           y: after.y,
         },
       });
+
+      void refreshSmartLayoutAfterGeometryChange();
     },
   });
 
@@ -733,6 +746,8 @@ export function Tables({
           rotation: after,
         },
       });
+
+      void refreshSmartLayoutAfterGeometryChange();
     },
   });
 
@@ -772,6 +787,8 @@ export function Tables({
           height: after.height,
         },
       });
+
+      void refreshSmartLayoutAfterGeometryChange();
     },
   });
     
