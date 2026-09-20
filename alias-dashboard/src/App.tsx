@@ -550,12 +550,38 @@ if (!authed && isAuthPage) {
 
   if (authed && checkingWorkspace) {
     return (
-      <main className="grain flex min-h-screen items-center justify-center bg-ink text-white">
-        <div className="text-center">
-          <AliasMark />
-          <p className="mt-6 text-sm uppercase tracking-[.28em] text-white/35">
-            Loading Workspace
-          </p>
+      <main className="grain flex min-h-screen items-center justify-center overflow-hidden bg-ink text-white">
+        <div className="alias-loader text-center">
+
+          <div className="alias-loader-mark">
+            <AliasMark />
+
+            <div
+              className="alias-loader-sweep"
+              aria-hidden="true"
+            />
+          </div>
+
+          <div
+            className="alias-loader-line"
+            aria-hidden="true"
+          >
+            <span />
+          </div>
+
+          <div className="alias-loader-status">
+            <span>Loading Workspace</span>
+
+            <span
+              className="alias-loader-dots"
+              aria-hidden="true"
+            >
+              <i />
+              <i />
+              <i />
+            </span>
+          </div>
+
         </div>
       </main>
     );

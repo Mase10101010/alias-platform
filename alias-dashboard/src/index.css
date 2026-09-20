@@ -72,3 +72,242 @@ body { margin: 0; min-height: 100vh; background: #050607; color: white; font-fam
     opacity: 0;
   }
 }
+
+/* =========================================================
+   Alias — Workspace Loading Experience
+   ========================================================= */
+
+.alias-loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: alias-loader-enter 650ms cubic-bezier(0.22, 1, 0.36, 1)
+    both;
+}
+
+.alias-loader-mark {
+  position: relative;
+  overflow: hidden;
+  padding: 4px 6px;
+  opacity: 0;
+  filter: blur(7px);
+  transform: translateY(7px) scale(0.985);
+  animation: alias-loader-mark-reveal 700ms
+    cubic-bezier(0.22, 1, 0.36, 1) 80ms forwards;
+}
+
+/*
+ * Single premium light reflection.
+ * It crosses the Alias wordmark once after the reveal.
+ */
+.alias-loader-sweep {
+  position: absolute;
+  top: -30%;
+  bottom: -30%;
+  left: -45%;
+  width: 28%;
+  pointer-events: none;
+  opacity: 0;
+  transform: skewX(-18deg);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.08),
+    rgba(103, 232, 249, 0.65),
+    rgba(255, 255, 255, 0.18),
+    transparent
+  );
+  filter: blur(4px);
+  animation: alias-loader-sweep 950ms
+    cubic-bezier(0.4, 0, 0.2, 1) 650ms forwards;
+}
+
+/*
+ * Thin cyan signal below the logo.
+ */
+.alias-loader-line {
+  position: relative;
+  width: 76px;
+  height: 1px;
+  margin-top: 18px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.06);
+  opacity: 0;
+  animation: alias-loader-fade 400ms ease 450ms forwards;
+}
+
+.alias-loader-line > span {
+  position: absolute;
+  inset: 0;
+  transform: scaleX(0);
+  transform-origin: center;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(103, 232, 249, 0.8),
+    transparent
+  );
+  animation: alias-loader-line-grow 800ms
+    cubic-bezier(0.22, 1, 0.36, 1) 550ms forwards;
+}
+
+.alias-loader-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  margin-top: 15px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.35);
+  opacity: 0;
+  transform: translateY(4px);
+  animation: alias-loader-status-enter 500ms ease 600ms forwards;
+}
+
+.alias-loader-dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: -2px;
+}
+
+.alias-loader-dots i {
+  display: block;
+  width: 3px;
+  height: 3px;
+  border-radius: 999px;
+  background: rgb(103, 232, 249);
+  opacity: 0.18;
+  box-shadow: 0 0 5px rgba(103, 232, 249, 0.15);
+  animation: alias-loader-dot 1.35s ease-in-out infinite;
+}
+
+.alias-loader-dots i:nth-child(2) {
+  animation-delay: 150ms;
+}
+
+.alias-loader-dots i:nth-child(3) {
+  animation-delay: 300ms;
+}
+
+@keyframes alias-loader-enter {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes alias-loader-mark-reveal {
+  from {
+    opacity: 0;
+    filter: blur(7px);
+    transform: translateY(7px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes alias-loader-sweep {
+  0% {
+    left: -45%;
+    opacity: 0;
+  }
+
+  15% {
+    opacity: 0.85;
+  }
+
+  75% {
+    opacity: 0.65;
+  }
+
+  100% {
+    left: 120%;
+    opacity: 0;
+  }
+}
+
+@keyframes alias-loader-line-grow {
+  from {
+    transform: scaleX(0);
+    opacity: 0;
+  }
+
+  to {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+
+@keyframes alias-loader-status-enter {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes alias-loader-dot {
+  0%,
+  60%,
+  100% {
+    opacity: 0.18;
+    transform: scale(0.85);
+  }
+
+  30% {
+    opacity: 0.9;
+    transform: scale(1);
+  }
+}
+
+@keyframes alias-loader-fade {
+  to {
+    opacity: 1;
+  }
+}
+
+/*
+ * Accessibility: keep the loading state elegant without motion
+ * when the operating system requests reduced motion.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .alias-loader,
+  .alias-loader-mark,
+  .alias-loader-line,
+  .alias-loader-line > span,
+  .alias-loader-status,
+  .alias-loader-dots i {
+    animation: none;
+  }
+
+  .alias-loader-mark,
+  .alias-loader-line,
+  .alias-loader-status {
+    opacity: 1;
+    filter: none;
+    transform: none;
+  }
+
+  .alias-loader-line > span {
+    transform: scaleX(1);
+  }
+
+  .alias-loader-sweep {
+    display: none;
+  }
+}
