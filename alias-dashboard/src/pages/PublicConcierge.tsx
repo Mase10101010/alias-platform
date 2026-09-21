@@ -17,6 +17,7 @@ type Message = {
   role: 'guest' | 'concierge' | 'confirmation';
   content: string;
   reservationId?: string;
+  reservationStatus?: string | null;
 };
 
 function getRestaurantSlug() {
@@ -144,6 +145,7 @@ export function PublicConcierge() {
                 role: 'confirmation' as const,
                 content: 'Your reservation has been recorded successfully.',
                 reservationId: response.reservation_id,
+                reservationStatus: response.reservation_status ?? null,
               },
             ]
           : []),
@@ -320,6 +322,18 @@ export function PublicConcierge() {
           <div className="flex-1 space-y-4 overflow-y-auto pr-2">
             {messages.map((message, index) => {
               if (message.role === 'confirmation') {
+                const isConfirmed = message.reservationStatus === 'confirmed';
+
+                const title = isConfirmed
+                  ? t.publicReservationConfirmed
+                  : t.publicReservationPending;
+
+                const description = (
+                  isConfirmed
+                    ? t.publicBookingRegistered
+                    : t.publicBookingPending
+                ).replace('{restaurantName}', restaurantName);
+
                 return (
                   <div key={index} className="flex justify-start">
                     <div
@@ -330,16 +344,19 @@ export function PublicConcierge() {
                       }}
                     >
                       <div className="flex items-center gap-3">
-                        <CheckCircle2 size={22} style={{ color: cyan }} />
+                        {isConfirmed ? (
+                          <CheckCircle2 size={22} style={{ color: cyan }} />
+                        ) : (
+                          <ShieldCheck size={22} style={{ color: cyan }} />
+                        )}
+
                         <div>
                           <p className="font-display text-2xl font-light text-white">
-                            {t.publicReservationConfirmed}
+                            {title}
                           </p>
+
                           <p className="mt-1 text-sm text-white/50">
-                            {t.publicBookingRegistered.replace(
-                              '{restaurantName}',
-                              restaurantName,
-                            )}
+                            {description}
                           </p>
                         </div>
                       </div>
@@ -348,6 +365,7 @@ export function PublicConcierge() {
                         <p className="text-[10px] uppercase tracking-[.22em] text-white/35">
                           {t.publicReservationId}
                         </p>
+
                         <p className="mt-2 break-all font-mono text-xs text-white/70">
                           {message.reservationId}
                         </p>

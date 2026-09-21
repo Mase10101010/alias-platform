@@ -81,6 +81,8 @@ export const translations = {
     publicReservationConfirmed: 'Reservation confirmed',
     publicBookingRegistered: 'Your booking is now registered with {restaurantName}.',
     publicReservationId: 'Reservation ID',
+    publicReservationPending: 'Request received',
+    publicBookingPending: 'Your booking request is awaiting confirmation from {restaurantName}.',
     overviewTitle: 'Overview',
     seatingKeepCurrentLayout:
       'Keep current layout',
@@ -629,6 +631,8 @@ export const translations = {
     availability: 'Disponibilità',
     availabilityTitle: 'Disponibilità',
     analytics: 'Analytics',
+    publicReservationPending: 'Richiesta ricevuta',
+    publicBookingPending: 'La tua richiesta di prenotazione è in attesa di conferma da parte di {restaurantName}.',
     settings: 'Impostazioni',
     intelligenceAutomationPath:
       'Percorso verso l’automazione',
@@ -1335,6 +1339,8 @@ export const translations = {
     publicPlaceholder: 'Ejemplo: mesa para 2 mañana a las 20:00',
     publicPoweredBy: 'Powered by Alias Concierge AI',
     publicLiveAI: 'AI en vivo',
+    publicReservationPending: 'Solicitud recibida',
+    publicBookingPending: 'Tu solicitud de reserva está pendiente de confirmación por parte de {restaurantName}.',
     seatingExecutionBlocked:
       'Bloqueado',
     seatingExecutionManagerConfirmation:
@@ -1806,6 +1812,8 @@ export const translations = {
     onboarding: 'Onboarding',
     reservations: 'Réservations',
     availability: 'Disponibilité',
+    publicReservationPending: 'Demande reçue',
+    publicBookingPending: 'Votre demande de réservation est en attente de confirmation de {restaurantName}.',
     availabilityTitle: 'Disponibilité',
     analytics: 'Analytiques',
     seatingKeepCurrentLayout:
@@ -2397,6 +2405,8 @@ export const translations = {
     reservations: 'Reservierungen',
     availability: 'Verfügbarkeit',
     availabilityTitle: 'Verfügbarkeit',
+    publicReservationPending: 'Anfrage erhalten',
+    publicBookingPending: 'Ihre Reservierungsanfrage wartet auf die Bestätigung von {restaurantName}.',
     analytics: 'Analysen',
     seatingKeepCurrentLayout:
       'Aktuelle Tischordnung beibehalten',

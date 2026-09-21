@@ -1161,6 +1161,7 @@ export type ChatResponse = {
   session_id: string;
   reply: string;
   reservation_id?: string | null;
+  reservation_status?: string | null;
 };
 
 export async function sendChatMessage(
