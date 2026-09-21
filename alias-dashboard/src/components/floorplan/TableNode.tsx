@@ -126,6 +126,11 @@ export function TableNode({
 }: TableNodeProps) {
   const isLiveMode = mode === 'live';
 
+  const isCombined =
+    isLiveMode &&
+    liveReservation != null &&
+    (liveReservation.table_ids?.length ?? 0) > 1;
+
   const liveAppearance = {
     available: {
       border: 'rgba(74, 222, 128, .65)',
@@ -155,6 +160,18 @@ export function TableNode({
       labelClass: 'text-red-300',
     },
   }[liveStatus];
+
+  const effectiveLiveAppearance = isCombined
+    ? {
+        border: 'rgba(103, 232, 249, .85)',
+        background:
+          'linear-gradient(145deg, rgba(34,211,238,.28), rgba(59,130,246,.13), rgba(255,255,255,.04))',
+        shadow:
+          '0 12px 35px rgba(0,0,0,.4), 0 0 32px rgba(34,211,238,.22)',
+        label: 'Combined',
+        labelClass: 'text-cyan-300',
+      }
+    : liveAppearance;
 
   const reservationStart = liveReservation
     ? new Date(liveReservation.reservation_time)
@@ -241,19 +258,19 @@ export function TableNode({
         borderColor: isLiveMode
           ? selected
             ? 'rgba(255, 255, 255, .95)'
-            : liveAppearance.border
+            : effectiveLiveAppearance.border
           : selected
             ? cyan
             : `${cyan}45`,
         background: isLiveMode
-          ? liveAppearance.background
+          ? effectiveLiveAppearance.background
           : selected
             ? `linear-gradient(145deg, ${cyan}35, rgba(255,255,255,.06))`
             : `linear-gradient(145deg, ${cyan}22, rgba(255,255,255,.035))`,
         boxShadow: isLiveMode
           ? selected
             ? `0 0 0 3px rgba(255,255,255,.12), ${liveAppearance.shadow}`
-            : liveAppearance.shadow
+            : effectiveLiveAppearance.shadow
           : selected
             ? `0 0 0 2px ${cyan}30, 0 16px 42px rgba(0,0,0,.42), 0 0 32px ${cyan}20`
             : `0 12px 35px rgba(0,0,0,.35), 0 0 25px ${cyan}10`,
@@ -283,9 +300,9 @@ export function TableNode({
 
             {!veryCompactLiveContent && (
               <span
-                className={`mt-0.5 max-w-full truncate text-[8px] font-medium uppercase tracking-[.12em] ${liveAppearance.labelClass}`}
+                className={`mt-0.5 max-w-full truncate text-[8px] font-medium uppercase tracking-[.12em] ${effectiveLiveAppearance.labelClass}`}
               >
-                {liveAppearance.label}
+                {effectiveLiveAppearance.label}
               </span>
             )}
 
