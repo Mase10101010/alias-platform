@@ -309,6 +309,11 @@ export function LiveFloorControls({
               <span className="h-2.5 w-2.5 rounded-full bg-red-400 shadow-[0_0_10px_rgba(248,113,113,0.45)]" />
               Occupied
             </div>
+
+            <div className="flex items-center gap-2 text-xs text-white/55">
+              <span className="h-2.5 w-2.5 rounded-full bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.45)]" />
+              Combined
+            </div>
           </div>
 
           <div className="flex flex-col gap-3 sm:items-end">
