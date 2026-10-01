@@ -35,6 +35,7 @@ import {
   moveReservation,
   dismissAISuggestion,
   type AISuggestionResponse,
+  type AISuggestionRequestedModification,
   type IntelligenceAssignmentResponse,
   type IntelligenceReoptimizationPlanResponse,
   type ConversationHistoryResponse,
@@ -199,6 +200,11 @@ export function Reservations() {
     reoptimizationPlan,
     setReoptimizationPlan,
   ] = useState<IntelligenceReoptimizationPlanResponse | null>(null);
+
+  const [
+    reoptimizationRequestedModification,
+    setReoptimizationRequestedModification,
+  ] = useState<AISuggestionRequestedModification | null>(null);
 
   const [
     reoptimizationError,
@@ -576,6 +582,10 @@ export function Reservations() {
         suggestion.payload.plan,
       );
 
+      setReoptimizationRequestedModification(
+        suggestion.payload.requested_modification ?? null,
+      );
+
       setReoptimizationError(null);
 
       sessionStorage.removeItem(
@@ -688,6 +698,7 @@ export function Reservations() {
           );
 
           setReoptimizationPlan(null);
+          setReoptimizationRequestedModification(null);
           setReoptimizationError(null);
 
           const result =
@@ -894,6 +905,7 @@ export function Reservations() {
       setReoptimizingReservationId(reservation.id);
       setReoptimizationReservation(reservation);
       setReoptimizationPlan(null);
+      setReoptimizationRequestedModification(null);
       setReoptimizationError(null);
 
       const result = await reoptimizeReservation({
@@ -996,6 +1008,7 @@ export function Reservations() {
 
       setReoptimizationReservation(null);
       setReoptimizationPlan(null);
+      setReoptimizationRequestedModification(null);
       setReviewingSuggestionId(null);
     } catch (err) {
       console.error('Failed to apply reoptimization plan', err);
@@ -1037,6 +1050,7 @@ export function Reservations() {
     setReviewingSuggestionId(null);
     setReoptimizationReservation(null);
     setReoptimizationPlan(null);
+    setReoptimizationRequestedModification(null);
     setReoptimizationError(null);
   }
 
@@ -1059,6 +1073,7 @@ export function Reservations() {
 
     setReoptimizationReservation(null);
     setReoptimizationPlan(null);
+    setReoptimizationRequestedModification(null);
     setReoptimizationError(null);
     setReviewingSuggestionId(null);
 
@@ -1931,10 +1946,13 @@ export function Reservations() {
                 </h2>
 
                 <p className="mt-2 text-sm text-white/45">
-                  Party of {reoptimizationReservation.party_size}
+                  Party of{' '}
+                  {reoptimizationRequestedModification?.party_size ??
+                    reoptimizationReservation.party_size}
                   {' · '}
                   {formatTime(
-                    reoptimizationReservation.reservation_time,
+                    reoptimizationRequestedModification?.reservation_time ??
+                      reoptimizationReservation.reservation_time,
                   )}
                 </p>
               </div>
@@ -2000,7 +2018,8 @@ export function Reservations() {
                     </div>
 
                     <div className="self-start rounded-full border border-cyanAlias/20 bg-cyanAlias/10 px-3 py-1 text-xs text-cyanAlias sm:self-auto">
-                      {reoptimizationReservation.party_size}{' '}
+                      {reoptimizationRequestedModification?.party_size ??
+                        reoptimizationReservation.party_size}{' '}
                       guests
                     </div>
                   </div>

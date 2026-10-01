@@ -494,8 +494,14 @@ export type AISuggestionReservationPayload = {
   duration_minutes: number;
 };
 
+export type AISuggestionRequestedModification = {
+  party_size?: number;
+  reservation_time?: string;
+};
+
 export type AISuggestionPayload = {
   reservation: AISuggestionReservationPayload;
+  requested_modification?: AISuggestionRequestedModification;
   plan: IntelligenceReoptimizationPlanResponse;
   engine_version: string;
   mode: string;
