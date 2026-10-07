@@ -475,6 +475,25 @@ export type IntelligenceApplyReoptimizationResponse = {
   applied: boolean;
 };
 
+export type IntelligenceApplyLiveSeatedModificationRequest = {
+  suggestion_id: string;
+  reservation_id: string;
+  destination_table_ids: string[];
+  destination_primary_table_id: string;
+};
+
+export type IntelligenceApplyLiveSeatedModificationResponse = {
+  reservation_id: string;
+  restaurant_id: string;
+  party_size: number;
+  primary_table_id: string;
+  table_ids: string[];
+  table_numbers: string[];
+  status: string;
+  mode: 'assisted_live_service';
+  applied: boolean;
+};
+
 export type AISuggestionStatus =
   | 'pending'
   | 'accepted'
@@ -484,7 +503,8 @@ export type AISuggestionStatus =
 export type AISuggestionType =
   | 'reoptimization'
   | 'capacity'
-  | 'table_release';
+  | 'table_release'
+  | 'live_seated_modification';
 
 export type AISuggestionReservationPayload = {
   id: string;
@@ -1138,6 +1158,39 @@ export async function applyIntelligenceReoptimization(
   return response.json();
 }
 
+export async function applyIntelligenceLiveSeatedModification(
+  payload: IntelligenceApplyLiveSeatedModificationRequest,
+): Promise<IntelligenceApplyLiveSeatedModificationResponse> {
+  const token = getAuthToken();
+
+  if (!token) {
+    throw new Error(
+      'Authentication is required to apply a live seated modification.',
+    );
+  }
+
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/intelligence/apply-live-seated-modification`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    },
+  );
+
+  if (!response.ok) {
+    throw await parseApiError(
+      response,
+      'Unable to apply the live seated modification',
+    );
+  }
+
+  return response.json();
+}
+
 export async function cancelReservation(
   reservationId: string,
 ): Promise<ReservationResponse> {
@@ -1168,6 +1221,7 @@ export type ChatResponse = {
   reply: string;
   reservation_id?: string | null;
   reservation_status?: string | null;
+  modification_status?: string | null;
 };
 
 export async function sendChatMessage(

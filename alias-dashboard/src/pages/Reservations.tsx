@@ -24,6 +24,7 @@ import {
   getReservations,
   applyIntelligenceRecommendation,
   applyIntelligenceReoptimization,
+  applyIntelligenceLiveSeatedModification,
   optimizeReservation,
   reoptimizeReservation,
   getRestaurants,
@@ -36,6 +37,7 @@ import {
   dismissAISuggestion,
   type AISuggestionResponse,
   type AISuggestionRequestedModification,
+  type AISuggestionType,
   type IntelligenceAssignmentResponse,
   type IntelligenceReoptimizationPlanResponse,
   type ConversationHistoryResponse,
@@ -154,6 +156,11 @@ export function Reservations() {
     reviewingSuggestionId,
     setReviewingSuggestionId,
   ] = useState<string | null>(null);
+
+  const [
+    reviewingSuggestionType,
+    setReviewingSuggestionType,
+  ] = useState<AISuggestionType | null>(null);
 
   const [
     optimizingReservationId,
@@ -574,6 +581,10 @@ export function Reservations() {
         suggestion.id,
       );
 
+      setReviewingSuggestionType(
+        suggestion.suggestion_type,
+      );
+
       setReoptimizationReservation(
         targetReservation,
       );
@@ -734,6 +745,10 @@ export function Reservations() {
               if (analysis.suggestion) {
                 setReviewingSuggestionId(
                   analysis.suggestion.id,
+                );
+
+                setReviewingSuggestionType(
+                  analysis.suggestion.suggestion_type,
                 );
 
                 setReoptimizationPlan(
@@ -907,6 +922,8 @@ export function Reservations() {
       setReoptimizationPlan(null);
       setReoptimizationRequestedModification(null);
       setReoptimizationError(null);
+      setReviewingSuggestionId(null);
+      setReviewingSuggestionType(null);
 
       const result = await reoptimizeReservation({
         restaurant_id: restaurantId,
@@ -975,18 +992,45 @@ export function Reservations() {
       setApplyingReoptimization(true);
       setReoptimizationError(null);
 
-      await applyIntelligenceReoptimization({
-        suggestion_id: reviewingSuggestionId,
-        
-        new_reservation_id: reoptimizationReservation.id,
-        new_reservation_table_ids: assignment.table_ids,
-        new_reservation_primary_table_id: primaryTableId,
-        moves: reoptimizationPlan.moves.map((move) => ({
-          reservation_id: move.reservation_id,
-          to_table_ids: move.to_table_ids,
-          primary_table_id: move.to_table_ids[0],
-        })),
-      });
+      if (
+        reviewingSuggestionType ===
+        'live_seated_modification'
+      ) {
+        if (!reviewingSuggestionId) {
+          throw new Error(
+            'A live seated modification requires a manager review suggestion.',
+          );
+        }
+
+        if (
+          reoptimizationPlan.moves.length > 0 ||
+          reoptimizationPlan.moved_reservations_count !== 0
+        ) {
+          throw new Error(
+            'Alias returned an invalid live seated modification plan.',
+          );
+        }
+
+        await applyIntelligenceLiveSeatedModification({
+          suggestion_id: reviewingSuggestionId,
+          reservation_id: reoptimizationReservation.id,
+          destination_table_ids: assignment.table_ids,
+          destination_primary_table_id: primaryTableId,
+        });
+      } else {
+        await applyIntelligenceReoptimization({
+          suggestion_id: reviewingSuggestionId,
+
+          new_reservation_id: reoptimizationReservation.id,
+          new_reservation_table_ids: assignment.table_ids,
+          new_reservation_primary_table_id: primaryTableId,
+          moves: reoptimizationPlan.moves.map((move) => ({
+            reservation_id: move.reservation_id,
+            to_table_ids: move.to_table_ids,
+            primary_table_id: move.to_table_ids[0],
+          })),
+        });
+      }
 
       if (reviewingSuggestionId) {
         window.dispatchEvent(
@@ -1010,6 +1054,7 @@ export function Reservations() {
       setReoptimizationPlan(null);
       setReoptimizationRequestedModification(null);
       setReviewingSuggestionId(null);
+      setReviewingSuggestionType(null);
     } catch (err) {
       console.error('Failed to apply reoptimization plan', err);
 
@@ -1048,6 +1093,7 @@ export function Reservations() {
     }
 
     setReviewingSuggestionId(null);
+    setReviewingSuggestionType(null);
     setReoptimizationReservation(null);
     setReoptimizationPlan(null);
     setReoptimizationRequestedModification(null);
@@ -1076,6 +1122,7 @@ export function Reservations() {
     setReoptimizationRequestedModification(null);
     setReoptimizationError(null);
     setReviewingSuggestionId(null);
+    setReviewingSuggestionType(null);
 
     if (!shouldCreateSuggestion || !reservation) {
       return;
@@ -1115,6 +1162,16 @@ export function Reservations() {
     );
   }
 
+  const isReviewingLiveSeatedModification =
+    reviewingSuggestionType ===
+    'live_seated_modification';
+
+  const liveCurrentTableNumbers =
+    reoptimizationReservation?.table_numbers?.length
+      ? reoptimizationReservation.table_numbers
+      : reoptimizationReservation?.table_number
+        ? [reoptimizationReservation.table_number]
+        : [];
 
   function openMoveReservation(
     reservation: ReservationResponse,
@@ -1938,7 +1995,9 @@ export function Reservations() {
                   style={{ color: cyan }}
                 >
                   <Sparkles size={16} />
-                  Alias seating plan
+                  {isReviewingLiveSeatedModification
+                    ? 'Live table move'
+                    : 'Alias seating plan'}
                 </div>
 
                 <h2 className="mt-3 font-display text-3xl font-light text-white">
@@ -1988,41 +2047,93 @@ export function Reservations() {
             {reoptimizationPlan && (
               <>
                 <p className="mt-6 text-sm leading-relaxed text-white/55">
-                  Alias found a safe way to accommodate this booking
-                  {reoptimizationPlan.moves.length > 0
-                    ? ` by moving ${
-                        reoptimizationPlan.moves.length === 1
-                          ? 'one existing reservation'
-                          : `${reoptimizationPlan.moves.length} existing reservations`
-                      }.`
-                    : ' without moving any existing reservations.'}
+                  {isReviewingLiveSeatedModification
+                    ? 'This party-size change requires a physical table move. The guests remain at their current table until you explicitly approve the move.'
+                    : (
+                      <>
+                        Alias found a safe way to accommodate this booking
+                        {reoptimizationPlan.moves.length > 0
+                          ? ` by moving ${
+                              reoptimizationPlan.moves.length === 1
+                                ? 'one existing reservation'
+                                : `${reoptimizationPlan.moves.length} existing reservations`
+                            }.`
+                          : ' without moving any existing reservations.'}
+                      </>
+                    )}
                 </p>
 
                 <div className="mt-6 rounded-3xl border border-cyanAlias/20 bg-cyanAlias/[.06] p-5">
                   <p className="text-xs uppercase tracking-[.18em] text-white/35">
-                    Seat this booking
+                    {isReviewingLiveSeatedModification
+                      ? 'Physical table change'
+                      : 'Seat this booking'}
                   </p>
 
-                  <div className="mt-4 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-                    <div>
+                  {isReviewingLiveSeatedModification ? (
+                    <div className="mt-4">
                       <p className="text-sm text-white/45">
                         {reoptimizationReservation.customer_name}
                       </p>
 
-                      <h3 className="mt-1 font-display text-2xl font-light text-white">
-                        Tables{' '}
-                        {reoptimizationPlan.new_reservation_assignment.table_numbers.join(
-                          ' + ',
-                        )}
-                      </h3>
-                    </div>
+                      <div className="mt-3 flex flex-wrap items-center gap-3">
+                        <span className="rounded-full border border-white/10 bg-black/20 px-3 py-2 text-sm text-white/55">
+                          Current{' '}
+                          {liveCurrentTableNumbers.length === 1
+                            ? 'Table'
+                            : 'Tables'}{' '}
+                          {liveCurrentTableNumbers.length > 0
+                            ? liveCurrentTableNumbers.join(' + ')
+                            : 'unavailable'}
+                        </span>
 
-                    <div className="self-start rounded-full border border-cyanAlias/20 bg-cyanAlias/10 px-3 py-1 text-xs text-cyanAlias sm:self-auto">
-                      {reoptimizationRequestedModification?.party_size ??
-                        reoptimizationReservation.party_size}{' '}
-                      guests
+                        <span className="text-cyanAlias">
+                          →
+                        </span>
+
+                        <span className="rounded-full border border-cyanAlias/20 bg-cyanAlias/10 px-3 py-2 text-sm text-cyanAlias">
+                          Proposed{' '}
+                          {reoptimizationPlan.new_reservation_assignment
+                            .table_numbers.length === 1
+                            ? 'Table'
+                            : 'Tables'}{' '}
+                          {reoptimizationPlan.new_reservation_assignment.table_numbers.join(
+                            ' + ',
+                          )}
+                        </span>
+                      </div>
+
+                      <div className="mt-4 text-xs text-white/45">
+                        Requested party size:{' '}
+                        <span className="text-white/75">
+                          {reoptimizationRequestedModification?.party_size ??
+                            reoptimizationReservation.party_size}{' '}
+                          guests
+                        </span>
+                      </div>
                     </div>
-                  </div>
+                  ) : (
+                    <div className="mt-4 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+                      <div>
+                        <p className="text-sm text-white/45">
+                          {reoptimizationReservation.customer_name}
+                        </p>
+
+                        <h3 className="mt-1 font-display text-2xl font-light text-white">
+                          Tables{' '}
+                          {reoptimizationPlan.new_reservation_assignment.table_numbers.join(
+                            ' + ',
+                          )}
+                        </h3>
+                      </div>
+
+                      <div className="self-start rounded-full border border-cyanAlias/20 bg-cyanAlias/10 px-3 py-1 text-xs text-cyanAlias sm:self-auto">
+                        {reoptimizationRequestedModification?.party_size ??
+                          reoptimizationReservation.party_size}{' '}
+                        guests
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {reoptimizationPlan.moves.length > 0 ? (
@@ -2090,15 +2201,17 @@ export function Reservations() {
                   </div>
                 ) : (
                   <div className="mt-6 rounded-2xl border border-white/10 bg-white/[.03] px-4 py-4 text-sm text-white/50">
-                    No existing reservations need to be moved.
+                    {isReviewingLiveSeatedModification
+                      ? 'No other reservations will be moved. Only this seated party changes physical table.'
+                      : 'No existing reservations need to be moved.'}
                   </div>
                 )}
 
                 <div className="mt-6 rounded-2xl border border-cyanAlias/20 bg-cyanAlias/[.05] px-4 py-4">
                   <p className="text-sm leading-relaxed text-white/65">
-                    Alias proposes this room adjustment. Review the table
-                    changes above, then apply them or keep the current
-                    configuration.
+                    {isReviewingLiveSeatedModification
+                      ? 'Approving this action authorizes the physical relocation of this seated party to the proposed table. Until approval succeeds, the current physical assignment remains unchanged.'
+                      : 'Alias proposes this room adjustment. Review the table changes above, then apply them or keep the current configuration.'}
                   </p>
                 </div>
 
@@ -2111,7 +2224,9 @@ export function Reservations() {
                     }}
                     className="rounded-full border border-white/10 px-5 py-3 text-sm text-white/55 transition hover:border-white/20 hover:text-white disabled:opacity-40"
                   >
-                    {t.seatingKeepCurrentLayout}
+                    {isReviewingLiveSeatedModification
+                      ? 'Keep Current Table'
+                      : t.seatingKeepCurrentLayout}
                   </button>
 
                   <button
@@ -2132,7 +2247,9 @@ export function Reservations() {
 
                     {applyingReoptimization
                       ? 'Applying changes…'
-                      : t.seatingApplyPlan}
+                      : isReviewingLiveSeatedModification
+                        ? 'Approve Live Move'
+                        : t.seatingApplyPlan}
                   </button>
                 </div>
               </>

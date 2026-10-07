@@ -18,6 +18,7 @@ type Message = {
   content: string;
   reservationId?: string;
   reservationStatus?: string | null;
+  modificationStatus?: string | null;
 };
 
 function getRestaurantSlug() {
@@ -146,6 +147,7 @@ export function PublicConcierge() {
                 content: 'Your reservation has been recorded successfully.',
                 reservationId: response.reservation_id,
                 reservationStatus: response.reservation_status ?? null,
+                modificationStatus: response.modification_status ?? null,
               },
             ]
           : []),
@@ -322,16 +324,17 @@ export function PublicConcierge() {
           <div className="flex-1 space-y-4 overflow-y-auto pr-2">
             {messages.map((message, index) => {
               if (message.role === 'confirmation') {
-                const isConfirmed = message.reservationStatus === 'confirmed';
+                const isPendingModification =
+                  message.modificationStatus === 'pending';
 
-                const title = isConfirmed
-                  ? t.publicReservationConfirmed
-                  : t.publicReservationPending;
+                const title = isPendingModification
+                  ? t.publicReservationPending
+                  : t.publicReservationConfirmed;
 
                 const description = (
-                  isConfirmed
-                    ? t.publicBookingRegistered
-                    : t.publicBookingPending
+                  isPendingModification
+                    ? t.publicBookingPending
+                    : t.publicBookingRegistered
                 ).replace('{restaurantName}', restaurantName);
 
                 return (
@@ -344,10 +347,10 @@ export function PublicConcierge() {
                       }}
                     >
                       <div className="flex items-center gap-3">
-                        {isConfirmed ? (
-                          <CheckCircle2 size={22} style={{ color: cyan }} />
-                        ) : (
+                        {isPendingModification ? (
                           <ShieldCheck size={22} style={{ color: cyan }} />
+                        ) : (
+                          <CheckCircle2 size={22} style={{ color: cyan }} />
                         )}
 
                         <div>
