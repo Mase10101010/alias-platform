@@ -33,6 +33,7 @@ import {
   type ReservationResponse,
 } from '@/lib/api';
 import { AISuggestionsPanel } from '@/components/AISuggestionsPanel';
+import { AISuggestionNotificationDot } from '@/components/AISuggestionNotificationDot';
 import { Sidebar } from '@/components/Sidebar';
 import { Intelligence } from '@/pages/Intelligence';
 import { AliasMark } from '@/components/Brand';
@@ -45,6 +46,7 @@ import { Availability } from '@/pages/Availability';
 import { PublicConcierge } from '@/pages/PublicConcierge';
 import { ForgotPassword } from '@/pages/ForgotPassword';
 import { ResetPassword } from '@/pages/ResetPassword';
+import { CopyReservationId } from '@/pages/CopyReservationId';
 import { Support } from './pages/Support';
 import { WelcomeFlow } from '@/pages/WelcomeFlow';
 import { Landing } from '@/pages/Landing';
@@ -113,6 +115,7 @@ export default function App() {
   const isPublicConcierge = window.location.pathname === '/concierge';
   const isForgotPassword = window.location.pathname === '/forgot-password';
   const isResetPassword = window.location.pathname === '/reset-password';
+  const isCopyReservationId = window.location.pathname === '/copy-reservation-id';
   const isVerifyEmail = window.location.pathname === '/verify-email';
   const isPrivacy = window.location.pathname === '/privacy';
   const isTerms = window.location.pathname === '/terms';
@@ -176,6 +179,10 @@ export default function App() {
 
   if (isResetPassword) {
     return <ResetPassword />;
+  }
+
+  if (isCopyReservationId) {
+    return <CopyReservationId />;
   }
 
   if (isVerifyEmail) {
@@ -677,14 +684,7 @@ if (!authed && isAuthPage) {
                   </span>
                 )}
 
-                {unreadAISuggestions > 0 && (
-                  <span
-                    className="absolute right-0 top-0 h-2.5 w-2.5 rounded-full border-2 border-ink"
-                    style={{
-                      background: cyan,
-                    }}
-                  />
-                )}
+                <AISuggestionNotificationDot active={unreadAISuggestions > 0} />
               </button>
               <select
                 value={language}
