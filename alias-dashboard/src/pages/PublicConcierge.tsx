@@ -35,6 +35,22 @@ function formatRestaurantName(slug: string) {
 }
 
 export function PublicConcierge() {
+  const reservationAccessTokenRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    const fragment = new URLSearchParams(window.location.hash.slice(1));
+    const accessToken = fragment.get('reservation_access_token');
+
+    if (accessToken) {
+      reservationAccessTokenRef.current = accessToken;
+      window.history.replaceState(
+        window.history.state,
+        '',
+        window.location.pathname + window.location.search,
+      );
+    }
+  }, []);
+
   const restaurantSlug = useMemo(() => getRestaurantSlug(), []);
   const restaurantName = useMemo(
     () => formatRestaurantName(restaurantSlug),
@@ -45,6 +61,7 @@ export function PublicConcierge() {
   );
   const t = translations[language];
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const [publicSessionToken, setPublicSessionToken] = useState<string | null>(null);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [listening, setListening] = useState(false);
@@ -130,9 +147,19 @@ export function PublicConcierge() {
         restaurantSlug,
         userMessage,
         sessionId,
+        publicSessionToken,
+        reservationAccessTokenRef.current,
       );
 
+      if (!sessionId && !response.public_session_token) {
+        throw new Error('Public chat session token missing from server response');
+      }
+
       setSessionId(response.session_id);
+
+      if (response.public_session_token) {
+        setPublicSessionToken(response.public_session_token);
+      }
 
       setMessages((current) => [
         ...current,

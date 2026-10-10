@@ -1219,6 +1219,7 @@ export async function cancelReservation(
 export type ChatResponse = {
   session_id: string;
   reply: string;
+  public_session_token?: string | null;
   reservation_id?: string | null;
   reservation_status?: string | null;
   modification_status?: string | null;
@@ -1254,6 +1255,8 @@ export async function sendPublicChatMessage(
   restaurantSlug: string,
   message: string,
   sessionId?: string | null,
+  publicSessionToken?: string | null,
+  reservationAccessToken?: string | null,
 ): Promise<ChatResponse> {
   const response = await fetch(
     `${API_BASE_URL}/api/v1/chat/public/${restaurantSlug}`,
@@ -1264,6 +1267,8 @@ export async function sendPublicChatMessage(
       },
       body: JSON.stringify({
         session_id: sessionId ?? null,
+        public_session_token: publicSessionToken ?? null,
+        reservation_access_token: reservationAccessToken ?? null,
         message,
       }),
     },
