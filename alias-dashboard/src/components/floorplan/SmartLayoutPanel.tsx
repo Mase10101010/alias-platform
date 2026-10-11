@@ -11,6 +11,7 @@ import type {
   SmartLayoutRuleResponse,
   SmartLayoutRuleStatus,
   TableResponse,
+  FloorPlanSpatialAnalysisResponse,
 } from '@/lib/api';
 
 type SmartLayoutPanelProps = {
@@ -19,6 +20,10 @@ type SmartLayoutPanelProps = {
   loading: boolean;
   analyzing: boolean;
   updatingRuleId: string | null;
+  spatialAnalysis: FloorPlanSpatialAnalysisResponse | null;
+  spatialLoading: boolean;
+  spatialError: string | null;
+  onRefreshSpatial: () => void;
   onAnalyze: () => void;
   onStatusChange: (
     ruleId: string,
@@ -88,6 +93,10 @@ export function SmartLayoutPanel({
   loading,
   analyzing,
   updatingRuleId,
+  spatialAnalysis,
+  spatialLoading,
+  spatialError,
+  onRefreshSpatial,
   onAnalyze,
   onStatusChange,
 }: SmartLayoutPanelProps) {
@@ -95,6 +104,16 @@ export function SmartLayoutPanel({
     analyzing ||
     loading ||
     updatingRuleId !== null;
+
+  const advisories = spatialAnalysis?.table_pair_advisories ?? [];
+
+  const potentialObstacles = advisories.filter(
+    (advisory) => advisory.status === 'potential_obstacle',
+  );
+
+  const unknownCount = advisories.filter(
+    (advisory) => advisory.status === 'unknown',
+  ).length;
 
   return (
     <section className="rounded-3xl border border-white/10 bg-white/[.035] p-5">
@@ -285,6 +304,88 @@ export function SmartLayoutPanel({
               })}
             </div>
           </>
+        )}
+      </div>
+      <div className="mt-6 border-t border-white/[.06] pt-5">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <p className="text-[10px] uppercase tracking-[.24em] text-white/30">
+              Spatial Advisory
+            </p>
+            <h3 className="mt-2 text-lg font-light text-white">
+              Physical obstacle awareness
+            </h3>
+            <p className="mt-1 text-xs leading-relaxed text-white/40">
+              Read-only observations. These findings never change table joins.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onRefreshSpatial}
+            disabled={spatialLoading}
+            className="flex items-center gap-2 rounded-xl border border-white/10 px-3 py-2 text-xs text-white/60 transition hover:bg-white/[.05] disabled:opacity-40"
+          >
+            <RefreshCw size={14} />
+            Refresh advisory
+          </button>
+        </div>
+
+        {spatialLoading ? (
+          <p className="mt-4 text-sm text-white/40">
+            Updating spatial analysis...
+          </p>
+        ) : spatialError ? (
+          <p className="mt-4 text-sm text-red-300">
+            Spatial analysis unavailable: {spatialError}
+          </p>
+        ) : !spatialAnalysis ? (
+          <p className="mt-4 text-sm text-white/40">
+            No current spatial analysis available.
+          </p>
+        ) : (
+          <div className="mt-4 space-y-3">
+            <p className="text-sm text-white/60">
+              {advisories.length} table pairs analyzed ·{' '}
+              {potentialObstacles.length} with potential obstacles
+              {unknownCount > 0 ? ` · ${unknownCount} unknown` : ''}
+            </p>
+
+            {potentialObstacles.length === 0 ? (
+              <p className="rounded-xl border border-white/10 bg-black/20 p-3 text-sm text-white/50">
+                No potential wall or bar-counter obstacles detected.
+              </p>
+            ) : (
+              <div className="grid gap-2">
+                {potentialObstacles.slice(0, 10).map((advisory) => (
+                  <div
+                    key={`${advisory.first_table_id}:${advisory.second_table_id}`}
+                    className="rounded-xl border border-amber-400/15 bg-amber-400/[.04] p-3"
+                  >
+                    <p className="text-sm text-white/80">
+                      {getTableLabel(advisory.first_table_id, tables)}
+                      {' ↔ '}
+                      {getTableLabel(advisory.second_table_id, tables)}
+                    </p>
+                    <p className="mt-1 text-xs text-amber-200/70">
+                      Potential obstacle · {advisory.obstacle_feature_ids.length}{' '}
+                      physical feature(s)
+                    </p>
+                  </div>
+                ))}
+                {potentialObstacles.length > 10 && (
+                  <p className="text-xs text-white/40">
+                    Showing 10 of {potentialObstacles.length} flagged pairs.
+                  </p>
+                )}
+              </div>
+            )}
+
+            <p className="text-xs leading-relaxed text-white/35">
+              Detection is limited to visible walls and bar counters
+              intersecting the line between table centers. No detected
+              obstacle does not guarantee that tables can physically join.
+            </p>
+          </div>
         )}
       </div>
     </section>

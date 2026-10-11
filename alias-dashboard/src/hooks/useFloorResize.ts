@@ -40,6 +40,11 @@ type UseFloorResizeOptions = {
   >;
   selectTable: (tableId: string) => void;
   onError: (message: string) => void;
+  onGeometryChange?: () => void;
+  onSaveFailed?: () => void;
+  onUnchanged?: () => void;
+  onEditStart?: () => (() => void);
+
   onSaved: (
     table: TableResponse,
     before: {
@@ -65,9 +70,15 @@ export function useFloorResize({
   setSavingTableId,
   selectTable,
   onError,
+  onGeometryChange,
+  onSaveFailed,
+  onUnchanged,
+  onEditStart,
   onSaved,
 }: UseFloorResizeOptions) {
   const resizeRef = useRef<ResizeState | null>(null);
+
+  const finishSpatialEditRef = useRef<(() => void) | null>(null);
 
   function handleResizePointerDown(
     event: ReactPointerEvent<HTMLButtonElement>,
@@ -93,6 +104,7 @@ export function useFloorResize({
       currentWidth: table.width,
       currentHeight: table.height,
     };
+    finishSpatialEditRef.current = onEditStart?.() ?? null;
   }
 
   function handleResizePointerMove(
@@ -175,8 +187,17 @@ export function useFloorResize({
       return;
     }
 
+    if (
+      resize.currentWidth === snappedWidth &&
+      resize.currentHeight === snappedHeight
+    ) {
+      return;
+    }
+
     resize.currentWidth = snappedWidth;
     resize.currentHeight = snappedHeight;
+
+    onGeometryChange?.();
 
     setTables((current) =>
       current.map((item) =>
@@ -226,6 +247,9 @@ export function useFloorResize({
       !floorPlanId ||
       !hasChanged
     ) {
+      finishSpatialEditRef.current?.();
+      finishSpatialEditRef.current = null;
+      onUnchanged?.();
       return;
     }
 
@@ -286,8 +310,12 @@ export function useFloorResize({
           ? error.message
           : 'Unable to save the new table size.',
       );
+
+      onSaveFailed?.();
     } finally {
       setSavingTableId(null);
+      finishSpatialEditRef.current?.();
+      finishSpatialEditRef.current = null;
     }
   }
 

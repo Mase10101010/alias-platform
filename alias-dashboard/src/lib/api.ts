@@ -2369,3 +2369,59 @@ export async function acceptAISuggestion(
 
   return response.json();
 }
+// LAB-018B.06 — Read-only Spatial Advisory API
+
+export type SpatialAdvisoryStatus =
+  | 'clear'
+  | 'potential_obstacle'
+  | 'unknown';
+
+export type TablePairSpatialAdvisoryResponse = {
+  first_table_id: string;
+  second_table_id: string;
+  status: SpatialAdvisoryStatus;
+  obstacle_feature_ids: string[];
+};
+
+export type FloorPlanSpatialAnalysisResponse = {
+  floor_plan_id: string;
+  table_feature_relationships: {
+    table_id: string;
+    feature_id: string;
+    feature_type: string;
+    separation: number;
+    overlaps: boolean;
+  }[];
+  table_pair_obstacles: {
+    first_table_id: string;
+    second_table_id: string;
+    obstacle_feature_ids: string[];
+    has_potential_obstacles: boolean;
+  }[];
+  table_pair_advisories: TablePairSpatialAdvisoryResponse[];
+};
+
+export async function getFloorPlanSpatialAnalysis(
+  restaurantId: string,
+  areaId: string,
+  floorPlanId: string,
+): Promise<FloorPlanSpatialAnalysisResponse> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/restaurants/${restaurantId}/service-areas/${areaId}/floor-plans/${floorPlanId}/smart-layout/spatial-analysis`,
+    {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${getAuthToken()}`,
+      },
+    },
+  );
+
+  if (!response.ok) {
+    throw await parseApiError(
+      response,
+      'Unable to load spatial analysis',
+    );
+  }
+
+  return response.json();
+}

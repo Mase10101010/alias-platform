@@ -71,6 +71,7 @@ import { useFloorKeyboard } from '@/hooks/useFloorKeyboard';
 import { useFloorResize } from '@/hooks/useFloorResize';
 import { useFloorPlanLoader } from '@/hooks/useFloorPlanLoader';
 import { useFloorFeatures } from '@/hooks/useFloorFeatures';
+import { useSpatialAdvisory } from '@/hooks/useSpatialAdvisory';
 import { useTableProperties } from '@/hooks/useTableProperties';
 import { useFloorBulkActions } from '@/hooks/useFloorBulkActions';
 import { useFloorHistory } from '@/hooks/useFloorHistory';
@@ -371,6 +372,20 @@ export function Tables({
     onError: setError,
   });
 
+  const {
+    analysis: spatialAnalysis,
+    loading: spatialLoading,
+    error: spatialError,
+    refresh: refreshSpatialAdvisory,
+    invalidate: invalidateSpatialAdvisory,
+    beginGeometryEdit,
+    endGeometryEdit,
+  } = useSpatialAdvisory({
+    restaurantId,
+    areaId: selectedAreaId,
+    floorPlanId: selectedFloorPlanId,
+  });
+
   const selectedFloorPlan = useMemo(
     () =>
       floorPlans.find(
@@ -665,10 +680,14 @@ export function Tables({
     zoom,
     pan,
     onCreated(created) {
+      invalidateSpatialAdvisory();
+
       setFloorFeatures((current) => [
         ...current.filter((feature) => feature.id !== created.id),
         created,
       ]);
+
+      void refreshSpatialAdvisory();
     },
     onError: setError,
   });
@@ -748,6 +767,8 @@ export function Tables({
       return;
     }
 
+    invalidateSpatialAdvisory();
+
     try {
       setSavingFeature(true);
       setError('');
@@ -781,6 +802,15 @@ export function Tables({
       );
     } finally {
       setSavingFeature(false);
+
+      const currentScope = currentFeatureScopeRef.current;
+      if (
+        currentScope.restaurantId === currentRestaurantId &&
+        currentScope.areaId === areaId &&
+        currentScope.floorPlanId === floorPlanId
+      ) {
+        void refreshSpatialAdvisory();
+      }
     }
   }
 
@@ -817,6 +847,8 @@ export function Tables({
       );
     };
 
+    invalidateSpatialAdvisory();
+
     try {
       setDeletingFeature(true);
       setError('');
@@ -846,6 +878,10 @@ export function Tables({
       }
     } finally {
       setDeletingFeature(false);
+
+      if (isCurrentScope()) {
+        void refreshSpatialAdvisory();
+      }
     }
   }
 
@@ -870,13 +906,18 @@ export function Tables({
 
   const refreshSmartLayoutAfterGeometryChange =
     useCallback(async () => {
+      invalidateSpatialAdvisory();
+
       await Promise.all([
         loadSmartLayoutRules(),
         loadTableCombinations(),
+        refreshSpatialAdvisory(),
       ]);
     }, [
       loadSmartLayoutRules,
       loadTableCombinations,
+      invalidateSpatialAdvisory,
+      refreshSpatialAdvisory,
     ]);
   
   const {
@@ -915,6 +956,22 @@ export function Tables({
       !isPanning,
     setFeatures: setFloorFeatures,
     onError: setError,
+    onGeometryChange: invalidateSpatialAdvisory,
+    onSaved: () => {
+      void refreshSpatialAdvisory();
+    },
+    onUnchanged: () => {
+      void refreshSpatialAdvisory();
+    },
+    onEditStart: () => {
+      const editId = beginGeometryEdit();
+
+      return () => {
+        if (endGeometryEdit(editId)) {
+          void refreshSpatialAdvisory();
+        }
+      };
+    },
   });
 
   const {
@@ -941,6 +998,13 @@ export function Tables({
     setGuideLines,
     selectTable: setSelectedTableId,
     onError: setError,
+    onGeometryChange: invalidateSpatialAdvisory,
+    onSaveFailed: () => {
+      void refreshSpatialAdvisory();
+    },
+    onUnchanged: () => {
+      void refreshSpatialAdvisory();
+    },
     onMoveSaved(table, before, after) {
       record({
         label: `Move table ${table.table_number}`,
@@ -959,6 +1023,15 @@ export function Tables({
       });
 
       void refreshSmartLayoutAfterGeometryChange();
+    },
+    onEditStart: () => {
+      const editId = beginGeometryEdit();
+
+      return () => {
+        if (endGeometryEdit(editId)) {
+          void refreshSpatialAdvisory();
+        }
+      };
     },
   });
 
@@ -982,6 +1055,13 @@ export function Tables({
       !spacePressed &&
       !isPanning,
     onError: setError,
+    onGeometryChange: invalidateSpatialAdvisory,
+    onSaveFailed: () => {
+      void refreshSpatialAdvisory();
+    },
+    onUnchanged: () => {
+      void refreshSpatialAdvisory();
+    },
     onSaved(table, before, after) {
       record({
         label: `Rotate table ${table.table_number}`,
@@ -998,6 +1078,15 @@ export function Tables({
       });
 
       void refreshSmartLayoutAfterGeometryChange();
+    },
+    onEditStart: () => {
+      const editId = beginGeometryEdit();
+
+      return () => {
+        if (endGeometryEdit(editId)) {
+          void refreshSpatialAdvisory();
+        }
+      };
     },
   });
 
@@ -1021,6 +1110,13 @@ export function Tables({
     setSavingTableId,
     selectTable: setSelectedTableId,
     onError: setError,
+    onGeometryChange: invalidateSpatialAdvisory,
+    onSaveFailed: () => {
+      void refreshSpatialAdvisory();
+    },
+    onUnchanged: () => {
+      void refreshSpatialAdvisory();
+    },
     onSaved(table, before, after) {
       record({
         label: `Resize table ${table.table_number}`,
@@ -1039,6 +1135,15 @@ export function Tables({
       });
 
       void refreshSmartLayoutAfterGeometryChange();
+    },
+    onEditStart: () => {
+      const editId = beginGeometryEdit();
+
+      return () => {
+        if (endGeometryEdit(editId)) {
+          void refreshSpatialAdvisory();
+        }
+      };
     },
   });
     
@@ -2213,7 +2318,13 @@ export function Tables({
               loading={smartLayoutLoading}
               analyzing={smartLayoutAnalyzing}
               updatingRuleId={updatingSmartLayoutRuleId}
-              onAnalyze={() => {
+              spatialAnalysis={spatialAnalysis}
+                  spatialLoading={spatialLoading}
+                  spatialError={spatialError}
+                  onRefreshSpatial={() => {
+                    void refreshSpatialAdvisory();
+                  }}
+                  onAnalyze={() => {
                 void handleAnalyzeSmartLayout();
               }}
               onStatusChange={(ruleId, status) => {

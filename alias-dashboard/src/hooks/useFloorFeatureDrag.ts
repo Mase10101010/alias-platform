@@ -44,6 +44,11 @@ type Options = {
     React.SetStateAction<FloorFeatureResponse[]>
   >;
   onError: (message: string) => void;
+  onGeometryChange?: () => void;
+  onSaved?: () => void;
+  onUnchanged?: () => void;
+  onEditStart?: () => (() => void);
+
 };
 
 export function useFloorFeatureDrag({
@@ -57,6 +62,10 @@ export function useFloorFeatureDrag({
   enabled,
   setFeatures,
   onError,
+  onGeometryChange,
+  onSaved,
+  onUnchanged,
+  onEditStart,
 }: Options) {
   const dragRef = useRef<DragState | null>(null);
   const savingRef = useRef(new Set<string>());
@@ -71,6 +80,8 @@ export function useFloorFeatureDrag({
     areaId,
     floorPlanId,
   };
+
+  const finishSpatialEditRef = useRef<(() => void) | null>(null);
 
   function pointerToFloor(clientX: number, clientY: number) {
     const canvas = canvasRef.current;
@@ -124,6 +135,8 @@ export function useFloorFeatureDrag({
       currentX: feature.x,
       currentY: feature.y,
     };
+
+    finishSpatialEditRef.current = onEditStart?.() ?? null;
   }
 
   function handlePointerMove(
@@ -173,8 +186,13 @@ export function useFloorFeatureDrag({
 
     const { x, y } = position;
 
+    if (drag.currentX === x && drag.currentY === y) {
+      return;
+    }
+
     drag.currentX = x;
     drag.currentY = y;
+    onGeometryChange?.();
 
     setFeatures((current) =>
       current.map((item) =>
@@ -208,6 +226,9 @@ export function useFloorFeatureDrag({
       drag.currentX === drag.startX &&
       drag.currentY === drag.startY
     ) {
+      finishSpatialEditRef.current?.();
+      finishSpatialEditRef.current = null;
+      onUnchanged?.();
       return;
     }
 
@@ -219,6 +240,8 @@ export function useFloorFeatureDrag({
             : item,
         ),
       );
+      finishSpatialEditRef.current?.();
+      finishSpatialEditRef.current = null;
       return;
     }
 
@@ -273,6 +296,11 @@ export function useFloorFeatureDrag({
       );
     } finally {
       savingRef.current.delete(feature.id);
+      finishSpatialEditRef.current?.();
+      finishSpatialEditRef.current = null;
+      if (isCurrentScope()) {
+        onSaved?.();
+      }
     }
   }
 

@@ -72,6 +72,11 @@ type UseFloorDragOptions = {
 
   selectTable: (tableId: string) => void;
   onError: (message: string) => void;
+  onGeometryChange?: () => void;
+  onSaveFailed?: () => void;
+  onUnchanged?: () => void;
+  onEditStart?: () => (() => void);
+
 
   onMoveSaved: (
     table: TableResponse,
@@ -105,9 +110,15 @@ export function useFloorDrag({
   setGuideLines,
   selectTable,
   onError,
+  onGeometryChange,
+  onSaveFailed,
+  onUnchanged,
+  onEditStart,
   onMoveSaved,
 }: UseFloorDragOptions) {
   const dragRef = useRef<DragState | null>(null);
+
+  const finishSpatialEditRef = useRef<(() => void) | null>(null);
 
   function pointerToFloor(
     clientX: number,
@@ -214,6 +225,8 @@ export function useFloorDrag({
       currentX: table.x,
       currentY: table.y,
     };
+
+    finishSpatialEditRef.current = onEditStart?.() ?? null;
   }
 
   function handlePointerMove(
@@ -298,8 +311,14 @@ export function useFloorDrag({
       return;
     }
 
+    if (drag.currentX === nextX && drag.currentY === nextY) {
+      return;
+    }
+
     drag.currentX = nextX;
     drag.currentY = nextY;
+
+    onGeometryChange?.();
 
     setTables((current) =>
       current.map((item) =>
@@ -354,6 +373,9 @@ export function useFloorDrag({
       !floorPlanId ||
       !hasMoved
     ) {
+      finishSpatialEditRef.current?.();
+      finishSpatialEditRef.current = null;
+      onUnchanged?.();
       return;
     }
 
@@ -418,8 +440,12 @@ export function useFloorDrag({
           ? error.message
           : 'Unable to save the new table position.',
       );
+
+      onSaveFailed?.();
     } finally {
       setSavingTableId(null);
+      finishSpatialEditRef.current?.();
+      finishSpatialEditRef.current = null;
     }
   }
 

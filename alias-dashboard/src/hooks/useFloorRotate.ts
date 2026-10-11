@@ -35,6 +35,11 @@ type UseFloorRotateOptions = {
   selectTable: (id: string) => void;
   enabled: boolean;
   onError: (message: string) => void;
+  onGeometryChange?: () => void;
+  onSaveFailed?: () => void;
+  onUnchanged?: () => void;
+  onEditStart?: () => (() => void);
+
   onSaved: (
     table: TableResponse,
     before: number,
@@ -54,9 +59,15 @@ export function useFloorRotate({
   selectTable,
   enabled,
   onError,
+  onGeometryChange,
+  onSaveFailed,
+  onUnchanged,
+  onEditStart,
   onSaved,
 }: UseFloorRotateOptions) {
   const rotateRef = useRef<RotateState | null>(null);
+
+  const finishSpatialEditRef = useRef<(() => void) | null>(null);
 
   function handleRotatePointerDown(
     event: ReactPointerEvent<HTMLButtonElement>,
@@ -79,6 +90,7 @@ export function useFloorRotate({
     };
 
     selectTable(table.id);
+    finishSpatialEditRef.current = onEditStart?.() ?? null;
   }
 
   function handleRotatePointerMove(
@@ -120,8 +132,15 @@ export function useFloorRotate({
       ) *
       (180 / Math.PI);
 
-    rotate.currentRotation =
+    const nextRotation =
       ((Math.round(angle + 90) % 360) + 360) % 360;
+
+    if (rotate.currentRotation === nextRotation) {
+      return;
+    }
+
+    rotate.currentRotation = nextRotation;
+    onGeometryChange?.();
 
     setTables((current) =>
       current.map((item) =>
@@ -166,6 +185,9 @@ export function useFloorRotate({
       !floorPlanId ||
       rotate.currentRotation === rotate.startRotation
     ) {
+      finishSpatialEditRef.current?.();
+      finishSpatialEditRef.current = null;
+      onUnchanged?.();
       return;
     }
 
@@ -218,8 +240,12 @@ export function useFloorRotate({
           ? error.message
           : 'Unable to rotate table.',
       );
+
+      onSaveFailed?.();
     } finally {
       setSavingTableId(null);
+      finishSpatialEditRef.current?.();
+      finishSpatialEditRef.current = null;
     }
   }
 
