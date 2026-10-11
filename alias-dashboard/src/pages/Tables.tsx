@@ -28,6 +28,7 @@ import {
   optimizeReservation,
   updateReservation,
   updateRestaurant,
+  deleteFloorFeature,
   createTableCombination,
   deleteTableCombination,
   updateTableCombination,
@@ -102,6 +103,7 @@ import { PropertyPanel } from '@/components/floorplan/PropertyPanel';
 import { FloorCanvas } from '@/components/floorplan/FloorCanvas';
 import { TableNode } from '@/components/floorplan/TableNode';
 import { FloorFeatureNode } from '@/components/floorplan/FloorFeatureNode';
+import { FloorFeaturePropertyPanel } from '@/components/floorplan/FloorFeaturePropertyPanel';
 import {
   Toolbar,
   type EditorTool,
@@ -128,6 +130,12 @@ export function Tables({
 }: TablesProps) {
   const [floorMode, setFloorMode] =
     useState<FloorMode>('edit');
+
+  const [selectedFeatureId, setSelectedFeatureId] =
+    useState<string | null>(null);
+
+  const [deletingFeature, setDeletingFeature] =
+    useState(false);
 
   const [liveDate, setLiveDate] =
     useState(() => getCurrentHalfHourSlot(new Date()));
@@ -659,6 +667,55 @@ export function Tables({
     },
     onError: setError,
   });
+
+  const selectedFeature = floorFeatures.find(
+    (feature) => feature.id === selectedFeatureId,
+  ) ?? null;
+
+  async function handleDeleteSelectedFeature() {
+    if (
+      !restaurantId ||
+      !selectedAreaId ||
+      !selectedFloorPlanId ||
+      !selectedFeature ||
+      deletingFeature
+    ) {
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Delete ${selectedFeature.label || selectedFeature.feature_type.replace('_', ' ')}? This action cannot be undone.`,
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      setDeletingFeature(true);
+      setError('');
+
+      await deleteFloorFeature(
+        restaurantId,
+        selectedAreaId,
+        selectedFloorPlanId,
+        selectedFeature.id,
+      );
+
+      setFloorFeatures((current) =>
+        current.filter((feature) => feature.id !== selectedFeature.id),
+      );
+      setSelectedFeatureId(null);
+    } catch (error) {
+      setError(
+        error instanceof Error
+          ? error.message
+          : 'Unable to delete floor feature.',
+      );
+    } finally {
+      setDeletingFeature(false);
+    }
+  }
 
   const { handleCanvasClick } = useFloorPlacement({
     canvasRef,
@@ -2279,7 +2336,11 @@ export function Tables({
                   key={feature.id}
                   feature={feature}
                   mode={floorMode}
-                  selected={false}
+                  selected={selectedFeatureId === feature.id}
+                  onClick={() => {
+                    setSelectedFeatureId(feature.id);
+                    clearSelection();
+                  }}
                   draggingEnabled={
                     floorMode === 'edit' &&
                     activeTool === 'select' &&
@@ -2459,6 +2520,15 @@ export function Tables({
             onClose={clearSelection}
             onSave={handleSaveSelectedTable}
             onDelete={handleDeleteSelectedTable}
+          />
+        )}
+
+        {floorMode === 'edit' && selectedFeature && (
+          <FloorFeaturePropertyPanel
+            feature={selectedFeature}
+            deleting={deletingFeature}
+            onClose={() => setSelectedFeatureId(null)}
+            onDelete={handleDeleteSelectedFeature}
           />
         )}
 
