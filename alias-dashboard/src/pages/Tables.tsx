@@ -1,3 +1,4 @@
+import { isRotatedFeatureWithinBounds } from '@/hooks/useFloorGeometry';
 import {
   useCallback,
   useEffect,
@@ -727,11 +728,22 @@ export function Tables({
     const currentRestaurantId = restaurantId;
 
     if (
-      feature.x + width > selectedFloorPlan.width ||
-      feature.y + height > selectedFloorPlan.height
+      !isRotatedFeatureWithinBounds(
+        {
+          width: selectedFloorPlan.width,
+          height: selectedFloorPlan.height,
+        },
+        {
+          x: feature.x,
+          y: feature.y,
+          width,
+          height,
+          rotation,
+        },
+      )
     ) {
       setError(
-        'Feature dimensions exceed the floor plan boundaries.',
+        'Feature dimensions or rotation exceed the floor plan boundaries.',
       );
       return;
     }

@@ -10,7 +10,10 @@ import {
   type FloorFeatureResponse,
 } from '@/lib/api';
 
-import { snapToGrid } from '@/hooks/useFloorGeometry';
+import {
+  clampRotatedFeaturePosition,
+  snapToGrid,
+} from '@/hooks/useFloorGeometry';
 
 type FloorBounds = {
   width: number;
@@ -146,31 +149,29 @@ export function useFloorFeatureDrag({
       return;
     }
 
-    const maxX = Math.max(
-      0,
-      (floorBounds?.width ?? Infinity) - feature.width,
+    if (!floorBounds) {
+      return;
+    }
+
+    const nextX = snapToGrid(
+      drag.startX + pointer.x - drag.startPointerX,
+    );
+    const nextY = snapToGrid(
+      drag.startY + pointer.y - drag.startPointerY,
     );
 
-    const maxY = Math.max(
-      0,
-      (floorBounds?.height ?? Infinity) - feature.height,
+    const position = clampRotatedFeaturePosition(
+      floorBounds,
+      feature,
+      nextX,
+      nextY,
     );
 
-    const x = Math.min(
-      maxX,
-      Math.max(
-        0,
-        snapToGrid(drag.startX + pointer.x - drag.startPointerX),
-      ),
-    );
+    if (!position) {
+      return;
+    }
 
-    const y = Math.min(
-      maxY,
-      Math.max(
-        0,
-        snapToGrid(drag.startY + pointer.y - drag.startPointerY),
-      ),
-    );
+    const { x, y } = position;
 
     drag.currentX = x;
     drag.currentY = y;
