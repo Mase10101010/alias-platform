@@ -73,6 +73,7 @@ import { useFloorBulkActions } from '@/hooks/useFloorBulkActions';
 import { useFloorHistory } from '@/hooks/useFloorHistory';
 import { useFloorPlacement } from '@/hooks/useFloorPlacement';
 import { useFloorFeaturePlacement } from '@/hooks/useFloorFeaturePlacement';
+import { useFloorFeatureDrag } from '@/hooks/useFloorFeatureDrag';
 
 import { useFloorViewport } from '@/hooks/useFloorViewport';
 import { ZoomControls } from '@/components/floorplan/ZoomControls';
@@ -705,6 +706,27 @@ export function Tables({
   });
 
   
+
+  const {
+    handlePointerDown: handleFeaturePointerDown,
+    handlePointerMove: handleFeaturePointerMove,
+    finishDrag: finishFeatureDrag,
+  } = useFloorFeatureDrag({
+    restaurantId,
+    areaId: selectedAreaId,
+    floorPlanId: selectedFloorPlanId,
+    floorBounds,
+    canvasRef,
+    zoom,
+    pan,
+    enabled:
+      floorMode === 'edit' &&
+      activeTool === 'select' &&
+      !spacePressed &&
+      !isPanning,
+    setFeatures: setFloorFeatures,
+    onError: setError,
+  });
 
   const {
     handlePointerDown,
@@ -2257,6 +2279,25 @@ export function Tables({
                   key={feature.id}
                   feature={feature}
                   mode={floorMode}
+                  selected={false}
+                  draggingEnabled={
+                    floorMode === 'edit' &&
+                    activeTool === 'select' &&
+                    !spacePressed &&
+                    !isPanning
+                  }
+                  onPointerDown={(event) =>
+                    handleFeaturePointerDown(event, feature)
+                  }
+                  onPointerMove={(event) =>
+                    handleFeaturePointerMove(event, feature)
+                  }
+                  onPointerUp={(event) =>
+                    finishFeatureDrag(event, feature)
+                  }
+                  onPointerCancel={(event) =>
+                    finishFeatureDrag(event, feature)
+                  }
                 />
               ))}
 

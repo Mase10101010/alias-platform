@@ -1,3 +1,4 @@
+
 import {
   Armchair,
   DoorOpen,
@@ -10,6 +11,11 @@ import {
 } from 'lucide-react';
 
 import type {
+  PointerEventHandler,
+  KeyboardEvent,
+} from 'react';
+
+import type {
   FloorFeatureResponse,
   FloorFeatureType,
 } from '@/lib/api';
@@ -19,6 +25,11 @@ type FloorFeatureNodeProps = {
   selected?: boolean;
   mode?: 'edit' | 'live';
   onClick?: () => void;
+  draggingEnabled?: boolean;
+  onPointerDown?: PointerEventHandler<HTMLDivElement>;
+  onPointerMove?: PointerEventHandler<HTMLDivElement>;
+  onPointerUp?: PointerEventHandler<HTMLDivElement>;
+  onPointerCancel?: PointerEventHandler<HTMLDivElement>;
 };
 
 const featureAppearance: Record<
@@ -71,6 +82,11 @@ export function FloorFeatureNode({
   selected = false,
   mode = 'edit',
   onClick,
+  draggingEnabled = false,
+  onPointerDown,
+  onPointerMove,
+  onPointerUp,
+  onPointerCancel,
 }: FloorFeatureNodeProps) {
   if (!feature.is_visible) {
     return null;
@@ -79,6 +95,7 @@ export function FloorFeatureNode({
   const appearance = featureAppearance[feature.feature_type];
   const Icon = appearance.icon;
   const isEditable = mode === 'edit';
+  const canDrag = isEditable && draggingEnabled;
   const displayLabel = feature.label || appearance.label;
 
   return (
@@ -94,7 +111,7 @@ export function FloorFeatureNode({
           onClick?.();
         }
       }}
-      onKeyDown={(event) => {
+      onKeyDown={(event: KeyboardEvent<HTMLDivElement>) => {
         if (
           isEditable &&
           (event.key === 'Enter' || event.key === ' ')
@@ -104,8 +121,28 @@ export function FloorFeatureNode({
           onClick?.();
         }
       }}
+      onPointerDown={(event) => {
+        if (!canDrag) {
+          return;
+        }
+
+        onPointerDown?.(event);
+      }}
+      onPointerMove={(event) => {
+        onPointerMove?.(event);
+      }}
+      onPointerUp={(event) => {
+        onPointerUp?.(event);
+      }}
+      onPointerCancel={(event) => {
+        onPointerCancel?.(event);
+      }}
       className={`absolute flex select-none items-center justify-center overflow-hidden rounded-md border ${
-        isEditable ? 'cursor-pointer' : 'pointer-events-none'
+        isEditable
+          ? canDrag
+            ? 'cursor-grab active:cursor-grabbing'
+            : 'cursor-pointer'
+          : 'pointer-events-none'
       }`}
       style={{
         left: feature.x,
