@@ -1,9 +1,16 @@
 import {
+  Armchair,
   Circle,
   Combine,
+  DoorOpen,
+  Footprints,
+  GlassWater,
+  Minus,
   MousePointer2,
+  PanelsTopLeft,
   Plus,
   RectangleHorizontal,
+  Shapes,
   Square,
 } from 'lucide-react';
 
@@ -11,7 +18,14 @@ export type EditorTool =
   | 'select'
   | 'add-square'
   | 'add-round'
-  | 'add-rectangle';
+  | 'add-rectangle'
+  | 'add-window'
+  | 'add-door'
+  | 'add-wall'
+  | 'add-bar-counter'
+  | 'add-sofa'
+  | 'add-entrance'
+  | 'add-other';
 
 type ToolbarProps = {
   activeTool: EditorTool;
@@ -46,6 +60,41 @@ const tools: {
     id: 'add-rectangle',
     label: 'Rectangle',
     icon: RectangleHorizontal,
+  },
+  {
+    id: 'add-window',
+    label: 'Window',
+    icon: PanelsTopLeft,
+  },
+  {
+    id: 'add-door',
+    label: 'Door',
+    icon: DoorOpen,
+  },
+  {
+    id: 'add-wall',
+    label: 'Wall',
+    icon: Minus,
+  },
+  {
+    id: 'add-bar-counter',
+    label: 'Bar Counter',
+    icon: GlassWater,
+  },
+  {
+    id: 'add-sofa',
+    label: 'Sofa',
+    icon: Armchair,
+  },
+  {
+    id: 'add-entrance',
+    label: 'Entrance',
+    icon: Footprints,
+  },
+  {
+    id: 'add-other',
+    label: 'Other',
+    icon: Shapes,
   },
 ];
 

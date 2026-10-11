@@ -67,10 +67,12 @@ import {
 import { useFloorKeyboard } from '@/hooks/useFloorKeyboard';
 import { useFloorResize } from '@/hooks/useFloorResize';
 import { useFloorPlanLoader } from '@/hooks/useFloorPlanLoader';
+import { useFloorFeatures } from '@/hooks/useFloorFeatures';
 import { useTableProperties } from '@/hooks/useTableProperties';
 import { useFloorBulkActions } from '@/hooks/useFloorBulkActions';
 import { useFloorHistory } from '@/hooks/useFloorHistory';
 import { useFloorPlacement } from '@/hooks/useFloorPlacement';
+import { useFloorFeaturePlacement } from '@/hooks/useFloorFeaturePlacement';
 
 import { useFloorViewport } from '@/hooks/useFloorViewport';
 import { ZoomControls } from '@/components/floorplan/ZoomControls';
@@ -98,6 +100,7 @@ import { useCreateTable } from '@/hooks/useCreateTable';
 import { PropertyPanel } from '@/components/floorplan/PropertyPanel';
 import { FloorCanvas } from '@/components/floorplan/FloorCanvas';
 import { TableNode } from '@/components/floorplan/TableNode';
+import { FloorFeatureNode } from '@/components/floorplan/FloorFeatureNode';
 import {
   Toolbar,
   type EditorTool,
@@ -339,6 +342,18 @@ export function Tables({
     setTables,
     loading,
   } = useFloorPlanLoader({
+    onError: setError,
+  });
+
+  const {
+    features: floorFeatures,
+    setFeatures: setFloorFeatures,
+    loading: floorFeaturesLoading,
+    refresh: refreshFloorFeatures,
+  } = useFloorFeatures({
+    restaurantId,
+    areaId: selectedAreaId,
+    floorPlanId: selectedFloorPlanId,
     onError: setError,
   });
 
@@ -621,6 +636,27 @@ export function Tables({
     onError(message) {
       setError(message);
     },
+  });
+
+  const {
+    creatingFeature,
+    handleFeatureCanvasClick,
+  } = useFloorFeaturePlacement({
+    canvasRef,
+    restaurantId,
+    areaId: selectedAreaId,
+    floorPlanId: selectedFloorPlanId,
+    floorBounds,
+    activeTool,
+    zoom,
+    pan,
+    onCreated(created) {
+      setFloorFeatures((current) => [
+        ...current.filter((feature) => feature.id !== created.id),
+        created,
+      ]);
+    },
+    onError: setError,
   });
 
   const { handleCanvasClick } = useFloorPlacement({
@@ -2181,6 +2217,12 @@ export function Tables({
                 return;
               }
 
+              if (activeTool.startsWith('add-') &&
+                  !['add-square', 'add-round', 'add-rectangle'].includes(activeTool)) {
+                void handleFeatureCanvasClick(event);
+                return;
+              }
+
               handleCanvasClick(event);
             }}
             onWheel={handleWheel}
@@ -2208,6 +2250,15 @@ export function Tables({
                 }}
               />
             )}
+
+            {!loading &&
+              floorFeatures.map((feature) => (
+                <FloorFeatureNode
+                  key={feature.id}
+                  feature={feature}
+                  mode={floorMode}
+                />
+              ))}
 
             {!loading &&
               tables.map((table) => {

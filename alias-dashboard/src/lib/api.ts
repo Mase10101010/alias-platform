@@ -1481,6 +1481,43 @@ export type SmartLayoutAnalysisResponse = {
   deleted_obsolete_auto_count: number;
 };
 
+export type FloorFeatureType =
+  | 'window'
+  | 'door'
+  | 'wall'
+  | 'bar_counter'
+  | 'sofa'
+  | 'entrance'
+  | 'other';
+
+export type FloorFeatureResponse = {
+  id: string;
+  floor_plan_id: string;
+  feature_type: FloorFeatureType;
+  label: string | null;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  rotation: number;
+  is_visible: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type FloorFeatureCreate = {
+  feature_type: FloorFeatureType;
+  label?: string | null;
+  x?: number;
+  y?: number;
+  width?: number;
+  height?: number;
+  rotation?: number;
+  is_visible?: boolean;
+};
+
+export type FloorFeatureUpdate = Partial<FloorFeatureCreate>;
+
 export type FloorPlanCreate = {
   name?: string;
   width?: number;
@@ -1675,6 +1712,129 @@ export async function deactivateServiceArea(
 
   return response.json();
 
+}
+
+function floorFeaturesUrl(
+  restaurantId: string,
+  areaId: string,
+  floorPlanId: string,
+): string {
+  return `${API_BASE_URL}/api/v1/restaurants/${restaurantId}/service-areas/${areaId}/floor-plans/${floorPlanId}/features`;
+}
+
+export async function getFloorFeatures(
+  restaurantId: string,
+  areaId: string,
+  floorPlanId: string,
+): Promise<FloorFeatureResponse[]> {
+  const response = await fetch(
+    floorFeaturesUrl(restaurantId, areaId, floorPlanId),
+    {
+      headers: {
+        Authorization: `Bearer ${getAuthToken()}`,
+      },
+    },
+  );
+
+  if (!response.ok) {
+    throw await parseApiError(response, 'Unable to load floor features');
+  }
+
+  return response.json();
+}
+
+export async function getFloorFeature(
+  restaurantId: string,
+  areaId: string,
+  floorPlanId: string,
+  featureId: string,
+): Promise<FloorFeatureResponse> {
+  const response = await fetch(
+    `${floorFeaturesUrl(restaurantId, areaId, floorPlanId)}/${featureId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${getAuthToken()}`,
+      },
+    },
+  );
+
+  if (!response.ok) {
+    throw await parseApiError(response, 'Unable to load floor feature');
+  }
+
+  return response.json();
+}
+
+export async function createFloorFeature(
+  restaurantId: string,
+  areaId: string,
+  floorPlanId: string,
+  payload: FloorFeatureCreate,
+): Promise<FloorFeatureResponse> {
+  const response = await fetch(
+    floorFeaturesUrl(restaurantId, areaId, floorPlanId),
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${getAuthToken()}`,
+      },
+      body: JSON.stringify(payload),
+    },
+  );
+
+  if (!response.ok) {
+    throw await parseApiError(response, 'Unable to create floor feature');
+  }
+
+  return response.json();
+}
+
+export async function updateFloorFeature(
+  restaurantId: string,
+  areaId: string,
+  floorPlanId: string,
+  featureId: string,
+  payload: FloorFeatureUpdate,
+): Promise<FloorFeatureResponse> {
+  const response = await fetch(
+    `${floorFeaturesUrl(restaurantId, areaId, floorPlanId)}/${featureId}`,
+    {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${getAuthToken()}`,
+      },
+      body: JSON.stringify(payload),
+    },
+  );
+
+  if (!response.ok) {
+    throw await parseApiError(response, 'Unable to update floor feature');
+  }
+
+  return response.json();
+}
+
+export async function deleteFloorFeature(
+  restaurantId: string,
+  areaId: string,
+  floorPlanId: string,
+  featureId: string,
+): Promise<void> {
+  const response = await fetch(
+    `${floorFeaturesUrl(restaurantId, areaId, floorPlanId)}/${featureId}`,
+    {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${getAuthToken()}`,
+      },
+    },
+  );
+
+  if (!response.ok) {
+    throw await parseApiError(response, 'Unable to delete floor feature');
+  }
 }
 
 export async function getFloorPlans(

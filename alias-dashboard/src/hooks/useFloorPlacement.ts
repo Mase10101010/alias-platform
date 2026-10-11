@@ -70,6 +70,14 @@ export function useFloorPlacement({
       return;
     }
 
+    if (
+      activeTool !== 'add-square' &&
+      activeTool !== 'add-round' &&
+      activeTool !== 'add-rectangle'
+    ) {
+      return;
+    }
+
     const canvas = canvasRef.current;
 
     if (!canvas) {
