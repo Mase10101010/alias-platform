@@ -2302,6 +2302,7 @@ export function Tables({
                 return;
               }
 
+              setSelectedFeatureId(null);
               handleCanvasClick(event);
             }}
             onWheel={handleWheel}
@@ -2394,6 +2395,7 @@ export function Tables({
                       }
 
                       if (floorMode === 'live') {
+                        setSelectedFeatureId(null);
                         setSelectedTableId(table.id);
                         return;
                       }
@@ -2401,6 +2403,8 @@ export function Tables({
                       if (activeTool !== 'select') {
                         return;
                       }
+
+                      setSelectedFeatureId(null);
 
                       if (event.ctrlKey || event.metaKey) {
                         toggleSelection(table.id);
