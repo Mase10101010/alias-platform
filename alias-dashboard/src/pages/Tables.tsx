@@ -29,6 +29,7 @@ import {
   updateReservation,
   updateRestaurant,
   deleteFloorFeature,
+  updateFloorFeature,
   createTableCombination,
   deleteTableCombination,
   updateTableCombination,
@@ -135,6 +136,9 @@ export function Tables({
     useState<string | null>(null);
 
   const [deletingFeature, setDeletingFeature] =
+    useState(false);
+
+  const [savingFeature, setSavingFeature] =
     useState(false);
 
   const [liveDate, setLiveDate] =
@@ -668,9 +672,105 @@ export function Tables({
     onError: setError,
   });
 
+  const currentFeatureScopeRef = useRef({
+    restaurantId,
+    areaId: selectedAreaId,
+    floorPlanId: selectedFloorPlanId,
+  });
+
+  currentFeatureScopeRef.current = {
+    restaurantId,
+    areaId: selectedAreaId,
+    floorPlanId: selectedFloorPlanId,
+  };
+
   const selectedFeature = floorFeatures.find(
     (feature) => feature.id === selectedFeatureId,
   ) ?? null;
+
+  async function handleSaveSelectedFeature(changes: {
+    label: string | null;
+    width: number;
+    height: number;
+    rotation: number;
+  }): Promise<void> {
+    if (
+      !restaurantId ||
+      !selectedAreaId ||
+      !selectedFloorPlanId ||
+      !selectedFeature ||
+      !selectedFloorPlan ||
+      savingFeature ||
+      deletingFeature
+    ) {
+      return;
+    }
+
+    const { width, height, rotation } = changes;
+
+    if (
+      !Number.isFinite(width) ||
+      !Number.isFinite(height) ||
+      !Number.isFinite(rotation) ||
+      width < 10 ||
+      height < 10 ||
+      rotation < -360 ||
+      rotation > 360
+    ) {
+      setError('Invalid feature dimensions or rotation.');
+      return;
+    }
+
+    const feature = selectedFeature;
+    const areaId = selectedAreaId;
+    const floorPlanId = selectedFloorPlanId;
+    const currentRestaurantId = restaurantId;
+
+    if (
+      feature.x + width > selectedFloorPlan.width ||
+      feature.y + height > selectedFloorPlan.height
+    ) {
+      setError(
+        'Feature dimensions exceed the floor plan boundaries.',
+      );
+      return;
+    }
+
+    try {
+      setSavingFeature(true);
+      setError('');
+
+      const updated = await updateFloorFeature(
+        currentRestaurantId,
+        areaId,
+        floorPlanId,
+        feature.id,
+        changes,
+      );
+
+      const currentScope = currentFeatureScopeRef.current;
+
+      if (
+        currentScope.restaurantId === currentRestaurantId &&
+        currentScope.areaId === areaId &&
+        currentScope.floorPlanId === floorPlanId
+      ) {
+        setFloorFeatures((current) =>
+          current.map((item) =>
+            item.id === updated.id ? updated : item,
+          ),
+        );
+      }
+    } catch (error) {
+      setError(
+        error instanceof Error
+          ? error.message
+          : 'Unable to save feature properties.',
+      );
+    } finally {
+      setSavingFeature(false);
+    }
+  }
 
   async function handleDeleteSelectedFeature() {
     if (
@@ -691,27 +791,47 @@ export function Tables({
       return;
     }
 
+    const featureId = selectedFeature.id;
+    const requestRestaurantId = restaurantId;
+    const requestAreaId = selectedAreaId;
+    const requestFloorPlanId = selectedFloorPlanId;
+
+    const isCurrentScope = () => {
+      const current = currentFeatureScopeRef.current;
+      return (
+        current.restaurantId === requestRestaurantId &&
+        current.areaId === requestAreaId &&
+        current.floorPlanId === requestFloorPlanId
+      );
+    };
+
     try {
       setDeletingFeature(true);
       setError('');
 
       await deleteFloorFeature(
-        restaurantId,
-        selectedAreaId,
-        selectedFloorPlanId,
-        selectedFeature.id,
+        requestRestaurantId,
+        requestAreaId,
+        requestFloorPlanId,
+        featureId,
       );
 
-      setFloorFeatures((current) =>
-        current.filter((feature) => feature.id !== selectedFeature.id),
-      );
-      setSelectedFeatureId(null);
+      if (isCurrentScope()) {
+        setFloorFeatures((current) =>
+          current.filter((feature) => feature.id !== featureId),
+        );
+        setSelectedFeatureId((current) =>
+          current === featureId ? null : current,
+        );
+      }
     } catch (error) {
-      setError(
-        error instanceof Error
-          ? error.message
-          : 'Unable to delete floor feature.',
-      );
+      if (isCurrentScope()) {
+        setError(
+          error instanceof Error
+            ? error.message
+            : 'Unable to delete floor feature.',
+        );
+      }
     } finally {
       setDeletingFeature(false);
     }
@@ -2531,8 +2651,10 @@ export function Tables({
           <FloorFeaturePropertyPanel
             feature={selectedFeature}
             deleting={deletingFeature}
+            saving={savingFeature}
             onClose={() => setSelectedFeatureId(null)}
             onDelete={handleDeleteSelectedFeature}
+            onSave={handleSaveSelectedFeature}
           />
         )}
 
