@@ -371,9 +371,15 @@ export function SmartLayoutPanel({
         </div>
 
         {spatialLoading ? (
-          <p className="mt-4 text-sm text-white/40">
-            Updating spatial analysis...
-          </p>
+          <div className="mt-4 min-h-[320px]">
+            <div className="flex items-center gap-2 text-sm text-white/40">
+              <LoaderCircle
+                size={16}
+                className="animate-spin text-cyanAlias"
+              />
+              Updating spatial analysis...
+            </div>
+          </div>
         ) : spatialError ? (
           <p className="mt-4 text-sm text-red-300">
             Spatial analysis unavailable: {spatialError}
