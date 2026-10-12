@@ -92,18 +92,29 @@ export function clampRotatedFeaturePosition(
     return null;
   }
 
-  const minX = nextX - rotated.x;
-  const minY = nextY - rotated.y;
+  const offsetX = nextX - rotated.x;
+  const offsetY = nextY - rotated.y;
+
+  const minX = Math.max(0, offsetX);
+  const minY = Math.max(0, offsetY);
+
+  const maxX = Math.min(
+    floorBounds.width - feature.width,
+    floorBounds.width - rotated.width + offsetX,
+  );
+
+  const maxY = Math.min(
+    floorBounds.height - feature.height,
+    floorBounds.height - rotated.height + offsetY,
+  );
+
+  if (minX > maxX || minY > maxY) {
+    return null;
+  }
 
   return {
-    x: Math.min(
-      Math.max(nextX, minX),
-      floorBounds.width - rotated.width + minX,
-    ),
-    y: Math.min(
-      Math.max(nextY, minY),
-      floorBounds.height - rotated.height + minY,
-    ),
+    x: Math.round(Math.min(Math.max(nextX, minX), maxX)),
+    y: Math.round(Math.min(Math.max(nextY, minY), maxY)),
   };
 }
 
