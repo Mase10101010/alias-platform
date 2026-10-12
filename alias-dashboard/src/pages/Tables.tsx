@@ -2510,7 +2510,10 @@ export function Tables({
         </div>
       )}
 
-      <div className="mt-8 flex flex-col items-start gap-6 lg:flex-row">
+      <div
+        className="mt-8 flex flex-col items-start gap-6 lg:flex-row"
+        style={{ overflowAnchor: 'none' }}
+      >
 
         <div className="relative w-full min-w-0 flex-1">
 
