@@ -2383,6 +2383,18 @@ export type TablePairSpatialAdvisoryResponse = {
   obstacle_feature_ids: string[];
 };
 
+// LAB-019B — Read-only Spatial Join Assessment
+
+export type SpatialJoinAssessmentResponse = {
+  rule_id: string;
+  first_table_id: string;
+  second_table_id: string;
+  rule_status: SmartLayoutRuleStatus;
+  spatial_status: SpatialAdvisoryStatus;
+  obstacle_feature_ids: string[];
+  requires_review: boolean;
+};
+
 export type FloorPlanSpatialAnalysisResponse = {
   floor_plan_id: string;
   table_feature_relationships: {
@@ -2399,6 +2411,7 @@ export type FloorPlanSpatialAnalysisResponse = {
     has_potential_obstacles: boolean;
   }[];
   table_pair_advisories: TablePairSpatialAdvisoryResponse[];
+    join_assessments: SpatialJoinAssessmentResponse[];
 };
 
 export async function getFloorPlanSpatialAnalysis(

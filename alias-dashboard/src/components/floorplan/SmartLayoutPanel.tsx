@@ -106,6 +106,11 @@ export function SmartLayoutPanel({
     updatingRuleId !== null;
 
   const advisories = spatialAnalysis?.table_pair_advisories ?? [];
+  const joinAssessments = new Map(
+    (spatialAnalysis?.join_assessments ?? []).map(
+      (assessment) => [assessment.rule_id, assessment],
+    ),
+  );
 
   const potentialObstacles = advisories.filter(
     (advisory) => advisory.status === 'potential_obstacle',
@@ -206,6 +211,7 @@ export function SmartLayoutPanel({
             <div className="grid gap-3 xl:grid-cols-2">
               {rules.map((rule) => {
                 const status = getStatusCopy(rule.status);
+                const spatialAssessment = joinAssessments.get(rule.id);
                 const updating =
                   updatingRuleId === rule.id;
 
@@ -246,6 +252,40 @@ export function SmartLayoutPanel({
                         />
                       )}
                     </div>
+
+                    {spatialAssessment && (
+                      <div
+                        className={`mt-3 rounded-xl border p-3 ${
+                          spatialAssessment.spatial_status === 'potential_obstacle'
+                            ? 'border-amber-400/20 bg-amber-400/[.05]'
+                            : spatialAssessment.spatial_status === 'unknown'
+                              ? 'border-white/10 bg-white/[.03]'
+                              : 'border-emerald-400/15 bg-emerald-400/[.04]'
+                        }`}
+                      >
+                        <p className="text-xs font-medium text-white/80">
+                          {spatialAssessment.spatial_status === 'potential_obstacle'
+                            ? '⚠ Potential physical obstacle'
+                            : spatialAssessment.spatial_status === 'unknown'
+                              ? 'Spatial assessment unavailable'
+                              : 'No obstacle detected'}
+                        </p>
+
+                        <p className="mt-1 text-xs leading-relaxed text-white/45">
+                          {spatialAssessment.spatial_status === 'potential_obstacle'
+                            ? `${spatialAssessment.obstacle_feature_ids.length} physical feature(s) may obstruct this join. Manual review recommended.`
+                            : spatialAssessment.spatial_status === 'unknown'
+                              ? 'Alias cannot currently determine whether this join has physical obstacles.'
+                              : 'No visible wall or bar-counter obstacle was detected. Physical join feasibility is not guaranteed.'}
+                        </p>
+
+                        {spatialAssessment.requires_review && (
+                          <p className="mt-2 text-[11px] text-amber-200/70">
+                            Review recommended · Operational join status unchanged
+                          </p>
+                        )}
+                      </div>
+                    )}
 
                     <div className="mt-4 flex flex-wrap gap-2">
                       {rule.status !== 'confirmed' && (
