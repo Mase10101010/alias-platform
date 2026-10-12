@@ -18,6 +18,7 @@ import {
   applyIntelligenceRecommendation,
   cancelReservation,
   createFloorPlan,
+  updateFloorPlan,
   createServiceArea,
   getFloorPlans,
   getTableCombinations,
