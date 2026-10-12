@@ -391,26 +391,7 @@ export function Tables({
     floorPlanId: selectedFloorPlanId,
   });
 
-  useEffect(() => {
-    if (
-      lockedSmartLayoutHeight === null ||
-      spatialLoading ||
-      (!spatialAnalysis && !spatialError)
-    ) {
-      return;
-    }
-
-    const frame = requestAnimationFrame(() => {
-      setLockedSmartLayoutHeight(null);
-    });
-
-    return () => cancelAnimationFrame(frame);
-  }, [
-    lockedSmartLayoutHeight,
-    spatialLoading,
-    spatialAnalysis,
-    spatialError,
-  ]);
+  
 
   const selectedFloorPlan = useMemo(
     () =>
