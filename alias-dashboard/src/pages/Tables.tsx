@@ -304,6 +304,11 @@ export function Tables({
     setSmartLayoutLoading,
   ] = useState(false);
 
+  const smartLayoutPanelRef = useRef<HTMLDivElement | null>(null);
+  const smartLayoutHeightRef = useRef<number>(0);
+  const [lockedSmartLayoutHeight, setLockedSmartLayoutHeight] =
+    useState<number | null>(null);
+
   const [
     smartLayoutAnalyzing,
     setSmartLayoutAnalyzing,
@@ -385,6 +390,27 @@ export function Tables({
     areaId: selectedAreaId,
     floorPlanId: selectedFloorPlanId,
   });
+
+  useEffect(() => {
+    if (
+      lockedSmartLayoutHeight === null ||
+      spatialLoading ||
+      (!spatialAnalysis && !spatialError)
+    ) {
+      return;
+    }
+
+    const frame = requestAnimationFrame(() => {
+      setLockedSmartLayoutHeight(null);
+    });
+
+    return () => cancelAnimationFrame(frame);
+  }, [
+    lockedSmartLayoutHeight,
+    spatialLoading,
+    spatialAnalysis,
+    spatialError,
+  ]);
 
   const selectedFloorPlan = useMemo(
     () =>
@@ -964,6 +990,15 @@ export function Tables({
       void refreshSpatialAdvisory();
     },
     onEditStart: () => {
+      const element = smartLayoutPanelRef.current;
+
+      if (element) {
+        const height = element.getBoundingClientRect().height;
+
+        smartLayoutHeightRef.current = height;
+        setLockedSmartLayoutHeight(height);
+      }
+
       const editId = beginGeometryEdit();
 
       return () => {
@@ -2311,7 +2346,13 @@ export function Tables({
       {floorMode === 'edit' &&
         selectedAreaId &&
         selectedFloorPlanId && (
-          <div className="mt-6">
+          <div
+            ref={smartLayoutPanelRef}
+            className="mt-6"
+            style={{
+              minHeight: lockedSmartLayoutHeight ?? undefined,
+            }}
+          >
             <SmartLayoutPanel
               rules={smartLayoutRules}
               tables={tables}
@@ -2510,10 +2551,7 @@ export function Tables({
         </div>
       )}
 
-      <div
-        className="mt-8 flex flex-col items-start gap-6 lg:flex-row"
-        style={{ overflowAnchor: 'none' }}
-      >
+      <div className="mt-8 flex flex-col items-start gap-6 lg:flex-row">
 
         <div className="relative w-full min-w-0 flex-1">
 
