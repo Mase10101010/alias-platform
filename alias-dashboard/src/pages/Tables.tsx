@@ -983,12 +983,6 @@ export function Tables({
     setFeatures: setFloorFeatures,
     onError: setError,
     onGeometryChange: invalidateSpatialAdvisory,
-    onSaved: () => {
-      void refreshSpatialAdvisory();
-    },
-    onUnchanged: () => {
-      void refreshSpatialAdvisory();
-    },
     onEditStart: () => {
       const element = smartLayoutPanelRef.current;
 
