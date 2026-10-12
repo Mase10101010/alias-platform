@@ -106,6 +106,7 @@ import { PropertyPanel } from '@/components/floorplan/PropertyPanel';
 import { FloorCanvas } from '@/components/floorplan/FloorCanvas';
 import { TableNode } from '@/components/floorplan/TableNode';
 import { FloorFeatureNode } from '@/components/floorplan/FloorFeatureNode';
+import { ExpandFloorPlanDialog } from '@/components/floorplan/ExpandFloorPlanDialog';
 import { FloorFeaturePropertyPanel } from '@/components/floorplan/FloorFeaturePropertyPanel';
 import {
   Toolbar,
@@ -323,6 +324,18 @@ export function Tables({
     useState(false);
 
   const [createFloorPlanOpen, setCreateFloorPlanOpen] =
+    useState(false);
+
+  const [expandFloorPlanOpen, setExpandFloorPlanOpen] =
+    useState(false);
+
+  const [expandFloorPlanWidth, setExpandFloorPlanWidth] =
+    useState('');
+
+  const [expandFloorPlanHeight, setExpandFloorPlanHeight] =
+    useState('');
+
+  const [expandingFloorPlan, setExpandingFloorPlan] =
     useState(false);
 
   const [newFloorPlanName, setNewFloorPlanName] =
@@ -1264,6 +1277,63 @@ export function Tables({
     }
 
     setCreateFloorPlanOpen(false);
+  }
+
+  async function handleExpandFloorPlan() {
+    if (
+      !restaurantId ||
+      !selectedAreaId ||
+      !selectedFloorPlan ||
+      expandingFloorPlan
+    ) {
+      return;
+    }
+
+    const width = Number(expandFloorPlanWidth);
+    const height = Number(expandFloorPlanHeight);
+
+    if (
+      !Number.isInteger(width) ||
+      !Number.isInteger(height) ||
+      width < selectedFloorPlan.width ||
+      height < selectedFloorPlan.height ||
+      width > 5000 ||
+      height > 5000 ||
+      (width === selectedFloorPlan.width &&
+        height === selectedFloorPlan.height)
+    ) {
+      setError('Please enter valid expanded dimensions.');
+      return;
+    }
+
+    const areaId = selectedAreaId;
+    const floorPlanId = selectedFloorPlan.id;
+
+    try {
+      setExpandingFloorPlan(true);
+      setError('');
+
+      await updateFloorPlan(
+        restaurantId,
+        areaId,
+        floorPlanId,
+        { width, height },
+      );
+
+      await refreshFloorPlans(areaId);
+
+      setExpandFloorPlanOpen(false);
+    } catch (error) {
+      console.error('Failed to expand floor plan', error);
+
+      setError(
+        error instanceof Error
+          ? error.message
+          : 'Unable to expand floor plan.',
+      );
+    } finally {
+      setExpandingFloorPlan(false);
+    }
   }
 
   async function handleCreateFloorPlan() {
@@ -2316,6 +2386,20 @@ export function Tables({
             ? openCreateFloorPlanDialog
             : undefined
         }
+
+        onExpandFloorPlan={
+          floorMode === 'edit' && selectedFloorPlan
+            ? () => {
+                setExpandFloorPlanWidth(
+                  String(selectedFloorPlan.width),
+                );
+                setExpandFloorPlanHeight(
+                  String(selectedFloorPlan.height),
+                );
+                setExpandFloorPlanOpen(true);
+              }
+            : undefined
+        }
       />
 
       {floorMode === 'edit' &&
@@ -3130,6 +3214,25 @@ export function Tables({
         onCancel={closeCreateAreaDialog}
         onCreate={() => {
           void handleCreateServiceArea();
+        }}
+      />
+
+      <ExpandFloorPlanDialog
+        open={expandFloorPlanOpen}
+        currentWidth={selectedFloorPlan?.width ?? 0}
+        currentHeight={selectedFloorPlan?.height ?? 0}
+        width={expandFloorPlanWidth}
+        height={expandFloorPlanHeight}
+        expanding={expandingFloorPlan}
+        onWidthChange={setExpandFloorPlanWidth}
+        onHeightChange={setExpandFloorPlanHeight}
+        onCancel={() => {
+          if (!expandingFloorPlan) {
+            setExpandFloorPlanOpen(false);
+          }
+        }}
+        onExpand={() => {
+          void handleExpandFloorPlan();
         }}
       />
 

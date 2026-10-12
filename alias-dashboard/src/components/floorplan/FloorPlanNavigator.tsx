@@ -1,4 +1,4 @@
-import { ChevronDown, Plus } from 'lucide-react';
+import { ChevronDown, Expand, Plus } from 'lucide-react';
 
 import type {
   FloorPlanResponse,
@@ -15,6 +15,7 @@ type FloorPlanNavigatorProps = {
   onFloorPlanChange: (floorPlanId: string) => void;
   onCreateArea?: () => void;
   onCreateFloorPlan?: () => void;
+  onExpandFloorPlan?: () => void;
 };
 
 export function FloorPlanNavigator({
@@ -27,6 +28,7 @@ export function FloorPlanNavigator({
   onFloorPlanChange,
   onCreateArea,
   onCreateFloorPlan,
+  onExpandFloorPlan,
 }: FloorPlanNavigatorProps) {
   return (
     <div className="mt-6 flex flex-col gap-3 rounded-2xl border border-white/10 bg-black/20 p-3 lg:flex-row lg:items-center lg:justify-between">
@@ -99,6 +101,18 @@ export function FloorPlanNavigator({
             className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-white/30"
           />
         </div>
+
+        {onExpandFloorPlan && (
+          <button
+            type="button"
+            disabled={disabled || !selectedFloorPlanId}
+            onClick={onExpandFloorPlan}
+            className="flex h-10 items-center gap-2 rounded-xl border border-white/10 bg-white/[.03] px-4 text-sm text-white/45 transition hover:bg-white/[.06] hover:text-white/75 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            <Expand size={15} />
+            Expand floor plan
+          </button>
+        )}
 
         {onCreateFloorPlan && (
           <button
