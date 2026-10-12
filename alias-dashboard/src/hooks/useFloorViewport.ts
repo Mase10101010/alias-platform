@@ -7,7 +7,7 @@ import {
   type WheelEvent as ReactWheelEvent,
 } from 'react';
 
-const MIN_ZOOM = 0.5;
+const MIN_ZOOM = 0.1;
 const MAX_ZOOM = 2;
 const ZOOM_STEP = 0.1;
 const PAN_LIMIT = 1200;
@@ -147,6 +147,58 @@ export function useFloorViewport() {
     });
   }, []);
 
+  const fitToView = useCallback(
+    (
+      viewportWidth: number,
+      viewportHeight: number,
+      floorWidth: number,
+      floorHeight: number,
+    ) => {
+      if (
+        viewportWidth <= 0 ||
+        viewportHeight <= 0 ||
+        floorWidth <= 0 ||
+        floorHeight <= 0
+      ) {
+        return;
+      }
+
+      const padding = 48;
+
+      const availableWidth = Math.max(
+        1,
+        viewportWidth - padding * 2,
+      );
+
+      const availableHeight = Math.max(
+        1,
+        viewportHeight - padding * 2,
+      );
+
+      const nextZoom = clampZoom(
+        Math.min(
+          availableWidth / floorWidth,
+          availableHeight / floorHeight,
+          1,
+        ),
+      );
+
+      const nextPanX =
+        (viewportWidth - floorWidth * nextZoom) / 2;
+
+      const nextPanY =
+        (viewportHeight - floorHeight * nextZoom) / 2;
+
+      setZoom(nextZoom);
+
+      setPanState({
+        x: nextPanX,
+        y: nextPanY,
+      });
+    },
+    [],
+  );
+
   const handleWheel = useCallback(
     (event: ReactWheelEvent<HTMLDivElement>) => {
       if (!event.ctrlKey && !event.metaKey) {
@@ -284,6 +336,7 @@ export function useFloorViewport() {
     zoomIn,
     zoomOut,
     resetViewport,
+    fitToView,
     handleWheel,
 
     handleViewportPointerDown,

@@ -654,12 +654,32 @@ export function Tables({
     zoomIn,
     zoomOut,
     resetViewport,
+    fitToView,
     handleWheel,
     handleViewportPointerDown,
     handleViewportPointerMove,
     finishViewportPan,
     consumeSuppressedClick,
   } = useFloorViewport();
+
+  useEffect(() => {
+    if (!selectedFloorPlan) return;
+
+    const viewport = canvasRef.current;
+    if (!viewport) return;
+
+    fitToView(
+      viewport.clientWidth,
+      viewport.clientHeight,
+      selectedFloorPlan.width,
+      selectedFloorPlan.height,
+    );
+  }, [
+    selectedFloorPlan?.id,
+    selectedFloorPlan?.width,
+    selectedFloorPlan?.height,
+    fitToView,
+  ]);
 
   const {
     pendingTable,
