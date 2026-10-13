@@ -65,7 +65,7 @@ export const FloorCanvas = forwardRef<
       onPointerMove={onViewportPointerMove}
       onPointerUp={onViewportPointerUp}
       onPointerCancel={onViewportPointerCancel}
-      className={`relative h-[650px] w-full touch-none overflow-hidden rounded-3xl border border-white/10 bg-black/25 ${
+      className={`relative h-[clamp(650px,80vh,1000px)] w-full touch-none overflow-hidden rounded-3xl border border-white/10 bg-black/25 ${
         isPanning
           ? 'cursor-grabbing'
           : activeToolIsSelect

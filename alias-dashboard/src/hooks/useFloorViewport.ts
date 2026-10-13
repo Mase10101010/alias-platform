@@ -55,6 +55,8 @@ export function useFloorViewport() {
   const panRef = useRef<PanState | null>(null);
   const suppressNextClickRef = useRef(false);
 
+  const userAdjustedViewportRef = useRef(false);
+
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
       const target = event.target as HTMLElement | null;
@@ -128,23 +130,35 @@ export function useFloorViewport() {
   );
 
   const zoomIn = useCallback(() => {
+    userAdjustedViewportRef.current = true;
     setZoom((current) =>
       clampZoom(current + ZOOM_STEP),
     );
   }, []);
 
   const zoomOut = useCallback(() => {
+    userAdjustedViewportRef.current = true;
     setZoom((current) =>
       clampZoom(current - ZOOM_STEP),
     );
   }, []);
 
   const resetViewport = useCallback(() => {
+    userAdjustedViewportRef.current = false;
+
     setZoom(1);
     setPanState({
       x: 0,
       y: 0,
     });
+  }, []);
+
+  const prepareAutoFit = useCallback(() => {
+    userAdjustedViewportRef.current = false;
+  }, []);
+
+  const canAutoFit = useCallback(() => {
+    return !userAdjustedViewportRef.current;
   }, []);
 
   const fitToView = useCallback(
@@ -270,6 +284,8 @@ export function useFloorViewport() {
 
       event.preventDefault();
 
+      userAdjustedViewportRef.current = true;
+
       setZoom((current) => {
         const direction =
           event.deltaY < 0 ? ZOOM_STEP : -ZOOM_STEP;
@@ -332,6 +348,7 @@ export function useFloorViewport() {
       Math.abs(deltaY) >= 3
     ) {
       currentPan.hasMoved = true;
+      userAdjustedViewportRef.current = true;
     }
 
     const nextX =
@@ -399,6 +416,8 @@ export function useFloorViewport() {
     zoomIn,
     zoomOut,
     resetViewport,
+    prepareAutoFit,
+    canAutoFit,
     fitToView,
     fitToBounds,
     handleWheel,

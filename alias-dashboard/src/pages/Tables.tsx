@@ -383,6 +383,8 @@ export function Tables({
     features: floorFeatures,
     setFeatures: setFloorFeatures,
     loading: floorFeaturesLoading,
+    loadedScopeKey: floorFeaturesLoadedScopeKey,
+    scopeKey: floorFeaturesScopeKey,
     refresh: refreshFloorFeatures,
   } = useFloorFeatures({
     restaurantId,
@@ -642,6 +644,38 @@ export function Tables({
 
   const canvasRef = useRef<HTMLDivElement | null>(null);
 
+  const [canvasSize, setCanvasSize] = useState({
+    width: 0,
+    height: 0,
+  });
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const observer = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      if (!entry) return;
+
+      const { width, height } = entry.contentRect;
+
+      setCanvasSize((previous) => {
+        if (
+          previous.width === width &&
+          previous.height === height
+        ) {
+          return previous;
+        }
+
+        return { width, height };
+      });
+    });
+
+    observer.observe(canvas);
+
+    return () => observer.disconnect();
+  }, []);
+
   const {
     zoom,
     zoomPercentage,
@@ -654,6 +688,8 @@ export function Tables({
     zoomIn,
     zoomOut,
     resetViewport,
+    prepareAutoFit,
+    canAutoFit,
     fitToView,
     fitToBounds,
     handleWheel,
@@ -666,11 +702,23 @@ export function Tables({
   // LAB-021H: Smart Fit on initial floor-plan load.
   const fittedFloorPlanRef = useRef<string | null>(null);
 
+  const previousFloorPlanIdRef = useRef<string | null>(null);
+
   useEffect(() => {
+    const currentFloorPlanId = selectedFloorPlan?.id ?? null;
+
+    if (previousFloorPlanIdRef.current !== currentFloorPlanId) {
+      previousFloorPlanIdRef.current = currentFloorPlanId;
+      fittedFloorPlanRef.current = null;
+      prepareAutoFit();
+    }
+
     if (
       !selectedFloorPlan ||
       loading ||
-      floorFeaturesLoading
+      floorFeaturesLoading ||
+      !floorFeaturesScopeKey ||
+      floorFeaturesLoadedScopeKey !== floorFeaturesScopeKey
     ) {
       return;
     }
@@ -684,7 +732,12 @@ export function Tables({
       selectedFloorPlan.height,
     ].join(':');
 
-    if (fittedFloorPlanRef.current === planKey) {
+    const fitKey = `${planKey}:${canvasSize.width}:${canvasSize.height}`;
+
+    if (
+      fittedFloorPlanRef.current === fitKey ||
+      !canAutoFit()
+    ) {
       return;
     }
 
@@ -708,7 +761,7 @@ export function Tables({
         selectedFloorPlan.height,
       );
 
-      fittedFloorPlanRef.current = planKey;
+      fittedFloorPlanRef.current = fitKey;
       return;
     }
 
@@ -762,17 +815,23 @@ export function Tables({
       { minX, minY, maxX, maxY },
     );
 
-    fittedFloorPlanRef.current = planKey;
+    fittedFloorPlanRef.current = fitKey;
   }, [
     selectedFloorPlan?.id,
     selectedFloorPlan?.width,
     selectedFloorPlan?.height,
     loading,
     floorFeaturesLoading,
+    floorFeaturesScopeKey,
+    floorFeaturesLoadedScopeKey,
     tables,
     floorFeatures,
     fitToView,
     fitToBounds,
+    prepareAutoFit,
+    canvasSize.width,
+    canvasSize.height,
+    canAutoFit,
   ]);
 
   const {

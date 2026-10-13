@@ -93,6 +93,8 @@ export function useFloorFeatures({
     features: visibleFeatures,
     setFeatures,
     loading,
+    loadedScopeKey,
+    scopeKey,
     refresh,
   };
 }
