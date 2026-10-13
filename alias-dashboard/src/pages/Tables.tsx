@@ -655,6 +655,7 @@ export function Tables({
     zoomOut,
     resetViewport,
     fitToView,
+    fitToBounds,
     handleWheel,
     handleViewportPointerDown,
     handleViewportPointerMove,
@@ -662,23 +663,116 @@ export function Tables({
     consumeSuppressedClick,
   } = useFloorViewport();
 
+  // LAB-021H: Smart Fit on initial floor-plan load.
+  const fittedFloorPlanRef = useRef<string | null>(null);
+
   useEffect(() => {
-    if (!selectedFloorPlan) return;
+    if (
+      !selectedFloorPlan ||
+      loading ||
+      floorFeaturesLoading
+    ) {
+      return;
+    }
 
     const viewport = canvasRef.current;
     if (!viewport) return;
 
-    fitToView(
-      viewport.clientWidth,
-      viewport.clientHeight,
+    const planKey = [
+      selectedFloorPlan.id,
       selectedFloorPlan.width,
       selectedFloorPlan.height,
+    ].join(':');
+
+    if (fittedFloorPlanRef.current === planKey) {
+      return;
+    }
+
+    const elements = [
+      ...tables.filter(
+        (table) =>
+          table.floor_plan_id === selectedFloorPlan.id,
+      ),
+      ...floorFeatures.filter(
+        (feature) =>
+          feature.floor_plan_id === selectedFloorPlan.id &&
+          feature.is_visible,
+      ),
+    ];
+
+    if (elements.length === 0) {
+      fitToView(
+        viewport.clientWidth,
+        viewport.clientHeight,
+        selectedFloorPlan.width,
+        selectedFloorPlan.height,
+      );
+
+      fittedFloorPlanRef.current = planKey;
+      return;
+    }
+
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
+
+    for (const element of elements) {
+      const centerX = element.x + element.width / 2;
+      const centerY = element.y + element.height / 2;
+
+      const radians =
+        (element.rotation * Math.PI) / 180;
+
+      const cosine = Math.abs(Math.cos(radians));
+      const sine = Math.abs(Math.sin(radians));
+
+      const rotatedWidth =
+        element.width * cosine +
+        element.height * sine;
+
+      const rotatedHeight =
+        element.width * sine +
+        element.height * cosine;
+
+      minX = Math.min(
+        minX,
+        centerX - rotatedWidth / 2,
+      );
+
+      minY = Math.min(
+        minY,
+        centerY - rotatedHeight / 2,
+      );
+
+      maxX = Math.max(
+        maxX,
+        centerX + rotatedWidth / 2,
+      );
+
+      maxY = Math.max(
+        maxY,
+        centerY + rotatedHeight / 2,
+      );
+    }
+
+    fitToBounds(
+      viewport.clientWidth,
+      viewport.clientHeight,
+      { minX, minY, maxX, maxY },
     );
+
+    fittedFloorPlanRef.current = planKey;
   }, [
     selectedFloorPlan?.id,
     selectedFloorPlan?.width,
     selectedFloorPlan?.height,
+    loading,
+    floorFeaturesLoading,
+    tables,
+    floorFeatures,
     fitToView,
+    fitToBounds,
   ]);
 
   const {

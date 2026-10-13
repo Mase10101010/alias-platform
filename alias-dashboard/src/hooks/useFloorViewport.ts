@@ -199,6 +199,69 @@ export function useFloorViewport() {
     [],
   );
 
+  const fitToBounds = useCallback(
+    (
+      viewportWidth: number,
+      viewportHeight: number,
+      bounds: {
+        minX: number;
+        minY: number;
+        maxX: number;
+        maxY: number;
+      },
+    ) => {
+      if (
+        viewportWidth <= 0 ||
+        viewportHeight <= 0
+      ) {
+        return;
+      }
+
+      const boundsWidth = bounds.maxX - bounds.minX;
+      const boundsHeight = bounds.maxY - bounds.minY;
+
+      if (
+        !Number.isFinite(boundsWidth) ||
+        !Number.isFinite(boundsHeight) ||
+        boundsWidth <= 0 ||
+        boundsHeight <= 0
+      ) {
+        return;
+      }
+
+      const padding = 80;
+
+      const availableWidth = Math.max(
+        1,
+        viewportWidth - padding * 2,
+      );
+
+      const availableHeight = Math.max(
+        1,
+        viewportHeight - padding * 2,
+      );
+
+      const nextZoom = clampZoom(
+        Math.min(
+          availableWidth / boundsWidth,
+          availableHeight / boundsHeight,
+          1,
+        ),
+      );
+
+      const centerX = (bounds.minX + bounds.maxX) / 2;
+      const centerY = (bounds.minY + bounds.maxY) / 2;
+
+      setZoom(nextZoom);
+
+      setPanState({
+        x: viewportWidth / 2 - centerX * nextZoom,
+        y: viewportHeight / 2 - centerY * nextZoom,
+      });
+    },
+    [],
+  );
+
   const handleWheel = useCallback(
     (event: ReactWheelEvent<HTMLDivElement>) => {
       if (!event.ctrlKey && !event.metaKey) {
@@ -337,6 +400,7 @@ export function useFloorViewport() {
     zoomOut,
     resetViewport,
     fitToView,
+    fitToBounds,
     handleWheel,
 
     handleViewportPointerDown,
