@@ -705,6 +705,8 @@ export function Tables({
   const previousFloorPlanIdRef = useRef<string | null>(null);
 
   useEffect(() => {
+    return; // LAB-021N: temporary Auto-Fit diagnostic
+    
     const currentFloorPlanId = selectedFloorPlan?.id ?? null;
 
     if (previousFloorPlanIdRef.current !== currentFloorPlanId) {
