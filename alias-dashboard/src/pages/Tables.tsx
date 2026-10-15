@@ -2584,7 +2584,8 @@ export function Tables({
             ref={smartLayoutPanelRef}
             className="mt-6"
             style={{
-              minHeight: lockedSmartLayoutHeight ?? undefined,
+              height: lockedSmartLayoutHeight ?? 968,
+              overflowY: 'auto',
             }}
           >
             <SmartLayoutPanel
