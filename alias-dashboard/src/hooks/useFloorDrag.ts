@@ -243,10 +243,11 @@ export function useFloorDrag({
       return;
     }
 
-    autoPanViewport(
-      event.clientX,
-      event.clientY,
-    );
+    // LAB-021N diagnostic: temporarily disable drag auto-pan.
+    // autoPanViewport(
+    //   event.clientX,
+    //   event.clientY,
+    // );
 
     const pointer = pointerToFloor(
       event.clientX,
