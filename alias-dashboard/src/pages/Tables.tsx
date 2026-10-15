@@ -3030,32 +3030,32 @@ export function Tables({
 
         {floorMode === 'edit' && (
           <div className="w-full shrink-0 lg:w-80">
-            <PropertyPanel
-              table={selectedTable}
-              tableNumber={propertyTableNumber}
-              seats={propertySeats}
-              shape={propertyShape}
-              saving={savingProperties}
-              deleting={deletingTable}
-              onTableNumberChange={setPropertyTableNumber}
-              onSeatsChange={setPropertySeats}
-              onShapeChange={setPropertyShape}
-              onClose={clearSelection}
-              onSave={handleSaveSelectedTable}
-              onDelete={handleDeleteSelectedTable}
-            />
+            {selectedFeature ? (
+              <FloorFeaturePropertyPanel
+                feature={selectedFeature}
+                deleting={deletingFeature}
+                saving={savingFeature}
+                onClose={() => setSelectedFeatureId(null)}
+                onDelete={handleDeleteSelectedFeature}
+                onSave={handleSaveSelectedFeature}
+              />
+            ) : (
+              <PropertyPanel
+                table={selectedTable}
+                tableNumber={propertyTableNumber}
+                seats={propertySeats}
+                shape={propertyShape}
+                saving={savingProperties}
+                deleting={deletingTable}
+                onTableNumberChange={setPropertyTableNumber}
+                onSeatsChange={setPropertySeats}
+                onShapeChange={setPropertyShape}
+                onClose={clearSelection}
+                onSave={handleSaveSelectedTable}
+                onDelete={handleDeleteSelectedTable}
+              />
+            )}
           </div>
-        )}
-
-        {floorMode === 'edit' && selectedFeature && (
-          <FloorFeaturePropertyPanel
-            feature={selectedFeature}
-            deleting={deletingFeature}
-            saving={savingFeature}
-            onClose={() => setSelectedFeatureId(null)}
-            onDelete={handleDeleteSelectedFeature}
-            onSave={handleSaveSelectedFeature}
-          />
         )}
 
         {floorMode === 'live' &&
