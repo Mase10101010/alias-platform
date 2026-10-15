@@ -736,7 +736,11 @@ export function Tables({
 
     if (
       fittedFloorPlanRef.current === fitKey ||
-      !canAutoFit()
+      !canAutoFit() ||
+      (
+        selectedTableId !== null &&
+        fittedFloorPlanRef.current !== null
+      )
     ) {
       return;
     }
@@ -832,6 +836,7 @@ export function Tables({
     canvasSize.width,
     canvasSize.height,
     canAutoFit,
+    selectedTableId,
   ]);
 
   const {
