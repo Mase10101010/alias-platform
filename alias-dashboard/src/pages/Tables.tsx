@@ -3028,20 +3028,22 @@ export function Tables({
         </div>
 
         {floorMode === 'edit' && (
-          <PropertyPanel
-            table={selectedTable}
-            tableNumber={propertyTableNumber}
-            seats={propertySeats}
-            shape={propertyShape}
-            saving={savingProperties}
-            deleting={deletingTable}
-            onTableNumberChange={setPropertyTableNumber}
-            onSeatsChange={setPropertySeats}
-            onShapeChange={setPropertyShape}
-            onClose={clearSelection}
-            onSave={handleSaveSelectedTable}
-            onDelete={handleDeleteSelectedTable}
-          />
+          <div className="w-full shrink-0 lg:w-80">
+            <PropertyPanel
+              table={selectedTable}
+              tableNumber={propertyTableNumber}
+              seats={propertySeats}
+              shape={propertyShape}
+              saving={savingProperties}
+              deleting={deletingTable}
+              onTableNumberChange={setPropertyTableNumber}
+              onSeatsChange={setPropertySeats}
+              onShapeChange={setPropertyShape}
+              onClose={clearSelection}
+              onSave={handleSaveSelectedTable}
+              onDelete={handleDeleteSelectedTable}
+            />
+          </div>
         )}
 
         {floorMode === 'edit' && selectedFeature && (
