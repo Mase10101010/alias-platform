@@ -1229,13 +1229,7 @@ export function Tables({
       void refreshSmartLayoutAfterGeometryChange();
     },
     onEditStart: () => {
-      const editId = beginGeometryEdit();
-
-      return () => {
-        if (endGeometryEdit(editId)) {
-          void refreshSpatialAdvisory();
-        }
-      };
+      return () => {};
     },
   });
 
