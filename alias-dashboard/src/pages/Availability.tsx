@@ -263,6 +263,63 @@ export function Availability() {
     );
   }
 
+
+  function addSession(day: string) {
+    setMessage(null);
+    setSchedule((current) =>
+      current.map((item) =>
+        item.day === day
+          ? {
+              ...item,
+              sessions: [
+                ...item.sessions,
+                { start: '11:00', end: '15:00', last_booking: '' },
+              ],
+            }
+          : item,
+      ),
+    );
+  }
+
+  function removeSession(day: string, index: number) {
+    setMessage(null);
+    setSchedule((current) =>
+      current.map((item) =>
+        item.day === day
+          ? {
+              ...item,
+              sessions: item.sessions.filter(
+                (_, sessionIndex) => sessionIndex !== index,
+              ),
+            }
+          : item,
+      ),
+    );
+  }
+
+  function updateSession(
+    day: string,
+    index: number,
+    field: keyof OpeningSession,
+    value: string,
+  ) {
+    setMessage(null);
+    setSchedule((current) =>
+      current.map((item) =>
+        item.day === day
+          ? {
+              ...item,
+              sessions: item.sessions.map((session, sessionIndex) =>
+                sessionIndex === index
+                  ? { ...session, [field]: value }
+                  : session,
+              ),
+            }
+          : item,
+      ),
+    );
+  }
+
   async function handleSave() {
   if (!restaurantId) {
     setMessage(t.noRestaurantSelected);
