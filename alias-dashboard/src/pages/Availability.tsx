@@ -35,6 +35,16 @@ const initialSchedule: ScheduleDay[] = [
   { day: 'Sun', isOpen: false, sessions: [] },
 ];
 
+function defaultLastBooking(end: string): string {
+  const match = /^(\d{2}):(\d{2})$/.exec(end);
+  if (!match) return '';
+
+  const minutes = Number(match[1]) * 60 + Number(match[2]);
+  const cutoff = (minutes - 30 + 1440) % 1440;
+
+  return `${String(Math.floor(cutoff / 60)).padStart(2, '0')}:${String(cutoff % 60).padStart(2, '0')}`;
+}
+
 type SpecialClosure = {
   id: number;
   date: string;
@@ -197,7 +207,7 @@ export function Availability() {
                 saved.sessions?.map((session) => ({
                   start: session.start,
                   end: session.end,
-                  last_booking: session.last_booking ?? '',
+                  last_booking: session.last_booking?.trim() || defaultLastBooking(session.end),
                 })) ??
                 (saved.opening_hour != null && saved.closing_hour != null
                   ? [
@@ -273,7 +283,7 @@ export function Availability() {
               ...item,
               sessions: [
                 ...item.sessions,
-                { start: '11:00', end: '15:00', last_booking: '' },
+                { start: '11:00', end: '15:00', last_booking: '14:30' },
               ],
             }
           : item,
@@ -344,9 +354,9 @@ export function Availability() {
           ? item.sessions.map((session) => ({
               start: session.start,
               end: session.end,
-              ...(session.last_booking?.trim()
-                ? { last_booking: session.last_booking }
-                : {}),
+              last_booking:
+                session.last_booking?.trim() ||
+                defaultLastBooking(session.end),
             }))
           : [],
       })),
