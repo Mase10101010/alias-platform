@@ -1,6 +1,5 @@
 import {
   useEffect,
-  useMemo,
   useState,
 } from 'react';
 
@@ -19,6 +18,23 @@ import { motion } from 'framer-motion';
 
 
 const steps = ['Business', 'Service', 'Concierge', 'Floor plan'];
+
+type OpeningSession = {
+  start: string;
+  end: string;
+  last_booking: string;
+};
+
+type SpecialClosure = {
+  date: string;
+  reason: string;
+};
+
+type WeeklyScheduleDay = {
+  day: string;
+  is_open: boolean;
+  sessions: OpeningSession[];
+};
 
 type FormState = {
   name: string;
@@ -43,12 +59,8 @@ type FormState = {
     seats: number;
   }[];
 
-  weekly_schedule: {
-    day: string;
-    is_open: boolean;
-    opening_hour: string;
-    closing_hour: string;
-  }[];
+  weekly_schedule: WeeklyScheduleDay[];
+  special_closures: SpecialClosure[];
 };
 
 const initialForm: FormState = {
@@ -73,16 +85,81 @@ const initialForm: FormState = {
 
   tables: [],
 
+  special_closures: [],
   weekly_schedule: [
-    {day: 'Mon', is_open: true, opening_hour: '11', closing_hour: '22'},
-    {day: 'Tue', is_open: true, opening_hour: '11', closing_hour: '22'},
-    {day: 'Wed', is_open: true, opening_hour: '11', closing_hour: '22'},
-    {day: 'Thu', is_open: true, opening_hour: '11', closing_hour: '22'},
-    {day: 'Fri', is_open: true, opening_hour: '11', closing_hour: '22'},
-    {day: 'Sat', is_open: true, opening_hour: '11', closing_hour: '22'},
-    {day: 'Sun', is_open: false, opening_hour: '11', closing_hour: '22'},
+    { day: 'Mon', is_open: true, sessions: [{ start: '11:00', end: '22:00', last_booking: '21:30' }] },
+    { day: 'Tue', is_open: true, sessions: [{ start: '11:00', end: '22:00', last_booking: '21:30' }] },
+    { day: 'Wed', is_open: true, sessions: [{ start: '11:00', end: '22:00', last_booking: '21:30' }] },
+    { day: 'Thu', is_open: true, sessions: [{ start: '11:00', end: '22:00', last_booking: '21:30' }] },
+    { day: 'Fri', is_open: true, sessions: [{ start: '11:00', end: '22:00', last_booking: '21:30' }] },
+    { day: 'Sat', is_open: true, sessions: [{ start: '11:00', end: '22:00', last_booking: '21:30' }] },
+    { day: 'Sun', is_open: false, sessions: [{ start: '11:00', end: '22:00', last_booking: '21:30' }] },
   ],
 };
+
+function timeToMinutes(value: string): number | null {
+  const match = /^(\d{2}):(\d{2})$/.exec(value);
+  if (!match) return null;
+  const hours = Number(match[1]);
+  const minutes = Number(match[2]);
+  if (hours > 23 || minutes > 59) return null;
+  return hours * 60 + minutes;
+}
+
+function defaultLastBooking(end: string): string {
+  const endMinutes = timeToMinutes(end);
+  if (endMinutes === null) return '';
+  const cutoff = (endMinutes - 30 + 1440) % 1440;
+  return `${String(Math.floor(cutoff / 60)).padStart(2, '0')}:${String(cutoff % 60).padStart(2, '0')}`;
+}
+
+function validateWeeklySchedule(schedule: WeeklyScheduleDay[]): string | null {
+  const dayOffsets: Record<string, number> = {
+    Mon: 0, Tue: 1440, Wed: 2880, Thu: 4320,
+    Fri: 5760, Sat: 7200, Sun: 8640,
+  };
+  const intervals: { start: number; end: number; day: string }[] = [];
+
+  for (const day of schedule) {
+    if (!day.is_open) continue;
+    if (day.sessions.length === 0) {
+      return `${day.day}: add at least one session or close the day.`;
+    }
+
+    for (const session of day.sessions) {
+      const start = timeToMinutes(session.start);
+      const endValue = timeToMinutes(session.end);
+      const lastBooking = timeToMinutes(
+        session.last_booking.trim() || defaultLastBooking(session.end),
+      );
+      if (start === null || endValue === null || lastBooking === null) {
+        return `${day.day}: enter valid opening, closing and last-booking times.`;
+      }
+
+      const end = endValue <= start ? endValue + 1440 : endValue;
+      const adjustedLastBooking = lastBooking < start ? lastBooking + 1440 : lastBooking;
+      if (end - start >= 1440) {
+        return `${day.day}: a session must be shorter than 24 hours.`;
+      }
+      if (adjustedLastBooking < start || adjustedLastBooking >= end) {
+        return `${day.day}: last booking must be inside its session.`;
+      }
+
+      intervals.push({ start: dayOffsets[day.day] + start, end: dayOffsets[day.day] + end, day: day.day });
+    }
+  }
+
+  intervals.sort((a, b) => a.start - b.start);
+  for (let index = 1; index < intervals.length; index += 1) {
+    if (intervals[index].start < intervals[index - 1].end) {
+      return `${intervals[index].day}: opening sessions cannot overlap.`;
+    }
+  }
+  if (intervals.length > 1 && intervals[0].start + 10080 < intervals[intervals.length - 1].end) {
+    return 'Opening sessions cannot overlap across the Sunday/Monday boundary.';
+  }
+  return null;
+}
 
 function makeSlug(value: string) {
   return value
@@ -108,6 +185,8 @@ export function Onboarding({
     existingRestaurant ? 3 : 0,
   );
   const [form, setForm] = useState<FormState>(initialForm);
+  const [closureDate, setClosureDate] = useState('');
+  const [closureReason, setClosureReason] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [createdRestaurantId, setCreatedRestaurantId] = useState<string | null>(
     null,
@@ -162,6 +241,31 @@ export function Onboarding({
     });
   }
 
+function addSpecialClosure() {
+  if (!closureDate) {
+    setError('Please select a closure date.');
+    return;
+  }
+
+  setForm((current) => ({
+    ...current,
+    special_closures: [
+      ...current.special_closures.filter((item) => item.date !== closureDate),
+      { date: closureDate, reason: closureReason.trim() || 'Closed' },
+    ],
+  }));
+  setClosureDate('');
+  setClosureReason('');
+  setError(null);
+}
+
+function removeSpecialClosure(date: string) {
+  setForm((current) => ({
+    ...current,
+    special_closures: current.special_closures.filter((item) => item.date !== date),
+  }));
+}
+
 function toggleOpeningDay(day: string) {
   setForm((current) => {
     const exists = current.opening_days.includes(day);
@@ -175,18 +279,52 @@ function toggleOpeningDay(day: string) {
   });
 }
 
-function updateWeeklySchedule(
-  day: string,
-  field: 'is_open' | 'opening_hour' | 'closing_hour',
-  value: boolean | string,
-) {
+function updateWeeklySchedule(day: string, is_open: boolean) {
+  setForm((current) => ({
+    ...current,
+    weekly_schedule: current.weekly_schedule.map((item) =>
+      item.day === day ? { ...item, is_open } : item,
+    ),
+  }));
+}
+
+function addSession(day: string) {
+  setForm((current) => ({
+    ...current,
+    weekly_schedule: current.weekly_schedule.map((item) =>
+      item.day === day
+        ? { ...item, sessions: [...item.sessions, { start: '11:00', end: '15:00', last_booking: '14:30' }] }
+        : item,
+    ),
+  }));
+}
+
+function removeSession(day: string, index: number) {
+  setForm((current) => ({
+    ...current,
+    weekly_schedule: current.weekly_schedule.map((item) =>
+      item.day === day
+        ? { ...item, sessions: item.sessions.filter((_, sessionIndex) => sessionIndex !== index) }
+        : item,
+    ),
+  }));
+}
+
+function updateSession(day: string, index: number, field: keyof OpeningSession, value: string) {
   setForm((current) => ({
     ...current,
     weekly_schedule: current.weekly_schedule.map((item) =>
       item.day === day
         ? {
             ...item,
-            [field]: value,
+            sessions: item.sessions.map((session, sessionIndex) => {
+              if (sessionIndex !== index) return session;
+              const updated = { ...session, [field]: value };
+              if (field === 'end' && (!updated.last_booking || updated.last_booking === defaultLastBooking(session.end))) {
+                updated.last_booking = defaultLastBooking(value);
+              }
+              return updated;
+            }),
           }
         : item,
     ),
@@ -213,21 +351,8 @@ function updateWeeklySchedule(
     }
 
     if (step === 1) {
-      const openingHour = Number(form.opening_hour);
-      const closingHour = Number(form.closing_hour);
-
-      if (
-        !Number.isFinite(openingHour) ||
-        !Number.isFinite(closingHour) ||
-        openingHour < 0 ||
-        openingHour > 23 ||
-        closingHour < 1 ||
-        closingHour > 24 ||
-        openingHour >= closingHour
-      ) {
-        return 'Please enter valid opening and closing hours.';
-      }
-
+      const scheduleError = validateWeeklySchedule(form.weekly_schedule);
+      if (scheduleError) return scheduleError;
     }
 
     return null;
@@ -267,8 +392,18 @@ function updateWeeklySchedule(
         closing_hour: Number(form.closing_hour),
         number_of_tables: 0,
         table_setup: [],
-        weekly_schedule: form.weekly_schedule,
-        special_closures: [],
+        weekly_schedule: form.weekly_schedule.map((day) => ({
+          day: day.day,
+          is_open: day.is_open,
+          sessions: day.is_open
+            ? day.sessions.map((session) => ({
+                start: session.start,
+                end: session.end,
+                last_booking: session.last_booking.trim() || defaultLastBooking(session.end),
+              }))
+            : [],
+        })),
+        special_closures: form.special_closures,
         concierge_tone: form.concierge_tone,
       });
 
@@ -343,6 +478,15 @@ function updateWeeklySchedule(
             <ServiceStep
               form={form}
               updateWeeklySchedule={updateWeeklySchedule}
+              addSession={addSession}
+              removeSession={removeSession}
+              updateSession={updateSession}
+              closureDate={closureDate}
+              closureReason={closureReason}
+              setClosureDate={setClosureDate}
+              setClosureReason={setClosureReason}
+              addSpecialClosure={addSpecialClosure}
+              removeSpecialClosure={removeSpecialClosure}
               labels={{
                 serviceStepTitle: t.serviceStepTitle,
                 serviceStepDescription: t.serviceStepDescription,
@@ -493,14 +637,28 @@ function BusinessStep({
 function ServiceStep({
   form,
   updateWeeklySchedule,
+  addSession,
+  removeSession,
+  updateSession,
+  closureDate,
+  closureReason,
+  setClosureDate,
+  setClosureReason,
+  addSpecialClosure,
+  removeSpecialClosure,
   labels,
 }: {
   form: FormState;
-  updateWeeklySchedule: (
-    day: string,
-    field: 'is_open' | 'opening_hour' | 'closing_hour',
-    value: boolean | string,
-  ) => void;
+  closureDate: string;
+  closureReason: string;
+  setClosureDate: (value: string) => void;
+  setClosureReason: (value: string) => void;
+  addSpecialClosure: () => void;
+  removeSpecialClosure: (date: string) => void;
+  updateWeeklySchedule: (day: string, isOpen: boolean) => void;
+  addSession: (day: string) => void;
+  removeSession: (day: string, index: number) => void;
+  updateSession: (day: string, index: number, field: keyof OpeningSession, value: string) => void;
   labels: Record<string, string>;
 }) {
   const dayLabels: Record<string, string> = {
@@ -545,13 +703,7 @@ function ServiceStep({
               <div className="flex items-center gap-3">
                 <button
                   type="button"
-                  onClick={() =>
-                    updateWeeklySchedule(
-                      schedule.day,
-                      'is_open',
-                      !schedule.is_open,
-                    )
-                  }
+                  onClick={() => updateWeeklySchedule(schedule.day, !schedule.is_open)}
                   className="rounded-full border px-4 py-2 text-sm transition"
                   style={{
                     borderColor: schedule.is_open
@@ -573,33 +725,91 @@ function ServiceStep({
                 </span>
               </div>
 
-              <div className="grid grid-cols-2 gap-3 md:w-[320px]">
-                <Input
-                  placeholder="Open"
-                  value={schedule.opening_hour}
-                  onChange={(value) =>
-                    updateWeeklySchedule(
-                      schedule.day,
-                      'opening_hour',
-                      value,
-                    )
-                  }
-                  disabled={!schedule.is_open}
-                />
-
-                <Input
-                  placeholder="Close"
-                  value={schedule.closing_hour}
-                  onChange={(value) =>
-                    updateWeeklySchedule(
-                      schedule.day,
-                      'closing_hour',
-                      value,
-                    )
-                  }
-                  disabled={!schedule.is_open}
-                />
+              <div className="w-full space-y-4">
+                {schedule.is_open && schedule.sessions.map((session, index) => (
+                  <div key={`${schedule.day}-${index}`} className="rounded-2xl border border-white/10 bg-black/10 p-4">
+                    <div className="mb-3 flex items-center justify-between">
+                      <span className="text-xs uppercase tracking-[.16em] text-white/40">Session {index + 1}</span>
+                      <button type="button" onClick={() => removeSession(schedule.day, index)} className="text-xs text-red-300 transition hover:text-red-200">Remove</button>
+                    </div>
+                    <div className="grid gap-3 md:grid-cols-3">
+                      {([
+                        ['start', 'Opening'],
+                        ['end', 'Closing'],
+                        ['last_booking', 'Last booking'],
+                      ] as const).map(([field, label]) => (
+                        <label key={field} className="space-y-2">
+                          <span className="block text-xs uppercase tracking-[.12em] text-white/35">{label}</span>
+                          <input
+                            type="time"
+                            value={session[field]}
+                            onChange={(event) => updateSession(schedule.day, index, field, event.target.value)}
+                            className="w-full rounded-xl border border-white/10 bg-white/[.03] px-3 py-3 text-white outline-none transition focus:border-white/25"
+                          />
+                        </label>
+                      ))}
+                    </div>
+                    <p className="mt-2 text-xs text-white/35">Last booking defaults to 30 minutes before closing.</p>
+                  </div>
+                ))}
+                {schedule.is_open && (
+                  <button type="button" onClick={() => addSession(schedule.day)} className="rounded-full border border-white/15 px-4 py-2 text-sm text-white/70 transition hover:border-white/30">
+                    + Add session
+                  </button>
+                )}
               </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-7 rounded-3xl border border-white/10 bg-white/[.02] p-5">
+        <h3 className="font-display text-2xl font-light">
+          Special closures
+        </h3>
+        <p className="mt-2 text-sm text-white/45">
+          Add holidays or exceptional dates when your restaurant is closed.
+        </p>
+
+        <div className="mt-5 grid gap-3 md:grid-cols-[1fr_1fr_auto]">
+          <input
+            type="date"
+            value={closureDate}
+            onChange={(event) => setClosureDate(event.target.value)}
+            className="rounded-xl border border-white/10 bg-white/[.03] px-4 py-3 text-white"
+          />
+          <input
+            placeholder="Reason (optional)"
+            value={closureReason}
+            onChange={(event) => setClosureReason(event.target.value)}
+            className="rounded-xl border border-white/10 bg-white/[.03] px-4 py-3 text-white"
+          />
+          <button
+            type="button"
+            onClick={addSpecialClosure}
+            className="rounded-xl px-5 py-3 text-sm font-medium text-black"
+            style={{ background: cyan }}
+          >
+            Add closure
+          </button>
+        </div>
+
+        <div className="mt-4 space-y-2">
+          {form.special_closures.map((closure) => (
+            <div
+              key={closure.date}
+              className="flex items-center justify-between rounded-xl border border-white/10 p-3"
+            >
+              <span className="text-sm text-white/70">
+                {closure.date} — {closure.reason}
+              </span>
+              <button
+                type="button"
+                onClick={() => removeSpecialClosure(closure.date)}
+                className="text-xs text-red-300"
+              >
+                Remove
+              </button>
             </div>
           ))}
         </div>
