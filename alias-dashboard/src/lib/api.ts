@@ -94,6 +94,22 @@ export type RestaurantCreate = {
   onboarding_completed?: boolean;
 };
 
+
+export type PublicRestaurantResponse = Pick<
+  RestaurantCreate,
+  | 'name'
+  | 'slug'
+  | 'business_type'
+  | 'phone'
+  | 'email'
+  | 'preferred_language'
+  | 'timezone'
+  | 'opening_hour'
+  | 'closing_hour'
+  | 'weekly_schedule'
+  | 'special_closures'
+>;
+
 export type RestaurantResponse = RestaurantCreate & {
   id: string;
   owner_id: string;
@@ -834,7 +850,7 @@ export async function getIntelligenceSnapshot(
 
 export async function getPublicRestaurant(
   slug: string,
-): Promise<RestaurantResponse> {
+): Promise<PublicRestaurantResponse> {
   const response = await fetch(
     `${API_BASE_URL}/api/v1/restaurants/public/${slug}`,
   );

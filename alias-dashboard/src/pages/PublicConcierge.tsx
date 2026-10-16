@@ -9,6 +9,7 @@ import { cyan } from '@/lib/data';
 import { 
   sendPublicChatMessage,
   getPublicRestaurant,
+  type PublicRestaurantResponse,
 } from '@/lib/api';
 
 type SupportedLanguage = keyof typeof translations;
@@ -60,6 +61,7 @@ export function PublicConcierge() {
     detectDefaultLanguage() as SupportedLanguage,
   );
   const t = translations[language];
+  const [restaurant, setRestaurant] = useState<PublicRestaurantResponse | null>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [publicSessionToken, setPublicSessionToken] = useState<string | null>(null);
   const [input, setInput] = useState('');
@@ -87,21 +89,24 @@ export function PublicConcierge() {
     async function loadPublicRestaurant() {
       try {
         const restaurant = await getPublicRestaurant(restaurantSlug);
+        setRestaurant(restaurant);
         const restaurantLanguage = (
           restaurant.preferred_language || detectDefaultLanguage()
         ) as SupportedLanguage;
 
         setLanguage(restaurantLanguage);
 
-        setMessages([
-          {
-            role: 'concierge',
-            content: translations[restaurantLanguage].publicWelcome.replace(
-              '{restaurantName}',
-              restaurant.name,
-            ),
-          },
-        ]);
+        setMessages((current) =>
+          current.length === 1 && current[0].role === 'concierge'
+            ? [{
+                role: 'concierge',
+                content: translations[restaurantLanguage].publicWelcome.replace(
+                  '{restaurantName}',
+                  restaurant.name,
+                ),
+              }]
+            : current,
+        );
       } catch (error) {
         console.error('Failed to load public restaurant', error);
       }
@@ -126,10 +131,10 @@ export function PublicConcierge() {
     textarea.style.height = `${Math.min(textarea.scrollHeight, 120)}px`;
   }, [input]);
 
-  async function handleSend() {
-    if (!input.trim() || loading) return;
-
-    const userMessage = input.trim();
+  async function sendMessage(message?: string) {
+    const userMessage = (message ?? input).trim();
+    if (!userMessage || loading || quickActionStage === 'finished') return;
+    setQuickActionStage('hidden');
 
     setMessages((current) => [
       ...current,
@@ -193,6 +198,119 @@ export function PublicConcierge() {
     } finally {
       setLoading(false);
     }
+  }
+
+
+  function handleSend() {
+    void sendMessage();
+  }
+
+  function handleBookAction() {
+    void sendMessage(
+      language === 'it' ? 'Vorrei prenotare un tavolo.' :
+      language === 'es' ? 'Quisiera reservar una mesa.' :
+      language === 'fr' ? 'Je voudrais réserver une table.' :
+      language === 'de' ? 'Ich möchte einen Tisch reservieren.' :
+      'I would like to book a table.',
+    );
+  }
+
+  const [quickActionStage, setQuickActionStage] = useState<
+    'initial' | 'followup' | 'finished' | 'hidden'
+  >('initial');
+
+  function handleInfoAction() {
+    if (!restaurant || loading) return;
+
+    const details = [
+      restaurant.name,
+      restaurant.business_type,
+      restaurant.phone ? `${t.quickPhone}: ${restaurant.phone}` : null,
+      restaurant.email ? `${t.quickEmail}: ${restaurant.email}` : null,
+    ].filter(Boolean).join('\\n');
+
+    setMessages((current) => [
+      ...current,
+      { role: 'concierge', content: details || t.quickNotAvailable },
+      { role: 'concierge', content: t.quickNext },
+    ]);
+    setQuickActionStage('followup');
+  }
+
+  function handleHoursAction() {
+    if (!restaurant || loading) return;
+
+    const schedule = restaurant.weekly_schedule || [];
+    const hours = schedule.map((day) => {
+      if (day.is_open === false || day.isOpen === false) {
+        return `${day.day}: ${t.quickClosed}`;
+      }
+
+      const sessions = day.sessions || [];
+      if (sessions.length > 0) {
+        return `${day.day}: ${sessions.map((session) =>
+          `${session.start}–${session.end}`
+        ).join(', ')}`;
+      }
+
+      const start = day.opening_hour || day.openingHour;
+      const end = day.closing_hour || day.closingHour;
+      return `${day.day}: ${start && end ? `${start}–${end}` : t.quickNotAvailable}`;
+    });
+
+    const closures = (restaurant.special_closures || []).map(
+      (closure) => `${closure.date}: ${closure.reason}`,
+    );
+
+    const content = [
+      t.quickHours,
+      hours.length ? hours.join('\\n') : t.quickNotAvailable,
+      ...(closures.length
+        ? ['', t.quickSpecialClosures, ...closures]
+        : []),
+    ].join('\\n');
+
+    setMessages((current) => [
+      ...current,
+      { role: 'concierge', content },
+      { role: 'concierge', content: t.quickNext },
+    ]);
+    setQuickActionStage('followup');
+  }
+
+  function handleFinishAction() {
+    if (loading || quickActionStage === 'finished') return;
+
+    setMessages((current) => [
+      ...current,
+      {
+        role: 'concierge',
+        content: t.quickGoodbye.replace(
+          '{restaurantName}',
+          restaurant?.name || restaurantName,
+        ),
+      },
+    ]);
+    setQuickActionStage('finished');
+  }
+
+  function handleRestartAction() {
+    if (loading) return;
+
+    setSessionId(null);
+    setPublicSessionToken(null);
+    reservationAccessTokenRef.current = null;
+    setInput('');
+    setMessages([
+      {
+        role: 'concierge',
+        content: t.publicWelcome.replace(
+          '{restaurantName}',
+          restaurant?.name || restaurantName,
+        ),
+      },
+    ]);
+    setQuickActionStage('initial');
   }
 
   function handleVoiceInput() {
@@ -436,7 +554,38 @@ export function PublicConcierge() {
                 </div>
               </div>
             )}
-            <div ref={messagesEndRef} />
+            {quickActionStage !== 'hidden' && (
+                <div className="flex flex-wrap gap-2">
+                  {(
+                    quickActionStage === 'initial'
+                      ? [
+                          { label: t.quickBook, action: handleBookAction },
+                          { label: t.quickInfo, action: handleInfoAction },
+                          { label: t.quickHours, action: handleHoursAction },
+                        ]
+                      : quickActionStage === 'followup'
+                        ? [
+                            { label: t.quickBook, action: handleBookAction },
+                            { label: t.quickFinish, action: handleFinishAction },
+                          ]
+                        : [
+                            { label: t.quickRestart, action: handleRestartAction },
+                          ]
+                  ).map((item) => (
+                    <button
+                      key={item.label}
+                      type="button"
+                      onClick={item.action}
+                      disabled={loading}
+                      className="rounded-full border border-white/15 bg-white/[.055] px-4 py-2.5 text-xs text-white/80 transition hover:border-cyanAlias/50 hover:bg-cyanAlias/10 hover:text-white disabled:opacity-40"
+                    >
+                      {item.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              <div ref={messagesEndRef} />
           </div>
           
           {voiceActive && (
@@ -473,6 +622,7 @@ export function PublicConcierge() {
               <textarea
                 ref={textareaRef}
                 value={input}
+                disabled={quickActionStage === 'finished'}
                 rows={1}
                 onChange={(event) => setInput(event.target.value)}
                 onKeyDown={(event) => {
@@ -514,7 +664,7 @@ export function PublicConcierge() {
             <button
               type="button"
               onClick={listening ? stopVoiceInput : handleVoiceInput}
-              disabled={loading}
+              disabled={loading || quickActionStage === 'finished'}
               className={`relative flex h-11 w-11 items-center justify-center rounded-full border transition disabled:opacity-60 ${
                 voiceActive
                   ? 'border-cyanAlias/30 bg-cyanAlias/10 text-white shadow-[0_0_28px_rgba(92,242,255,0.22)]'
@@ -537,7 +687,7 @@ export function PublicConcierge() {
             <button
               type="button"
               onClick={listening ? sendWhileListening : handleSend}
-              disabled={loading}
+              disabled={loading || quickActionStage === 'finished'}
               className="flex h-11 w-11 items-center justify-center rounded-full text-black disabled:opacity-60"
               style={{ background: cyan }}
             >
