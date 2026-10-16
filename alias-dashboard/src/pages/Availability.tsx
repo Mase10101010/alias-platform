@@ -13,14 +13,26 @@ type TableSetup,
 
 import { TablesManager } from '@/components/TablesManager';
 
-const initialSchedule = [
-  { day: 'Monday', isOpen: true, openingHour: '11', closingHour: '22' },
-  { day: 'Tuesday', isOpen: true, openingHour: '11', closingHour: '22' },
-  { day: 'Wednesday', isOpen: true, openingHour: '11', closingHour: '22' },
-  { day: 'Thursday', isOpen: true, openingHour: '11', closingHour: '22' },
-  { day: 'Friday', isOpen: true, openingHour: '11', closingHour: '22' },
-  { day: 'Saturday', isOpen: true, openingHour: '11', closingHour: '22' },
-  { day: 'Sunday', isOpen: false, openingHour: '11', closingHour: '22' },
+type OpeningSession = {
+  start: string;
+  end: string;
+  last_booking?: string;
+};
+
+type ScheduleDay = {
+  day: string;
+  isOpen: boolean;
+  sessions: OpeningSession[];
+};
+
+const initialSchedule: ScheduleDay[] = [
+  { day: 'Mon', isOpen: true, sessions: [{ start: '11:00', end: '22:00' }] },
+  { day: 'Tue', isOpen: true, sessions: [{ start: '11:00', end: '22:00' }] },
+  { day: 'Wed', isOpen: true, sessions: [{ start: '11:00', end: '22:00' }] },
+  { day: 'Thu', isOpen: true, sessions: [{ start: '11:00', end: '22:00' }] },
+  { day: 'Fri', isOpen: true, sessions: [{ start: '11:00', end: '22:00' }] },
+  { day: 'Sat', isOpen: true, sessions: [{ start: '11:00', end: '22:00' }] },
+  { day: 'Sun', isOpen: false, sessions: [] },
 ];
 
 type SpecialClosure = {
@@ -28,6 +40,102 @@ type SpecialClosure = {
   date: string;
   reason: string;
 };
+
+
+function validateSchedule(schedule: ScheduleDay[]): string | null {
+  const timeToMinutes = (value: string): number | null => {
+    if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(value)) {
+      return null;
+    }
+
+    const [hours, minutes] = value.split(':').map(Number);
+    return hours * 60 + minutes;
+  };
+
+  const dayOffsets = new Map([
+    ['Mon', 0],
+    ['Tue', 1440],
+    ['Wed', 2880],
+    ['Thu', 4320],
+    ['Fri', 5760],
+    ['Sat', 7200],
+    ['Sun', 8640],
+  ]);
+
+  const intervals: { start: number; end: number; day: string }[] = [];
+
+  for (const day of schedule) {
+    if (!day.isOpen) continue;
+
+    if (day.sessions.length === 0) {
+      return `${day.day}: add at least one opening session or close the day.`;
+    }
+
+    for (const session of day.sessions) {
+      const start = timeToMinutes(session.start);
+      const endValue = timeToMinutes(session.end);
+
+      if (start === null || endValue === null) {
+        return `${day.day}: enter valid opening and closing times.`;
+      }
+
+      const end = endValue <= start ? endValue + 1440 : endValue;
+
+      if (end - start >= 1440) {
+        return `${day.day}: a session must be shorter than 24 hours.`;
+      }
+
+      if (session.last_booking?.trim()) {
+        const lastBooking = timeToMinutes(session.last_booking);
+
+        if (lastBooking === null) {
+          return `${day.day}: enter a valid last-booking time.`;
+        }
+
+        const adjustedLastBooking =
+          lastBooking < start ? lastBooking + 1440 : lastBooking;
+
+        if (
+          adjustedLastBooking < start ||
+          adjustedLastBooking >= end
+        ) {
+          return `${day.day}: last booking must be inside its session.`;
+        }
+      }
+
+      const offset = dayOffsets.get(day.day);
+
+      if (offset === undefined) {
+        return `Invalid weekday: ${day.day}.`;
+      }
+
+      intervals.push({
+        start: offset + start,
+        end: offset + end,
+        day: day.day,
+      });
+    }
+  }
+
+  const sorted = [...intervals].sort((a, b) => a.start - b.start);
+
+  for (let index = 1; index < sorted.length; index++) {
+    if (sorted[index].start < sorted[index - 1].end) {
+      return `${sorted[index].day}: opening sessions overlap.`;
+    }
+  }
+
+  if (sorted.length > 1) {
+    const firstStartNextWeek = sorted[0].start + 10080;
+    const lastEnd = sorted[sorted.length - 1].end;
+
+    if (firstStartNextWeek < lastEnd) {
+      return 'Opening sessions overlap across the weekly boundary.';
+    }
+  }
+
+  return null;
+}
 
 export function Availability() {
   const [schedule, setSchedule] = useState(initialSchedule);
@@ -59,14 +167,53 @@ export function Availability() {
 
         setRestaurantId(restaurant.id);
 
-        if(restaurant.weekly_schedule?.length) {
+        if (restaurant.weekly_schedule?.length) {
+          const dayNames: Record<string, string> = {
+            Monday: 'Mon',
+            Tuesday: 'Tue',
+            Wednesday: 'Wed',
+            Thursday: 'Thu',
+            Friday: 'Fri',
+            Saturday: 'Sat',
+            Sunday: 'Sun',
+          };
+
+          const savedDays = new Map(
+            restaurant.weekly_schedule.map((item) => [
+              dayNames[item.day] ?? item.day,
+              item,
+            ]),
+          );
+
           setSchedule(
-            restaurant.weekly_schedule.map((item) => ({
-              day: item.day,
-              isOpen: item.isOpen ?? item.is_open ?? true,
-              openingHour: item.openingHour ?? item.opening_hour ?? '11',
-              closingHour: item.closingHour ?? item.closing_hour ?? '22',
-            })),
+            initialSchedule.map((defaultDay) => {
+              const saved = savedDays.get(defaultDay.day);
+
+              if (!saved) {
+                return defaultDay;
+              }
+
+              const sessions =
+                saved.sessions?.map((session) => ({
+                  start: session.start,
+                  end: session.end,
+                  last_booking: session.last_booking ?? '',
+                })) ??
+                (saved.opening_hour != null && saved.closing_hour != null
+                  ? [
+                      {
+                        start: `${String(saved.opening_hour).padStart(2, '0')}:00`,
+                        end: `${String(saved.closing_hour).padStart(2, '0')}:00`,
+                      },
+                    ]
+                  : []);
+
+              return {
+                day: defaultDay.day,
+                isOpen: saved.is_open ?? saved.isOpen ?? true,
+                sessions,
+              };
+            }),
           );
         }
 
@@ -97,11 +244,7 @@ export function Availability() {
     loadAvailability();
   }, []);
 
-  function updateDay(
-    day: string,
-    field: 'isOpen' | 'openingHour' | 'closingHour',
-    value: boolean | string,
-  ) {
+  function updateDay(day: string, isOpen: boolean) {
     setMessage(null);
 
     setSchedule((current) =>
@@ -109,7 +252,11 @@ export function Availability() {
         item.day === day
           ? {
               ...item,
-              [field]: value,
+              isOpen,
+              sessions:
+                isOpen && item.sessions.length === 0
+                  ? [{ start: '11:00', end: '22:00' }]
+                  : item.sessions,
             }
           : item,
       ),
@@ -122,6 +269,13 @@ export function Availability() {
     return;
   }
 
+  const validationError = validateSchedule(schedule);
+
+  if (validationError) {
+    setMessage(validationError);
+    return;
+  }
+
   try {
     setMessage(null);
 
@@ -129,8 +283,15 @@ export function Availability() {
       weekly_schedule: schedule.map((item) => ({
         day: item.day,
         is_open: item.isOpen,
-        opening_hour: item.openingHour,
-        closing_hour: item.closingHour,
+        sessions: item.isOpen
+          ? item.sessions.map((session) => ({
+              start: session.start,
+              end: session.end,
+              ...(session.last_booking?.trim()
+                ? { last_booking: session.last_booking }
+                : {}),
+            }))
+          : [],
       })),
       special_closures: closures,
       table_setup: tableSetup,
@@ -270,61 +431,100 @@ const dayLabels: Record<string, string> = {
           {schedule.map((item) => (
             <div
               key={item.day}
-              className="grid gap-4 rounded-2xl border border-white/10 bg-white/[.03] p-4 md:grid-cols-[160px_1fr_1fr_120px] md:items-center"
+              className="rounded-2xl border border-white/10 bg-white/[.03] p-5"
             >
-              <div>
-                <p className="font-medium text-white">
-                  {dayLabels[item.day] || item.day}
-                </p>
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="font-medium text-white">
+                    {dayLabels[item.day] || item.day}
+                  </p>
+                  <p className="mt-1 text-xs uppercase tracking-[.18em] text-white/35">
+                    {item.isOpen ? t.open : t.closed}
+                  </p>
+                </div>
 
-                <p className="mt-1 text-xs uppercase tracking-[.18em] text-white/35">
+                <button
+                  type="button"
+                  onClick={() => updateDay(item.day, !item.isOpen)}
+                  className="rounded-full border px-4 py-3 text-sm transition"
+                  style={{
+                    borderColor: item.isOpen ? cyan : 'rgba(255,255,255,.1)',
+                    color: item.isOpen ? cyan : 'rgba(255,255,255,.55)',
+                    background: item.isOpen
+                      ? `${cyan}12`
+                      : 'rgba(255,255,255,.03)',
+                  }}
+                >
                   {item.isOpen ? t.open : t.closed}
-                </p>
+                </button>
               </div>
 
-              <label className="space-y-2">
-                <span className="text-xs uppercase tracking-[.18em] text-white/35">
-                  {t.opening}
-                </span>
+              {item.isOpen && (
+                <div className="mt-5 space-y-4">
+                  {item.sessions.map((session, index) => (
+                    <div
+                      key={`${item.day}-${index}`}
+                      className="rounded-xl border border-white/10 bg-black/20 p-4"
+                    >
+                      <div className="mb-4 flex items-center justify-between">
+                        <p className="text-xs uppercase tracking-[.18em] text-white/45">
+                          Session {index + 1}
+                        </p>
 
-                <input
-                  disabled={!item.isOpen}
-                  value={item.openingHour}
-                  onChange={(event) =>
-                    updateDay(item.day, 'openingHour', event.target.value)
-                  }
-                  className="w-full rounded-xl border border-white/10 bg-white/[.03] px-4 py-3 text-white outline-none transition focus:border-white/25 disabled:opacity-35"
-                  placeholder="11"
-                />
-              </label>
+                        <button
+                          type="button"
+                          onClick={() => removeSession(item.day, index)}
+                          className="text-xs text-red-300 transition hover:text-red-200"
+                        >
+                          Remove
+                        </button>
+                      </div>
 
-              <label className="space-y-2">
-                <span className="text-xs uppercase tracking-[.18em] text-white/35">
-                  {t.closing}
-                </span>
+                      <div className="grid gap-3 md:grid-cols-3">
+                        {(
+                          [
+                            ['start', 'Opening'],
+                            ['end', 'Closing'],
+                            ['last_booking', 'Last booking'],
+                          ] as const
+                        ).map(([field, label]) => (
+                          <label key={field} className="space-y-2">
+                            <span className="text-xs uppercase tracking-[.12em] text-white/35">
+                              {label}
+                            </span>
 
-                <input
-                  disabled={!item.isOpen}
-                  value={item.closingHour}
-                  onChange={(event) =>
-                    updateDay(item.day, 'closingHour', event.target.value)
-                  }
-                  className="w-full rounded-xl border border-white/10 bg-white/[.03] px-4 py-3 text-white outline-none transition focus:border-white/25 disabled:opacity-35"
-                  placeholder="22"
-                />
-              </label>
+                            <input
+                              type="time"
+                              value={session[field] ?? ''}
+                              onChange={(event) =>
+                                updateSession(
+                                  item.day,
+                                  index,
+                                  field,
+                                  event.target.value,
+                                )
+                              }
+                              className="w-full rounded-xl border border-white/10 bg-white/[.03] px-3 py-3 text-white outline-none transition focus:border-white/25"
+                            />
+                          </label>
+                        ))}
+                      </div>
 
-              <button
-                onClick={() => updateDay(item.day, 'isOpen', !item.isOpen)}
-                className="rounded-full border px-4 py-3 text-sm transition"
-                style={{
-                  borderColor: item.isOpen ? cyan : 'rgba(255,255,255,.1)',
-                  color: item.isOpen ? cyan : 'rgba(255,255,255,.55)',
-                  background: item.isOpen ? `${cyan}12` : 'rgba(255,255,255,.03)',
-                }}
-              >
-                {item.isOpen ? t.open : t.closed}
-              </button>
+                      <p className="mt-3 text-xs text-white/35">
+                        Leave last booking empty to use the default cutoff.
+                      </p>
+                    </div>
+                  ))}
+
+                  <button
+                    type="button"
+                    onClick={() => addSession(item.day)}
+                    className="rounded-xl border border-dashed border-white/20 px-4 py-3 text-sm text-white/70 transition hover:border-white/40 hover:text-white"
+                  >
+                    + Add session
+                  </button>
+                </div>
+              )}
             </div>
           ))}
         </div>

@@ -5,6 +5,12 @@ export type TableSetup = {
   seats: number;
 };
 
+export type OpeningSession = {
+  start: string;
+  end: string;
+  last_booking?: string;
+};
+
 export type WeeklyScheduleItem = {
   day: string;
   is_open?: boolean;
@@ -13,6 +19,7 @@ export type WeeklyScheduleItem = {
   openingHour?: string;
   closing_hour?: string;
   closingHour?: string;
+  sessions?: OpeningSession[];
 };
 
 export type SpecialClosure = {
