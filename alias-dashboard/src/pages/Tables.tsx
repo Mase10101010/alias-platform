@@ -751,11 +751,57 @@ export function Tables({
       return;
     }
 
-    fitToView(
+    const elements = [
+      ...tables.filter(
+        (table) => table.floor_plan_id === selectedFloorPlan.id,
+      ),
+      ...floorFeatures.filter(
+        (feature) =>
+          feature.floor_plan_id === selectedFloorPlan.id &&
+          feature.is_visible,
+      ),
+    ];
+
+    if (elements.length === 0) {
+      fitToView(
+        viewport.clientWidth,
+        viewport.clientHeight,
+        selectedFloorPlan.width,
+        selectedFloorPlan.height,
+      );
+
+      fittedFloorPlanRef.current = fitKey;
+      return;
+    }
+
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
+
+    for (const element of elements) {
+      const centerX = element.x + element.width / 2;
+      const centerY = element.y + element.height / 2;
+      const radians = (element.rotation * Math.PI) / 180;
+
+      const rotatedWidth =
+        Math.abs(element.width * Math.cos(radians)) +
+        Math.abs(element.height * Math.sin(radians));
+
+      const rotatedHeight =
+        Math.abs(element.width * Math.sin(radians)) +
+        Math.abs(element.height * Math.cos(radians));
+
+      minX = Math.min(minX, centerX - rotatedWidth / 2);
+      minY = Math.min(minY, centerY - rotatedHeight / 2);
+      maxX = Math.max(maxX, centerX + rotatedWidth / 2);
+      maxY = Math.max(maxY, centerY + rotatedHeight / 2);
+    }
+
+    fitToBounds(
       viewport.clientWidth,
       viewport.clientHeight,
-      selectedFloorPlan.width,
-      selectedFloorPlan.height,
+      { minX, minY, maxX, maxY },
     );
 
     fittedFloorPlanRef.current = fitKey;
@@ -3072,7 +3118,8 @@ export function Tables({
 
         </div>
 
-        {floorMode === 'edit' && (
+        {floorMode === 'edit' &&
+          (selectedFeature || selectedTable) && (
           <div className="w-full shrink-0 lg:w-80">
             {selectedFeature ? (
               <FloorFeaturePropertyPanel
