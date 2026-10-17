@@ -802,6 +802,8 @@ export function Tables({
       viewport.clientWidth,
       viewport.clientHeight,
       { minX, minY, maxX, maxY },
+      selectedFloorPlan.width,
+      selectedFloorPlan.height,
     );
 
     fittedFloorPlanRef.current = fitKey;

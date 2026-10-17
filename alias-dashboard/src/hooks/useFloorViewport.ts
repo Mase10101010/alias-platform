@@ -223,6 +223,8 @@ export function useFloorViewport() {
         maxX: number;
         maxY: number;
       },
+      floorWidth: number,
+      floorHeight: number,
     ) => {
       if (
         viewportWidth <= 0 ||
@@ -266,11 +268,52 @@ export function useFloorViewport() {
       const centerX = (bounds.minX + bounds.maxX) / 2;
       const centerY = (bounds.minY + bounds.maxY) / 2;
 
+      const desiredPanX =
+        viewportWidth / 2 - centerX * nextZoom;
+      const desiredPanY =
+        viewportHeight / 2 - centerY * nextZoom;
+
+      // Keep the table group centered where possible,
+      // without unnecessarily pushing the floor grid off-screen.
+      const constrainPan = (
+        desiredPan: number,
+        viewportSize: number,
+        floorSize: number,
+      ) => {
+        const scaledFloorSize = floorSize * nextZoom;
+
+        if (scaledFloorSize <= viewportSize) {
+          const minimum = 0;
+          const maximum = viewportSize - scaledFloorSize;
+
+          return Math.min(
+            maximum,
+            Math.max(minimum, desiredPan),
+          );
+        }
+
+        const minimum = viewportSize - scaledFloorSize;
+        const maximum = 0;
+
+        return Math.min(
+          maximum,
+          Math.max(minimum, desiredPan),
+        );
+      };
+
       setZoom(nextZoom);
 
       setPanState({
-        x: viewportWidth / 2 - centerX * nextZoom,
-        y: viewportHeight / 2 - centerY * nextZoom,
+        x: constrainPan(
+          desiredPanX,
+          viewportWidth,
+          floorWidth,
+        ),
+        y: constrainPan(
+          desiredPanY,
+          viewportHeight,
+          floorHeight,
+        ),
       });
     },
     [],
