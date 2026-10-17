@@ -223,16 +223,16 @@ export function PublicConcierge() {
     if (!restaurant || loading) return;
 
     const details = [
-      restaurant.name,
-      restaurant.business_type,
+      t.quickInfoIntro.replace('{restaurantName}', restaurant.name),
+      restaurant.business_type || null,
       restaurant.phone ? `${t.quickPhone}: ${restaurant.phone}` : null,
       restaurant.email ? `${t.quickEmail}: ${restaurant.email}` : null,
-    ].filter(Boolean).join('\\n');
+    ].filter(Boolean).join('\n\n');
 
     setMessages((current) => [
       ...current,
-      { role: 'concierge', content: details || t.quickNotAvailable },
-      { role: 'concierge', content: t.quickNext },
+      { role: 'concierge', content: details },
+      { role: 'concierge', content: t.quickFriendlyNext },
     ]);
     setQuickActionStage('followup');
   }
@@ -250,7 +250,7 @@ export function PublicConcierge() {
       if (sessions.length > 0) {
         return `${day.day}: ${sessions.map((session) =>
           `${session.start}–${session.end}`
-        ).join(', ')}`;
+        ).join(' / ')}`;
       }
 
       const start = day.opening_hour || day.openingHour;
@@ -263,17 +263,17 @@ export function PublicConcierge() {
     );
 
     const content = [
-      t.quickHours,
-      hours.length ? hours.join('\\n') : t.quickNotAvailable,
+      t.quickHoursIntro,
+      hours.length ? hours.join('\n') : t.quickNotAvailable,
       ...(closures.length
         ? ['', t.quickSpecialClosures, ...closures]
         : []),
-    ].join('\\n');
+    ].join('\n\n');
 
     setMessages((current) => [
       ...current,
       { role: 'concierge', content },
-      { role: 'concierge', content: t.quickNext },
+      { role: 'concierge', content: t.quickFriendlyNext },
     ]);
     setQuickActionStage('followup');
   }
@@ -533,7 +533,7 @@ export function PublicConcierge() {
                   }`}
                 >
                   <div
-                    className="max-w-[80%] rounded-3xl px-5 py-4 text-sm leading-6"
+                    className="max-w-[80%] rounded-3xl px-5 py-4 text-sm leading-6 whitespace-pre-line"
                     style={{
                       background: isGuest ? cyan : 'rgba(255,255,255,.055)',
                       color: isGuest ? '#050707' : 'rgba(255,255,255,.84)',
