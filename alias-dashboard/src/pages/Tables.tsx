@@ -1151,7 +1151,6 @@ export function Tables({
     pan,
     enabled:
       floorMode === 'edit' &&
-      activeTool === 'select' &&
       !spacePressed &&
       !isPanning,
     setFeatures: setFloorFeatures,
@@ -1191,7 +1190,6 @@ export function Tables({
     setPan,
     enabled: 
       floorMode === 'edit' &&
-      activeTool === 'select' &&
       !spacePressed &&
       !isPanning,
     zoom,
@@ -1248,7 +1246,6 @@ export function Tables({
     selectTable: setSelectedTableId,
     enabled: 
       floorMode === 'edit' &&
-      activeTool === 'select' &&
       !spacePressed &&
       !isPanning,
     onError: setError,
@@ -1298,7 +1295,6 @@ export function Tables({
     canvasRef,
     enabled: 
     floorMode === 'edit' &&
-      activeTool === 'select' &&
       !spacePressed &&
       !isPanning,
     zoom,
@@ -2862,7 +2858,6 @@ export function Tables({
                   }}
                   draggingEnabled={
                     floorMode === 'edit' &&
-                    activeTool === 'select' &&
                     !spacePressed &&
                     !isPanning
                   }
@@ -2899,7 +2894,6 @@ export function Tables({
                     selected={selectedTableIds.includes(table.id)}
                     draggingEnabled={
                       floorMode === 'edit' &&
-                      activeTool === 'select' &&
                       !spacePressed &&
                       !isPanning
                     }
@@ -2918,9 +2912,6 @@ export function Tables({
                         return;
                       }
 
-                      if (activeTool !== 'select') {
-                        return;
-                      }
 
                       setSelectedFeatureId(null);
 
