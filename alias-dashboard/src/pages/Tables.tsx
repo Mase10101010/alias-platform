@@ -751,78 +751,11 @@ export function Tables({
       return;
     }
 
-    const elements = [
-      ...tables.filter(
-        (table) =>
-          table.floor_plan_id === selectedFloorPlan.id,
-      ),
-      ...floorFeatures.filter(
-        (feature) =>
-          feature.floor_plan_id === selectedFloorPlan.id &&
-          feature.is_visible,
-      ),
-    ];
-
-    if (elements.length === 0) {
-      fitToView(
-        viewport.clientWidth,
-        viewport.clientHeight,
-        selectedFloorPlan.width,
-        selectedFloorPlan.height,
-      );
-
-      fittedFloorPlanRef.current = fitKey;
-      return;
-    }
-
-    let minX = Infinity;
-    let minY = Infinity;
-    let maxX = -Infinity;
-    let maxY = -Infinity;
-
-    for (const element of elements) {
-      const centerX = element.x + element.width / 2;
-      const centerY = element.y + element.height / 2;
-
-      const radians =
-        (element.rotation * Math.PI) / 180;
-
-      const cosine = Math.abs(Math.cos(radians));
-      const sine = Math.abs(Math.sin(radians));
-
-      const rotatedWidth =
-        element.width * cosine +
-        element.height * sine;
-
-      const rotatedHeight =
-        element.width * sine +
-        element.height * cosine;
-
-      minX = Math.min(
-        minX,
-        centerX - rotatedWidth / 2,
-      );
-
-      minY = Math.min(
-        minY,
-        centerY - rotatedHeight / 2,
-      );
-
-      maxX = Math.max(
-        maxX,
-        centerX + rotatedWidth / 2,
-      );
-
-      maxY = Math.max(
-        maxY,
-        centerY + rotatedHeight / 2,
-      );
-    }
-
-    fitToBounds(
+    fitToView(
       viewport.clientWidth,
       viewport.clientHeight,
-      { minX, minY, maxX, maxY },
+      selectedFloorPlan.width,
+      selectedFloorPlan.height,
     );
 
     fittedFloorPlanRef.current = fitKey;
