@@ -224,7 +224,6 @@ export function PublicConcierge() {
 
     const details = [
       t.quickInfoIntro.replace('{restaurantName}', restaurant.name),
-      restaurant.business_type || null,
       restaurant.phone ? `${t.quickPhone}: ${restaurant.phone}` : null,
       restaurant.email ? `${t.quickEmail}: ${restaurant.email}` : null,
     ].filter(Boolean).join('\n\n');
