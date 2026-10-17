@@ -31,6 +31,7 @@ import {
   updateReservation,
   updateRestaurant,
   deleteFloorFeature,
+  createFloorFeature,
   updateFloorFeature,
   createTableCombination,
   deleteTableCombination,
@@ -144,6 +145,10 @@ export function Tables({
 
   const [savingFeature, setSavingFeature] =
     useState(false);
+
+  const [duplicatingFeature, setDuplicatingFeature] =
+    useState(false);
+  const duplicatingFeatureRef = useRef(false);
 
   const [liveDate, setLiveDate] =
     useState(() => getCurrentHalfHourSlot(new Date()));
@@ -1011,6 +1016,121 @@ export function Tables({
       ) {
         void refreshSpatialAdvisory();
       }
+    }
+  }
+
+  async function handleDuplicateSelectedFeature() {
+    if (
+      !restaurantId ||
+      !selectedAreaId ||
+      !selectedFloorPlanId ||
+      !selectedFloorPlan ||
+      !selectedFeature ||
+      savingFeature ||
+      deletingFeature ||
+      duplicatingFeatureRef.current
+    ) return;
+
+    const original = selectedFeature;
+    const requestRestaurantId = restaurantId;
+    const requestAreaId = selectedAreaId;
+    const requestFloorPlanId = selectedFloorPlanId;
+    const bounds = {
+      width: selectedFloorPlan.width,
+      height: selectedFloorPlan.height,
+    };
+
+    const isCurrentScope = () => {
+      const current = currentFeatureScopeRef.current;
+      return (
+        current.restaurantId === requestRestaurantId &&
+        current.areaId === requestAreaId &&
+        current.floorPlanId === requestFloorPlanId
+      );
+    };
+
+    // Try nearby positions before considering more distant positions.
+    const step = 20;
+    let position: { x: number; y: number } | null = null;
+
+    for (let radius = 1; radius <= 10 && !position; radius++) {
+      const offsets = [
+        [radius, radius],
+        [radius, 0],
+        [0, radius],
+        [-radius, radius],
+        [radius, -radius],
+        [-radius, 0],
+        [0, -radius],
+        [-radius, -radius],
+      ];
+
+      for (const [dx, dy] of offsets) {
+        const x = Math.round(original.x + dx * step);
+        const y = Math.round(original.y + dy * step);
+
+        if (
+          isRotatedFeatureWithinBounds(bounds, {
+            x,
+            y,
+            width: original.width,
+            height: original.height,
+            rotation: original.rotation,
+          })
+        ) {
+          position = { x, y };
+          break;
+        }
+      }
+    }
+
+    if (!position) {
+      setError('No valid nearby position is available for this duplicate.');
+      return;
+    }
+
+    duplicatingFeatureRef.current = true;
+    setDuplicatingFeature(true);
+    setError('');
+
+    try {
+      const created = await createFloorFeature(
+        requestRestaurantId,
+        requestAreaId,
+        requestFloorPlanId,
+        {
+          feature_type: original.feature_type,
+          label: original.label,
+          x: position.x,
+          y: position.y,
+          width: original.width,
+          height: original.height,
+          rotation: original.rotation,
+          is_visible: original.is_visible,
+        },
+      );
+
+      if (isCurrentScope()) {
+        setFloorFeatures((current) => [
+          ...current.filter((item) => item.id !== created.id),
+          created,
+        ]);
+        setSelectedFeatureId(created.id);
+        clearSelection();
+        invalidateSpatialAdvisory();
+        void refreshSpatialAdvisory();
+      }
+    } catch (error) {
+      if (isCurrentScope()) {
+        setError(
+          error instanceof Error
+            ? error.message
+            : 'Unable to duplicate floor feature.',
+        );
+      }
+    } finally {
+      duplicatingFeatureRef.current = false;
+      setDuplicatingFeature(false);
     }
   }
 
@@ -3026,6 +3146,8 @@ export function Tables({
                 feature={selectedFeature}
                 deleting={deletingFeature}
                 saving={savingFeature}
+                duplicating={duplicatingFeature}
+                onDuplicate={handleDuplicateSelectedFeature}
                 onClose={() => setSelectedFeatureId(null)}
                 onDelete={handleDeleteSelectedFeature}
                 onSave={handleSaveSelectedFeature}
