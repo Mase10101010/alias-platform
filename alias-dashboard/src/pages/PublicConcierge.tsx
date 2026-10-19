@@ -584,6 +584,41 @@ export function PublicConcierge() {
                 </div>
               )}
 
+              {quickActionStage === 'initial' && (
+                <form
+                  onSubmit={(event) => {
+                    event.preventDefault();
+                    handleSend();
+                  }}
+                  className="mt-4 flex items-center gap-2 rounded-full border border-white/15 bg-white/[.055] px-3 py-2 transition focus-within:border-cyanAlias/50 focus-within:bg-white/[.075]"
+                >
+                  <input
+                    type="text"
+                    value={input}
+                    onChange={(event) => setInput(event.target.value)}
+                    disabled={loading}
+                    placeholder={
+                      language === 'it' ? 'Chiedi qualsiasi cosa...' :
+                      language === 'es' ? 'Pregunta lo que quieras...' :
+                      language === 'fr' ? 'Posez votre question...' :
+                      language === 'de' ? 'Stelle eine Frage...' :
+                      'Ask me anything...'
+                    }
+                    aria-label="Ask the concierge a question"
+                    className="min-w-0 flex-1 bg-transparent px-2 py-2 text-sm text-white outline-none placeholder:text-white/35"
+                  />
+                  <button
+                    type="submit"
+                    disabled={loading || !input.trim()}
+                    aria-label="Send message"
+                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-black transition disabled:opacity-35"
+                    style={{ background: cyan }}
+                  >
+                    <Send size={16} />
+                  </button>
+                </form>
+              )}
+
               <div ref={messagesEndRef} />
           </div>
           
@@ -610,8 +645,10 @@ export function PublicConcierge() {
             </div>
           )}
 
-          <div 
+          <div
             className={`mt-5 flex items-end gap-3 rounded-2xl border p-3 transition-all duration-300 ${
+              quickActionStage === 'initial' ? 'hidden' : ''
+            } ${
               voiceActive
                 ? 'border-cyanAlias/30 bg-white/[.045] shadow-[0_0_35px_rgba(92,242,255,0.12)]'
                 : 'border-white/10 bg-white/[.03]'
