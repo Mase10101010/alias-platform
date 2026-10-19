@@ -11,7 +11,6 @@ import {
 type TableSetup, 
 } from '@/lib/api';
 
-import { TablesManager } from '@/components/TablesManager';
 
 type OpeningSession = {
   start: string;
@@ -605,9 +604,7 @@ const dayLabels: Record<string, string> = {
       
       
 
-      {restaurantId && (
-        <TablesManager restaurantId={restaurantId} />
-      )}
+      
 
       <div className="rounded-3xl border border-white/10 bg-white/[.02] p-6">
         <p className="text-xs uppercase tracking-[.22em] text-white/35">
