@@ -590,7 +590,7 @@ export function PublicConcierge() {
                     event.preventDefault();
                     handleSend();
                   }}
-                  className="mt-4 flex items-center gap-2 rounded-full border border-white/15 bg-white/[.055] px-3 py-2 transition focus-within:border-cyanAlias/50 focus-within:bg-white/[.075]"
+                  className="mt-3 flex w-full max-w-[430px] items-center gap-2 rounded-full border border-white/15 bg-white/[.045] px-2 py-1 transition focus-within:border-cyanAlias/50 focus-within:bg-white/[.065]"
                 >
                   <input
                     type="text"
@@ -605,13 +605,13 @@ export function PublicConcierge() {
                       'Ask me anything...'
                     }
                     aria-label="Ask the concierge a question"
-                    className="min-w-0 flex-1 bg-transparent px-2 py-2 text-sm text-white outline-none placeholder:text-white/35"
+                    className="min-w-0 flex-1 bg-transparent px-3 py-2 text-sm text-white outline-none placeholder:text-white/35"
                   />
                   <button
                     type="submit"
                     disabled={loading || !input.trim()}
                     aria-label="Send message"
-                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-black transition disabled:opacity-35"
+                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-black transition disabled:opacity-35"
                     style={{ background: cyan }}
                   >
                     <Send size={16} />
